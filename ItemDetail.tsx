@@ -1,0 +1,315 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Edit, Target, TrendingDown, Calendar, Store, Tag } from 'lucide-react';
+import { format } from 'date-fns';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import PriceChart from '../components/PriceChart';
+
+interface GroceryItem {
+  id: string;
+  itemName: string;
+  category: string;
+  meatQuality?: string;
+  storeName: string;
+  price: number;
+  unitType: string;
+  quantity: number;
+  unitPrice: number;
+  datePurchased: Date;
+  notes?: string;
+  targetPrice?: number;
+}
+
+const ItemDetail: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [darkMode, setDarkMode] = useState(false);
+  const [item, setItem] = useState<GroceryItem | null>(null);
+  const [priceHistory, setPriceHistory] = useState<GroceryItem[]>([]);
+  const [targetPrice, setTargetPrice] = useState<number | undefined>();
+  const [isEditingTarget, setIsEditingTarget] = useState(false);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle('dark');
+  };
+
+  useEffect(() => {
+    // Mock data for demonstration
+    const mockItem: GroceryItem = {
+      id: '1',
+      itemName: 'Chicken Breast',
+      category: 'Meat',
+      meatQuality: 'Choice',
+      storeName: 'Walmart',
+      price: 12.99,
+      unitType: 'pound',
+      quantity: 2.5,
+      unitPrice: 0.325,
+      datePurchased: new Date('2025-01-15'),
+      targetPrice: 0.35
+    };
+
+    const mockHistory: GroceryItem[] = [
+      mockItem,
+      {
+        ...mockItem,
+        id: '1-2',
+        price: 14.99,
+        unitPrice: 0.375,
+        datePurchased: new Date('2025-01-10'),
+        storeName: 'Kroger'
+      },
+      {
+        ...mockItem,
+        id: '1-3',
+        price: 11.99,
+        unitPrice: 0.30,
+        datePurchased: new Date('2025-01-05'),
+        storeName: 'Walmart'
+      }
+    ];
+
+    setItem(mockItem);
+    setPriceHistory(mockHistory);
+    setTargetPrice(mockItem.targetPrice);
+  }, [id]);
+
+  if (!item) {
+    return (
+      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+        <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <p className="text-gray-500 dark:text-gray-400">Item not found.</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const bestPrice = Math.min(...priceHistory.map(entry => entry.unitPrice));
+  const lastPrice = priceHistory[0].unitPrice;
+  const isBelowTarget = targetPrice && lastPrice <= targetPrice;
+
+  const handleTargetPriceUpdate = () => {
+    // Here you would update Firebase
+    console.log('Updating target price to:', targetPrice);
+    setIsEditingTarget(false);
+  };
+
+  return (
+    <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+      <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Link
+            to="/items"
+            className="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 mb-4"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Items</span>
+          </Link>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">{item.itemName}</h1>
+              <div className="flex items-center space-x-3">
+                <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-sm">
+                  {item.category}
+                </span>
+                {item.meatQuality && (
+                  <span className="px-3 py-1 bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200 rounded-full text-sm">
+                    {item.meatQuality}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Panel */}
+        <div className={`p-6 rounded-xl shadow-lg mb-8 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+          <h2 className="text-xl font-bold mb-4">Price Summary</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">
+                ${lastPrice.toFixed(4)}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Last Price</div>
+              <div className="text-xs text-gray-400 mt-1">
+                {format(item.datePurchased, 'MMM dd, yyyy')}
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className={`text-2xl font-bold ${isBelowTarget ? 'text-cyan-600' : 'text-gray-600'}`}>
+                {targetPrice ? `$${targetPrice.toFixed(4)}` : 'Not Set'}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Target Price</div>
+              <button
+                onClick={() => setIsEditingTarget(true)}
+                className="text-xs text-purple-600 hover:text-purple-700 mt-1 flex items-center space-x-1 mx-auto"
+              >
+                <Edit className="h-3 w-3" />
+                <span>Edit</span>
+              </button>
+            </div>
+
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                ${bestPrice.toFixed(4)}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Best Price</div>
+              <div className="text-xs text-gray-400 mt-1">
+                All-time low
+              </div>
+            </div>
+          </div>
+
+          {isBelowTarget && (
+            <div className="mt-4 p-3 bg-cyan-50 dark:bg-cyan-900 rounded-lg border border-cyan-200 dark:border-cyan-700">
+              <div className="flex items-center space-x-2 text-cyan-800 dark:text-cyan-200">
+                <Target className="h-5 w-5" />
+                <span className="font-medium">Great deal! This item is below your target price.</span>
+              </div>
+            </div>
+          )}
+
+          {lastPrice === bestPrice && (
+            <div className="mt-4 p-3 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
+              <div className="flex items-center space-x-2 text-green-800 dark:text-green-200">
+                <TrendingDown className="h-5 w-5" />
+                <span className="font-medium">New best price! This is the lowest you've seen.</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Target Price Edit Modal */}
+        {isEditingTarget && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className={`max-w-md w-full p-6 rounded-xl ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+              <h3 className="text-lg font-bold mb-4">Set Target Price</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Target Price (per {item.unitType})
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={targetPrice || ''}
+                  onChange={(e) => setTargetPrice(parseFloat(e.target.value) || undefined)}
+                  className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                    darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  }`}
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleTargetPriceUpdate}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditingTarget(false)}
+                  className="flex-1 border border-gray-300 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Price Chart */}
+        <div className={`p-6 rounded-xl shadow-lg mb-8 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+          <h2 className="text-xl font-bold mb-4">Price Trend</h2>
+          <PriceChart
+            data={priceHistory.map(entry => ({
+              date: entry.datePurchased,
+              price: entry.price,
+              unitPrice: entry.unitPrice,
+              storeName: entry.storeName
+            }))}
+            darkMode={darkMode}
+          />
+        </div>
+
+        {/* Price History */}
+        <div className={`p-6 rounded-xl shadow-lg ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+          <h2 className="text-xl font-bold mb-4">Price History</h2>
+          
+          <div className="space-y-4">
+            {priceHistory.map((entry, index) => (
+              <div
+                key={entry.id}
+                className={`p-4 rounded-lg border ${
+                  darkMode ? 'border-zinc-700 bg-zinc-700' : 'border-gray-200 bg-gray-50'
+                } ${entry.unitPrice === bestPrice ? 'ring-2 ring-green-500' : ''}`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium">
+                      {format(entry.datePurchased, 'MMM dd, yyyy')}
+                    </span>
+                    {index === 0 && (
+                      <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs">
+                        Latest
+                      </span>
+                    )}
+                    {entry.unitPrice === bestPrice && (
+                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs">
+                        Best Price
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-lg">
+                      ${entry.unitPrice.toFixed(4)}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      per {entry.unitType}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-1">
+                      <Store className="h-4 w-4" />
+                      <span>{entry.storeName}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Tag className="h-4 w-4" />
+                      <span>${entry.price.toFixed(2)} total</span>
+                    </div>
+                  </div>
+                  <div>
+                    {entry.quantity} {entry.unitType}
+                  </div>
+                </div>
+                
+                {entry.notes && (
+                  <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    <strong>Notes:</strong> {entry.notes}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default ItemDetail;
