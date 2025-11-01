@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ItemCard from '../components/ItemCard';
-import SearchFilter from '../components/SearchFilter';
+import Header from './Header';
+import Footer from './Footer';
+import ItemCard from './ItemCard';
+import SearchFilter from './SearchFilter';
 
 interface GroceryItem {
   id: string;

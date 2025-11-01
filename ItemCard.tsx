@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingDown, TrendingUp, Target, Calendar, Store } from 'lucide-react';
+import { TrendingDown, Target, Calendar, Store } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface GroceryItem {

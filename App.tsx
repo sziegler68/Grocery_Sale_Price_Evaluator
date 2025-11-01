@@ -5,12 +5,12 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Home from './src/pages/Home';
-import AddItem from './src/pages/AddItem';
-import Items from './src/pages/Items';
-import ItemDetail from './src/pages/ItemDetail';
-import Analytics from './src/pages/Analytics';
-import NotFound from './src/pages/NotFound';
+import Home from './Home';
+import AddItem from './AddItem';
+import Items from './Items';
+import ItemDetail from './ItemDetail';
+import Analytics from './Analytics';
+import NotFound from './NotFound';
 
 const App: React.FC = () => {
   return (

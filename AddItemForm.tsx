@@ -90,7 +90,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit }) => {
       toast.success('Item added successfully!');
       reset();
       setCalculatedUnitPrice(null);
-    } catch (error) {
+    } catch {
       toast.error('Failed to add item. Please try again.');
     }
   };

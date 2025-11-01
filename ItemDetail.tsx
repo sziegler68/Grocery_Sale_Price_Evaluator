@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Edit, Target, TrendingDown, Calendar, Store, Tag } from 'lucide-react';
 import { format } from 'date-fns';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import PriceChart from '../components/PriceChart';
+import Header from './Header';
+import Footer from './Footer';
+import PriceChart from './PriceChart';
 
 interface GroceryItem {
   id: string;
