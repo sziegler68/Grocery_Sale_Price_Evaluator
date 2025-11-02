@@ -37,9 +37,10 @@ Help track sale prices and price-per-unit trends so you and your family can spot
 
 ## Supabase Bootstrap Checklist
 
-- Create a Supabase project and a `grocery_items` table that matches the flat JSON shape outlined in `supabaseClient.ts`.
+- Create a Supabase project and run the SQL in `supabase/schema.sql` via the Supabase SQL Editor (this creates enums, the `grocery_items` table, indexes, and row-level security policies).
 - Generate an anonymous public API key and add it to your `.env` file.
 - Once the schema is ready, wire the React pages to the Supabase client exported from `supabaseClient.ts` and replace the current mock data.
+- See `docs/supabase-setup.md` for a detailed walkthrough of these steps.
 
 ## Project Scripts
 
