@@ -49,6 +49,13 @@ Help track sale prices and price-per-unit trends so you and your family can spot
 | `npm run build` | Type-check and create production build |
 | `npm run lint`  | Run ESLint across the project          |
 
+## Install as a PWA
+
+- Run `npm run dev -- --host` to expose the dev server on your local network.
+- Open the site on your phone (scan the QR code Vite prints or type the LAN URL).
+- In Chrome/Edge, tap the overflow menu (`?`) and choose **Add to Home screen**. iOS Safari uses the **Share ? Add to Home Screen** flow.
+- The app now launches full-screen, works offline for cached pages, and will auto-update when you publish a new build.
+
 ## Roadmap
 
 See `ROADMAP.md` for a detailed plan covering Supabase integration, offline mode, PWA support, and deployment.
