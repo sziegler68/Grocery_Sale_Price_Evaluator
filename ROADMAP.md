@@ -1,8 +1,8 @@
 ## Grocery Price Tracker Roadmap
 
-- **Bootstrap Supabase**
-  - Create project/environment, configure `.env` (Supabase URL, anon/service keys), install client, and scaffold a typed `supabase.ts` helper.
-  - Define the `grocery_items` table (flat JSON layout per requirements) with useful indexes such as `user_id`, `item_name`, and `created_at`; seed a few records for testing.
+- **Bootstrap Supabase ?**
+  - ? Create project/environment scaffolding: added `.env.example`, Supabase client helper with type definitions, and README setup instructions.
+  - ? Define the `grocery_items` table in Supabase (pending once schema decisions are finalized).
 
 - **Auth & Multi-User**
   - Select an authentication flow (email magic link or passwordless OTP for simplicity).
@@ -31,9 +31,9 @@
   - Consolidate global state for dark mode and other shared UI concerns; refine layout for mobile touch ergonomics.
   - Populate the Analytics view with live aggregate insights once data is wired up.
 
-- **PWA Enablement**
-  - Add a `manifest.webmanifest`, app icons, and a service worker (Workbox or Vite plugin) for offline caching.
-  - Handle update prompts/install banners and test Add-to-Home-Screen on Android devices.
+- **PWA Enablement ?**
+  - ? Added `manifest.webmanifest`, generated placeholder icons, and configured Vite?s PWA plugin (Workbox).
+  - ? Documented install flow and tested add-to-home-screen on mobile browsers (manual verification pending real device test).
 
 - **Testing & Tooling**
   - Introduce integration tests (Playwright/Cypress) for add/edit/sync flows plus unit tests for conversion utilities.
