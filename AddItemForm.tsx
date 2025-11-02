@@ -87,7 +87,6 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit }) => {
         datePurchased: new Date()
       });
 
-      toast.success('Item added successfully!');
       reset();
       setCalculatedUnitPrice(null);
     } catch {

@@ -1,28 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import ItemCard from './ItemCard';
 import SearchFilter from './SearchFilter';
-
-interface GroceryItem {
-  id: string;
-  itemName: string;
-  category: string;
-  meatQuality?: string;
-  storeName: string;
-  price: number;
-  unitType: string;
-  quantity: number;
-  unitPrice: number;
-  datePurchased: Date;
-  notes?: string;
-  targetPrice?: number;
-}
+import {
+  fetchAllItems,
+  getBestPriceByItemName,
+  isUsingMockData,
+  type DataSource,
+  type GroceryItem,
+} from './groceryData';
 
 const Items: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [items, setItems] = useState<GroceryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<GroceryItem[]>([]);
+  const [dataSource, setDataSource] = useState<DataSource>('mock');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedStore, setSelectedStore] = useState('');
@@ -35,53 +30,30 @@ const Items: React.FC = () => {
   };
 
   useEffect(() => {
-    // Mock data for demonstration
-    const mockItems: GroceryItem[] = [
-      {
-        id: '1',
-        itemName: 'Chicken Breast',
-        category: 'Meat',
-        meatQuality: 'Choice',
-        storeName: 'Walmart',
-        price: 12.99,
-        unitType: 'pound',
-        quantity: 2.5,
-        unitPrice: 0.325,
-        datePurchased: new Date('2025-01-15'),
-        targetPrice: 0.35
-      },
-      {
-        id: '2',
-        itemName: 'Organic Milk',
-        category: 'Dairy',
-        storeName: 'Whole Foods',
-        price: 4.99,
-        unitType: 'gallon',
-        quantity: 1,
-        unitPrice: 4.99,
-        datePurchased: new Date('2025-01-14'),
-        targetPrice: 5.50
-      },
-      {
-        id: '3',
-        itemName: 'Bananas',
-        category: 'Produce',
-        storeName: 'Kroger',
-        price: 2.49,
-        unitType: 'pound',
-        quantity: 3,
-        unitPrice: 0.052,
-        datePurchased: new Date('2025-01-13'),
-        targetPrice: 0.06
-      }
-    ];
+    let isMounted = true;
 
-    setItems(mockItems);
-    setFilteredItems(mockItems);
+    const loadItems = async () => {
+      setIsLoading(true);
+      const result = await fetchAllItems();
+
+      if (!isMounted) return;
+
+      setItems(result.items);
+      setFilteredItems(result.items);
+      setDataSource(result.source);
+      setErrorMessage(result.error ?? null);
+      setIsLoading(false);
+    };
+
+    void loadItems();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
-    let filtered = items;
+    let filtered = [...items];
 
     // Search filter
     if (searchTerm) {
@@ -129,21 +101,33 @@ const Items: React.FC = () => {
     setFilteredItems(filtered);
   }, [items, searchTerm, selectedCategory, selectedStore, showBelowTarget, showBestPrices]);
 
-  const categories = [...new Set(items.map(item => item.category))];
-  const stores = [...new Set(items.map(item => item.storeName))];
+  const categories = useMemo(() => [...new Set(items.map(item => item.category))], [items]);
+  const stores = useMemo(() => [...new Set(items.map(item => item.storeName))], [items]);
 
-  const getBestPrice = (itemName: string): number => {
-    const itemPrices = items
-      .filter(item => item.itemName === itemName)
-      .map(item => item.unitPrice);
-    return Math.min(...itemPrices);
-  };
+  const dataSourceBanner = isUsingMockData(dataSource)
+    ? 'Supabase not configured ? showing demo data. Add your Supabase keys to enable live sync.'
+    : 'Synced with Supabase in real time.';
+
+  const getBestPrice = (itemName: string): number => getBestPriceByItemName(items, itemName);
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          className={`mb-6 rounded-lg px-4 py-3 text-sm ${
+            isUsingMockData(dataSource)
+              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200'
+              : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200'
+          }`}
+        >
+          {dataSourceBanner}
+          {errorMessage && (
+            <span className="ml-2 text-xs font-medium">(Error: {errorMessage})</span>
+          )}
+        </div>
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">My Grocery Items</h1>
           <p className="text-gray-600 dark:text-gray-300">
@@ -167,11 +151,13 @@ const Items: React.FC = () => {
           darkMode={darkMode}
         />
 
-        {filteredItems.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
-              No items found matching your criteria.
-            </p>
+        {isLoading ? (
+          <div className={`rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-500 dark:text-gray-400`}>
+            Loading items?
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400 text-lg">
+            No items found matching your criteria.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

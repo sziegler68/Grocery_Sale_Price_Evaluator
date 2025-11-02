@@ -1,29 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, TrendingDown, Target, ShoppingCart, BarChart3 } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import ItemCard from './ItemCard';
-
-interface GroceryItem {
-  id: string;
-  itemName: string;
-  category: string;
-  meatQuality?: string;
-  storeName: string;
-  price: number;
-  unitType: string;
-  quantity: number;
-  unitPrice: number;
-  datePurchased: Date;
-  notes?: string;
-  targetPrice?: number;
-}
+import { fetchAllItems, isUsingMockData, type DataSource, type GroceryItem } from './groceryData';
 
 const Home: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
-  const [recentItems, setRecentItems] = useState<GroceryItem[]>([]);
-  const [belowTargetItems, setBelowTargetItems] = useState<GroceryItem[]>([]);
+  const [items, setItems] = useState<GroceryItem[]>([]);
+  const [dataSource, setDataSource] = useState<DataSource>('mock');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -31,46 +19,59 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    // Mock data for demonstration
-    const mockItems: GroceryItem[] = [
-      {
-        id: '1',
-        itemName: 'Chicken Breast',
-        category: 'Meat',
-        meatQuality: 'Choice',
-        storeName: 'Walmart',
-        price: 12.99,
-        unitType: 'pound',
-        quantity: 2.5,
-        unitPrice: 0.325,
-        datePurchased: new Date('2025-01-15'),
-        targetPrice: 0.35
-      },
-      {
-        id: '2',
-        itemName: 'Organic Milk',
-        category: 'Dairy',
-        storeName: 'Whole Foods',
-        price: 4.99,
-        unitType: 'gallon',
-        quantity: 1,
-        unitPrice: 4.99,
-        datePurchased: new Date('2025-01-14'),
-        targetPrice: 5.50
-      }
-    ];
+    let isMounted = true;
 
-    setRecentItems(mockItems);
-    setBelowTargetItems(mockItems.filter(item => 
-      item.targetPrice && item.unitPrice <= item.targetPrice
-    ));
+    const loadItems = async () => {
+      setIsLoading(true);
+      const result = await fetchAllItems();
+
+      if (!isMounted) return;
+
+      setItems(result.items);
+      setDataSource(result.source);
+      setErrorMessage(result.error ?? null);
+      setIsLoading(false);
+    };
+
+    void loadItems();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  const recentItems = useMemo(() => items.slice(0, 6), [items]);
+
+  const belowTargetItems = useMemo(
+    () =>
+      items.filter(
+        (item) => typeof item.targetPrice === 'number' && item.targetPrice !== undefined && item.unitPrice <= item.targetPrice
+      ),
+    [items]
+  );
+
+  const dataSourceBanner = isUsingMockData(dataSource)
+    ? 'Supabase not configured ? showing demo data. Add your Supabase keys to enable live sync.'
+    : 'Synced with Supabase in real time.';
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          className={`mb-6 rounded-lg px-4 py-3 text-sm ${
+            isUsingMockData(dataSource)
+              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200'
+              : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200'
+          }`}
+        >
+          {dataSourceBanner}
+          {errorMessage && (
+            <span className="ml-2 text-xs font-medium">(Error: {errorMessage})</span>
+          )}
+        </div>
+
         {/* Hero Section */}
         <section className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-400 bg-clip-text text-transparent">
@@ -105,7 +106,7 @@ const Home: React.FC = () => {
                 <ShoppingCart className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold">{recentItems.length}</h3>
+                <h3 className="text-2xl font-bold">{isLoading ? '?' : recentItems.length}</h3>
                 <p className="text-gray-600 dark:text-gray-300">Items Tracked</p>
               </div>
             </div>
@@ -117,7 +118,7 @@ const Home: React.FC = () => {
                 <Target className="h-6 w-6 text-cyan-600" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold">{belowTargetItems.length}</h3>
+                <h3 className="text-2xl font-bold">{isLoading ? '?' : belowTargetItems.length}</h3>
                 <p className="text-gray-600 dark:text-gray-300">Below Target</p>
               </div>
             </div>
@@ -137,7 +138,7 @@ const Home: React.FC = () => {
         </section>
 
         {/* Below Target Items */}
-        {belowTargetItems.length > 0 && (
+        {!isLoading && belowTargetItems.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Items Below Target This Week</h2>
@@ -171,15 +172,25 @@ const Home: React.FC = () => {
               View All
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recentItems.slice(0, 6).map(item => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                darkMode={darkMode}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className={`rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-500 dark:text-gray-400`}>
+              Loading latest items?
+            </div>
+          ) : recentItems.length === 0 ? (
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              No grocery items yet. Add your first item to start tracking prices!
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recentItems.slice(0, 6).map(item => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  darkMode={darkMode}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Quick Actions */}

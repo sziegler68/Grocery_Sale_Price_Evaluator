@@ -1,25 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { ArrowLeft, Edit, Target, TrendingDown, Calendar, Store, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import Header from './Header';
 import Footer from './Footer';
 import PriceChart from './PriceChart';
-
-interface GroceryItem {
-  id: string;
-  itemName: string;
-  category: string;
-  meatQuality?: string;
-  storeName: string;
-  price: number;
-  unitType: string;
-  quantity: number;
-  unitPrice: number;
-  datePurchased: Date;
-  notes?: string;
-  targetPrice?: number;
-}
+import {
+  fetchItemWithHistory,
+  isUsingMockData,
+  updateTargetPrice,
+  type DataSource,
+  type GroceryItem,
+} from './groceryData';
 
 const ItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +21,13 @@ const ItemDetail: React.FC = () => {
   const [priceHistory, setPriceHistory] = useState<GroceryItem[]>([]);
   const [targetPrice, setTargetPrice] = useState<number | undefined>();
   const [isEditingTarget, setIsEditingTarget] = useState(false);
+  const [dataSource, setDataSource] = useState<DataSource>('mock');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const dataSourceBanner = isUsingMockData(dataSource)
+    ? 'Supabase not configured ? showing demo data. Add your Supabase keys to enable live sync.'
+    : 'Synced with Supabase in real time.';
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -35,45 +35,44 @@ const ItemDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    // Mock data for demonstration
-    const mockItem: GroceryItem = {
-      id: '1',
-      itemName: 'Chicken Breast',
-      category: 'Meat',
-      meatQuality: 'Choice',
-      storeName: 'Walmart',
-      price: 12.99,
-      unitType: 'pound',
-      quantity: 2.5,
-      unitPrice: 0.325,
-      datePurchased: new Date('2025-01-15'),
-      targetPrice: 0.35
+    if (!id) return;
+
+    let isMounted = true;
+
+    const loadItem = async () => {
+      setIsLoading(true);
+      const result = await fetchItemWithHistory(id);
+
+      if (!isMounted) return;
+
+      setItem(result.item);
+      setPriceHistory(result.priceHistory);
+      setTargetPrice(result.item?.targetPrice);
+      setDataSource(result.source);
+      setErrorMessage(result.error ?? null);
+      setIsLoading(false);
     };
 
-    const mockHistory: GroceryItem[] = [
-      mockItem,
-      {
-        ...mockItem,
-        id: '1-2',
-        price: 14.99,
-        unitPrice: 0.375,
-        datePurchased: new Date('2025-01-10'),
-        storeName: 'Kroger'
-      },
-      {
-        ...mockItem,
-        id: '1-3',
-        price: 11.99,
-        unitPrice: 0.30,
-        datePurchased: new Date('2025-01-05'),
-        storeName: 'Walmart'
-      }
-    ];
+    void loadItem();
 
-    setItem(mockItem);
-    setPriceHistory(mockHistory);
-    setTargetPrice(mockItem.targetPrice);
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+        <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className={`mx-auto max-w-md rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-500 dark:text-gray-400`}>
+            Loading item details?
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!item) {
     return (
@@ -89,14 +88,33 @@ const ItemDetail: React.FC = () => {
     );
   }
 
-  const bestPrice = Math.min(...priceHistory.map(entry => entry.unitPrice));
-  const lastPrice = priceHistory[0].unitPrice;
-  const isBelowTarget = targetPrice && lastPrice <= targetPrice;
+  const historyEntries = priceHistory.length > 0 ? priceHistory : [item];
+  const bestPrice = Math.min(...historyEntries.map(entry => entry.unitPrice));
+  const lastEntry = historyEntries[0];
+  const lastPrice = lastEntry.unitPrice;
+  const isBelowTarget = typeof targetPrice === 'number' && lastPrice <= targetPrice;
+  const lastPurchaseDate = lastEntry.datePurchased;
 
-  const handleTargetPriceUpdate = () => {
-    // Here you would update Firebase
-    console.log('Updating target price to:', targetPrice);
-    setIsEditingTarget(false);
+  const handleTargetPriceUpdate = async () => {
+    if (!item) return;
+
+    try {
+      const updated = await updateTargetPrice(item.id, targetPrice);
+      setItem(updated);
+      setTargetPrice(updated.targetPrice);
+      setPriceHistory((prev) => {
+        if (prev.length === 0) {
+          return [updated];
+        }
+        return prev.map((entry) => (entry.id === updated.id ? { ...entry, ...updated } : entry));
+      });
+      toast.success('Target price saved');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update target price.';
+      toast.error(message);
+    } finally {
+      setIsEditingTarget(false);
+    }
   };
 
   return (
@@ -104,6 +122,19 @@ const ItemDetail: React.FC = () => {
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div
+          className={`mb-6 rounded-lg px-4 py-3 text-sm ${
+            isUsingMockData(dataSource)
+              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200'
+              : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200'
+          }`}
+        >
+          {dataSourceBanner}
+          {errorMessage && (
+            <span className="ml-2 text-xs font-medium">(Error: {errorMessage})</span>
+          )}
+        </div>
+
         <div className="mb-6">
           <Link
             to="/items"
@@ -141,7 +172,7 @@ const ItemDetail: React.FC = () => {
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Last Price</div>
               <div className="text-xs text-gray-400 mt-1">
-                {format(item.datePurchased, 'MMM dd, yyyy')}
+                {format(lastPurchaseDate, 'MMM dd, yyyy')}
               </div>
             </div>
 
@@ -231,7 +262,7 @@ const ItemDetail: React.FC = () => {
         <div className={`p-6 rounded-xl shadow-lg mb-8 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
           <h2 className="text-xl font-bold mb-4">Price Trend</h2>
           <PriceChart
-            data={priceHistory.map(entry => ({
+            data={historyEntries.map(entry => ({
               date: entry.datePurchased,
               price: entry.price,
               unitPrice: entry.unitPrice,
@@ -246,7 +277,7 @@ const ItemDetail: React.FC = () => {
           <h2 className="text-xl font-bold mb-4">Price History</h2>
           
           <div className="space-y-4">
-            {priceHistory.map((entry, index) => (
+            {historyEntries.map((entry, index) => (
               <div
                 key={entry.id}
                 className={`p-4 rounded-lg border ${

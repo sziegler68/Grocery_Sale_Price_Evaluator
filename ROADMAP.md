@@ -9,10 +9,10 @@
   - Build sign-in/out UI and protect app routes with a Supabase session context provider.
   - Attach `user_id` to every item row and support shared access (shared project or invite workflow).
 
-- **Data Access Layer**
-  - Centralize queries and mutations (e.g., React Query + Supabase client hooks).
-  - Replace mock data in `Home`, `Items`, `ItemDetail`, and `AddItem` with live Supabase queries/mutations.
-  - Decide on price-history storage (multiple rows per item vs. dedicated history table) and update the chart/list to consume the persisted structure.
+- **Data Access Layer ??**
+  - ? Centralized data helpers in `groceryData.ts` with Supabase fallbacks and type-safe mappers.
+  - ? Replaced mock data in `Home`, `Items`, `ItemDetail`, and `AddItem` with calls to the shared data layer (gracefully falls back to demo data if Supabase isn?t configured).
+  - ? Decide on long-term price-history storage (multiple rows per item vs. dedicated history table) and update analytics accordingly.
 
 - **Real-Time Sync**
   - Subscribe to Supabase real-time channels for `grocery_items` and merge updates into the client cache so spouses see changes instantly.

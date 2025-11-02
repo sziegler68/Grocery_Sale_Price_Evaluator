@@ -1,15 +1,31 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl) {
-  throw new Error('Missing VITE_SUPABASE_URL environment variable. Did you create an .env file?');
+let supabase: SupabaseClient | null = null;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn(
+    '[Supabase] Environment variables missing. The app will fall back to demo data until you configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
+  );
+} else {
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
 }
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable. Did you create an .env file?');
-}
+export const isSupabaseConfigured = Boolean(supabase);
+
+export const getSupabaseClient = (): SupabaseClient => {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Check your environment variables.');
+  }
+  return supabase;
+};
 
 export type GroceryItemRow = {
   id: string;
@@ -35,12 +51,4 @@ export type GroceryItemsInsert = Omit<GroceryItemRow, 'id' | 'created_at' | 'uni
 };
 
 export type GroceryItemsUpdate = Partial<GroceryItemsInsert> & { id: string };
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
-
 export default supabase;

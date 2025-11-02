@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
+import { toast } from 'react-toastify';
 import AddItemForm from './AddItemForm';
+import { createGroceryItem } from './groceryData';
 
 const AddItem: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -14,14 +16,28 @@ const AddItem: React.FC = () => {
   };
 
   const handleSubmit = async (data: any) => {
-    // Here you would normally save to Firebase
-    console.log('Saving item:', data);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Navigate back to items list
-    navigate('/items');
+    try {
+      await createGroceryItem({
+        itemName: data.itemName,
+        category: data.category,
+        meatQuality: data.meatQuality,
+        storeName: data.storeName,
+        price: data.price,
+        quantity: data.quantity,
+        unitType: data.unitType,
+        unitPrice: data.unitPrice,
+        datePurchased: data.datePurchased,
+        notes: data.notes,
+        targetPrice: data.targetPrice,
+        userId: data.userId,
+      });
+
+      toast.success('Item added successfully!');
+      navigate('/items');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to save item. Check your Supabase configuration and try again.';
+      toast.error(message);
+    }
   };
 
   return (

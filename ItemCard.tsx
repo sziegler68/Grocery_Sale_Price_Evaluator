@@ -2,21 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingDown, Target, Calendar, Store } from 'lucide-react';
 import { format } from 'date-fns';
-
-interface GroceryItem {
-  id: string;
-  itemName: string;
-  category: string;
-  meatQuality?: string;
-  storeName: string;
-  price: number;
-  unitType: string;
-  quantity: number;
-  unitPrice: number;
-  datePurchased: Date;
-  notes?: string;
-  targetPrice?: number;
-}
+import type { GroceryItem } from './groceryData';
 
 interface ItemCardProps {
   item: GroceryItem;
