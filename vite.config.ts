@@ -9,7 +9,7 @@ export default defineConfig(({ command }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: false,
-      includeAssets: ['icons/icon-192x192.png', 'icons/icon-512x512.png'],
+      includeAssets: ['icons/192x192.png', 'icons/512x512.png'],
       devOptions: {
         enabled: true,
         suppressWarnings: true,
