@@ -59,18 +59,37 @@ create table if not exists public.grocery_items (
 create index if not exists grocery_items_user_id_idx on public.grocery_items(user_id, created_at desc);
 create index if not exists grocery_items_name_idx on public.grocery_items(item_name);
 
--- Enable row level security so we can scope items per user
+-- Enable row level security
 alter table public.grocery_items enable row level security;
 
--- Policy: allow authenticated users to manage their own rows
-create policy if not exists "Users can manage their grocery items"
-on public.grocery_items
-for all
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+-- PUBLIC COLLABORATIVE DATABASE POLICIES
+-- Anyone can read and add items, but nobody can modify or delete
+-- This allows crowdsourced data while protecting against malicious users
 
--- Policy: allow service key (e.g. for admin dashboards) to read everything
-create policy if not exists "Service role can read all grocery items"
+-- Policy: Anyone can SELECT (read) all items
+create policy if not exists "Public read access"
 on public.grocery_items
 for select
-using (auth.role() = 'service_role');
+using (true);
+
+-- Policy: Anyone can INSERT (add) new items
+create policy if not exists "Public insert access"
+on public.grocery_items
+for insert
+with check (true);
+
+-- No UPDATE policy = nobody can modify existing items
+-- No DELETE policy = nobody can delete items
+
+-- Optional: Uncomment below to allow admin access via email
+-- Replace 'your-email@example.com' with your actual email
+-- create policy if not exists "Admin can update"
+-- on public.grocery_items
+-- for update
+-- using (auth.jwt()->>'email' = 'your-email@example.com')
+-- with check (auth.jwt()->>'email' = 'your-email@example.com');
+
+-- create policy if not exists "Admin can delete"
+-- on public.grocery_items
+-- for delete
+-- using (auth.jwt()->>'email' = 'your-email@example.com');
