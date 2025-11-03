@@ -10,7 +10,7 @@ const beefQualities = ['Choice', 'Prime', 'Wagyu', 'Grassfed', 'Organic'];
 const porkQualities = ['Regular', 'Organic'];
 const chickenQualities = ['Regular', 'Organic', 'Free Range'];
 const seafoodQualities = ['Fresh', 'Farm Raised', 'Frozen'];
-const stores = ['Costco', 'Farmers', 'FoodMaxx', 'Lucky', 'Mexican Market', 'Raley', 'Ranch 99', 'Safeway', 'Trader Joes', 'WinCo', 'Other'];
+const stores = ['Costco', 'Farmers Market', 'FoodMaxx', 'Lucky', 'Mexican Market', 'Raley', 'Ranch 99', 'Safeway', 'Sprouts', 'Trader Joes', 'Whole Foods', 'WinCo', 'Other'];
 const unitTypes = ['pound', 'ounce', 'can', 'each', 'liter', 'ml', 'gallon', 'quart', 'pint', 'cup', 'tablespoon', 'teaspoon'];
 
 const formSchema = z.object({
