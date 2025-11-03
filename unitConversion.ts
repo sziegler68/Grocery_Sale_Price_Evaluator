@@ -72,22 +72,55 @@ export const convertUnit = (
 };
 
 /**
+ * Get the preferred unit for a category
+ */
+const getCategoryPreferredUnit = (category: string, preferences: UnitPreferences): string | null => {
+  const categoryLower = category.toLowerCase();
+  
+  // Map categories to preference keys
+  if (categoryLower === 'beef' || categoryLower === 'pork' || categoryLower === 'chicken' || categoryLower === 'seafood') {
+    return preferences.meat;
+  } else if (categoryLower === 'fruit') {
+    return preferences.fruit;
+  } else if (categoryLower === 'produce' || categoryLower === 'veggies') {
+    return preferences.veggies;
+  } else if (categoryLower === 'dairy') {
+    return preferences.dairy;
+  } else if (categoryLower === 'drinks') {
+    return preferences.drinks;
+  } else if (categoryLower === 'snacks' || categoryLower === 'soda') {
+    return preferences.soda;
+  }
+  
+  // Default fallback
+  return null;
+};
+
+/**
  * Normalize a price to user's preferred unit
  */
 export const normalizePrice = (
   price: number,
   quantity: number,
   unitType: string,
-  preferences: UnitPreferences
+  preferences: UnitPreferences,
+  category?: string
 ): NormalizedPrice => {
   const originalPricePerUnit = price / quantity;
   
-  // Determine preferred unit based on category
+  // Determine preferred unit based on category if provided
   let preferredUnit: string | null = null;
-  if (WEIGHT_UNITS.includes(unitType)) {
-    preferredUnit = preferences.weight;
-  } else if (VOLUME_UNITS.includes(unitType)) {
-    preferredUnit = preferences.volume;
+  if (category) {
+    preferredUnit = getCategoryPreferredUnit(category, preferences);
+  }
+  
+  // If no category-based preference, use unit type
+  if (!preferredUnit) {
+    if (WEIGHT_UNITS.includes(unitType)) {
+      preferredUnit = preferences.meat; // Default to meat for weight
+    } else if (VOLUME_UNITS.includes(unitType)) {
+      preferredUnit = preferences.milk; // Default to milk for volume
+    }
   }
 
   // If no preferred unit or already in preferred unit, return as-is

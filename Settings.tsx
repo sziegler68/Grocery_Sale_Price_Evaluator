@@ -1,18 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { Settings as SettingsIcon, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useDarkMode } from './useDarkMode';
 
 export interface UnitPreferences {
-  weight: 'pound' | 'ounce';
-  volume: 'gallon' | 'quart' | 'pint' | 'liter' | 'ml';
+  meat: 'pound' | 'ounce';
+  fruit: 'pound' | 'ounce';
+  veggies: 'pound' | 'ounce';
+  milk: 'gallon' | 'quart' | 'pint' | 'liter' | 'ml';
+  soda: 'gallon' | 'quart' | 'pint' | 'liter' | 'ml' | 'can' | 'each';
+  drinks: 'gallon' | 'quart' | 'pint' | 'liter' | 'ml';
+  dairy: 'pound' | 'ounce' | 'gallon' | 'quart' | 'pint' | 'liter' | 'ml';
   [key: string]: string;
 }
 
 const defaultPreferences: UnitPreferences = {
-  weight: 'pound',
-  volume: 'gallon',
+  meat: 'pound',
+  fruit: 'pound',
+  veggies: 'pound',
+  milk: 'gallon',
+  soda: 'liter',
+  drinks: 'gallon',
+  dairy: 'pound',
 };
 
 const STORAGE_KEY = 'grocery-unit-preferences';
@@ -38,18 +49,8 @@ export const saveUnitPreferences = (preferences: UnitPreferences): void => {
 };
 
 const Settings: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [preferences, setPreferences] = useState<UnitPreferences>(getUnitPreferences());
-
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    setDarkMode(isDark);
-  }, []);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const handleSave = () => {
     saveUnitPreferences(preferences);
@@ -83,11 +84,11 @@ const Settings: React.FC = () => {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">
-                Weight Items (Meat, Produce, etc.)
+                Meat (Beef, Pork, Chicken, Seafood)
               </label>
               <select
-                value={preferences.weight}
-                onChange={(e) => handleChange('weight', e.target.value)}
+                value={preferences.meat}
+                onChange={(e) => handleChange('meat', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                   darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
                 }`}
@@ -96,17 +97,55 @@ const Settings: React.FC = () => {
                 <option value="ounce">Ounce (oz)</option>
               </select>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Prices will be normalized to price per {preferences.weight}
+                Prices will be normalized to price per {preferences.meat}
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Volume Items (Milk, Drinks, etc.)
+                Fruit
               </label>
               <select
-                value={preferences.volume}
-                onChange={(e) => handleChange('volume', e.target.value)}
+                value={preferences.fruit}
+                onChange={(e) => handleChange('fruit', e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="pound">Pound (lb)</option>
+                <option value="ounce">Ounce (oz)</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Prices will be normalized to price per {preferences.fruit}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Vegetables
+              </label>
+              <select
+                value={preferences.veggies}
+                onChange={(e) => handleChange('veggies', e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="pound">Pound (lb)</option>
+                <option value="ounce">Ounce (oz)</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Prices will be normalized to price per {preferences.veggies}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Milk
+              </label>
+              <select
+                value={preferences.milk}
+                onChange={(e) => handleChange('milk', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                   darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
                 }`}
@@ -118,7 +157,77 @@ const Settings: React.FC = () => {
                 <option value="ml">Milliliter (ml)</option>
               </select>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Prices will be normalized to price per {preferences.volume}
+                Prices will be normalized to price per {preferences.milk}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Soda
+              </label>
+              <select
+                value={preferences.soda}
+                onChange={(e) => handleChange('soda', e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="gallon">Gallon</option>
+                <option value="quart">Quart</option>
+                <option value="pint">Pint</option>
+                <option value="liter">Liter</option>
+                <option value="ml">Milliliter (ml)</option>
+                <option value="can">Can</option>
+                <option value="each">Each</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Prices will be normalized to price per {preferences.soda}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Drinks (Juice, Tea, etc.)
+              </label>
+              <select
+                value={preferences.drinks}
+                onChange={(e) => handleChange('drinks', e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="gallon">Gallon</option>
+                <option value="quart">Quart</option>
+                <option value="pint">Pint</option>
+                <option value="liter">Liter</option>
+                <option value="ml">Milliliter (ml)</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Prices will be normalized to price per {preferences.drinks}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Dairy (Cheese, Yogurt, Sour Cream, etc.)
+              </label>
+              <select
+                value={preferences.dairy}
+                onChange={(e) => handleChange('dairy', e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="pound">Pound (lb)</option>
+                <option value="ounce">Ounce (oz)</option>
+                <option value="gallon">Gallon</option>
+                <option value="quart">Quart</option>
+                <option value="pint">Pint</option>
+                <option value="liter">Liter</option>
+                <option value="ml">Milliliter (ml)</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Prices will be normalized to price per {preferences.dairy}
               </p>
             </div>
           </div>
@@ -126,8 +235,12 @@ const Settings: React.FC = () => {
           <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'} border border-purple-200`}>
             <h3 className="font-medium text-sm mb-2">Example:</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              If you set weight to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>, 
+              If you set meat to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>, 
               and a $3.99 steak weighing 8 oz will show as <strong>$7.98/lb</strong> for easy comparison.
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+              If you set milk to "gallon", then a $1.50 quart will show as <strong>$6.00/gallon</strong> 
+              alongside a $4.99 gallon for easy price comparison.
             </p>
           </div>
 

@@ -5,14 +5,17 @@ import { z } from 'zod';
 import { toast } from 'react-toastify';
 import { Plus, Calculator } from 'lucide-react';
 
-const categories = ['Meat', 'Dairy', 'Produce', 'Snacks', 'Drinks', 'Household', 'Other'];
-const meatQualities = ['Choice', 'Prime', 'Wagyu'];
+const categories = ['Beef', 'Pork', 'Chicken', 'Seafood', 'Dairy', 'Produce', 'Snacks', 'Drinks', 'Household', 'Other'];
+const beefQualities = ['Choice', 'Prime', 'Wagyu', 'Grassfed', 'Organic'];
+const porkQualities = ['Regular', 'Organic'];
+const chickenQualities = ['Regular', 'Organic', 'Free Range'];
+const seafoodQualities = ['Fresh', 'Farm Raised', 'Frozen'];
 const unitTypes = ['pound', 'ounce', 'can', 'each', 'liter', 'ml', 'gallon', 'quart', 'pint', 'cup', 'tablespoon', 'teaspoon'];
 
 const formSchema = z.object({
   itemName: z.string().min(1, 'Item name is required'),
   category: z.string().min(1, 'Category is required'),
-  meatQuality: z.string().optional(),
+  meatQuality: z.string().optional().nullable(),
   storeName: z.string().min(1, 'Store name is required'),
   price: z.number().min(0.01, 'Price must be greater than 0'),
   unitType: z.string().min(1, 'Unit type is required'),
@@ -32,6 +35,7 @@ interface AddItemFormProps {
 const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingItems = [] }) => {
   const [calculatedUnitPrice, setCalculatedUnitPrice] = useState<number | null>(null);
   const [priceDisplay, setPriceDisplay] = useState<string>('');
+  const [targetPriceDisplay, setTargetPriceDisplay] = useState<string>('');
 
   const {
     register,
@@ -73,6 +77,24 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
     setValue('price', parseFloat(formatted));
   };
 
+  // Handle target price input with auto-formatting
+  const handleTargetPriceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (input === '') {
+      setTargetPriceDisplay('');
+      setValue('targetPrice', undefined);
+      return;
+    }
+    
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    const formatted = `${dollars}.${cents.toString().padStart(2, '0')}`;
+    
+    setTargetPriceDisplay(formatted);
+    setValue('targetPrice', parseFloat(formatted));
+  };
+
   // Auto-fill target price from existing items with same name
   React.useEffect(() => {
     if (watchedItemName && existingItems.length > 0) {
@@ -80,7 +102,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
         item => item.itemName.toLowerCase() === watchedItemName.toLowerCase() && item.targetPrice != null
       );
       if (matchingItem && matchingItem.targetPrice) {
-        setValue('targetPrice', matchingItem.targetPrice);
+        const targetValue = matchingItem.targetPrice;
+        setValue('targetPrice', targetValue);
+        setTargetPriceDisplay(targetValue.toFixed(2));
       }
     }
   }, [watchedItemName, existingItems, setValue]);
@@ -105,6 +129,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
       reset();
       setCalculatedUnitPrice(null);
       setPriceDisplay('');
+      setTargetPriceDisplay('');
     } catch {
       toast.error('Failed to add item. Please try again.');
     }
@@ -154,17 +179,68 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
             )}
           </div>
 
-          {watchedCategory === 'Meat' && (
+          {watchedCategory === 'Beef' && (
             <div>
-              <label className="block text-sm font-medium mb-2">Meat Quality</label>
+              <label className="block text-sm font-medium mb-2">Beef Quality</label>
               <select
                 {...register('meatQuality')}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                   darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
                 }`}
               >
-                <option value="">Select quality</option>
-                {meatQualities.map(quality => (
+                <option value="">Select quality (optional)</option>
+                {beefQualities.map(quality => (
+                  <option key={quality} value={quality}>{quality}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {watchedCategory === 'Pork' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Pork Quality</label>
+              <select
+                {...register('meatQuality')}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="">Select quality (optional)</option>
+                {porkQualities.map(quality => (
+                  <option key={quality} value={quality}>{quality}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {watchedCategory === 'Chicken' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Chicken Quality</label>
+              <select
+                {...register('meatQuality')}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="">Select quality (optional)</option>
+                {chickenQualities.map(quality => (
+                  <option key={quality} value={quality}>{quality}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {watchedCategory === 'Seafood' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Seafood Quality</label>
+              <select
+                {...register('meatQuality')}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <option value="">Select quality (optional)</option>
+                {seafoodQualities.map(quality => (
                   <option key={quality} value={quality}>{quality}</option>
                 ))}
               </select>
@@ -242,15 +318,19 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
 
           <div>
             <label className="block text-sm font-medium mb-2">Target Price (per unit)</label>
-            <input
-              {...register('targetPrice', { valueAsNumber: true })}
-              type="number"
-              step="0.01"
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-              }`}
-              placeholder="0.00"
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={targetPriceDisplay}
+                onChange={handleTargetPriceInput}
+                className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+                placeholder="0.00"
+              />
+            </div>
           </div>
         </div>
 

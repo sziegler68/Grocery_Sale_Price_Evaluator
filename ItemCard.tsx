@@ -14,7 +14,7 @@ interface ItemCardProps {
 
 const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
   const preferences = getUnitPreferences();
-  const normalized = normalizePrice(item.price, item.quantity, item.unitType, preferences);
+  const normalized = normalizePrice(item.price, item.quantity, item.unitType, preferences, item.category);
   
   const isBelowTarget = item.targetPrice && item.unitPrice <= item.targetPrice;
   const isBestPrice = bestPrice && item.unitPrice === bestPrice;

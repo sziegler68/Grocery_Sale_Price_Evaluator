@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import { useDarkMode } from './useDarkMode';
 
 const Analytics: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>

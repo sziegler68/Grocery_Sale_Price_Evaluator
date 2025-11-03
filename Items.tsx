@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import ItemCard from './ItemCard';
 import SearchFilter from './SearchFilter';
+import { useDarkMode } from './useDarkMode';
 import {
   fetchAllItems,
   getBestPriceByItemName,
@@ -12,7 +13,7 @@ import {
 } from './groceryData';
 
 const Items: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [items, setItems] = useState<GroceryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<GroceryItem[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>('mock');
@@ -23,11 +24,6 @@ const Items: React.FC = () => {
   const [selectedStore, setSelectedStore] = useState('');
   const [showBelowTarget, setShowBelowTarget] = useState(false);
   const [showBestPrices, setShowBestPrices] = useState(false);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
 
   useEffect(() => {
     let isMounted = true;

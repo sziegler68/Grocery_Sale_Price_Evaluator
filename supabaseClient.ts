@@ -27,8 +27,8 @@ export type GroceryItemRow = {
   id: string;
   created_at: string;
   item_name: string;
-  category: 'Meat' | 'Dairy' | 'Produce' | 'Snacks' | 'Drinks' | 'Household' | 'Other';
-  meat_quality: 'Choice' | 'Prime' | 'Wagyu' | null;
+  category: 'Beef' | 'Pork' | 'Chicken' | 'Seafood' | 'Dairy' | 'Produce' | 'Snacks' | 'Drinks' | 'Household' | 'Other';
+  meat_quality: 'Choice' | 'Prime' | 'Wagyu' | 'Grassfed' | 'Organic' | 'Regular' | 'Free Range' | 'Fresh' | 'Farm Raised' | 'Frozen' | null;
   store_name: string;
   price: number;
   quantity: number;

@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import Header from './Header';
 import Footer from './Footer';
 import PriceChart from './PriceChart';
+import { useDarkMode } from './useDarkMode';
 import {
   fetchItemWithHistory,
   isUsingMockData,
@@ -16,7 +17,7 @@ import {
 
 const ItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [item, setItem] = useState<GroceryItem | null>(null);
   const [priceHistory, setPriceHistory] = useState<GroceryItem[]>([]);
   const [targetPrice, setTargetPrice] = useState<number | undefined>();
@@ -28,11 +29,6 @@ const ItemDetail: React.FC = () => {
   const dataSourceBanner = isUsingMockData(dataSource)
     ? 'Supabase not configured ? showing demo data. Add your Supabase keys to enable live sync.'
     : 'Synced with Supabase in real time.';
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
 
   useEffect(() => {
     if (!id) return;

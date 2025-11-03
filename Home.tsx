@@ -4,19 +4,15 @@ import { Plus, TrendingDown, Target, ShoppingCart, BarChart3 } from 'lucide-reac
 import Header from './Header';
 import Footer from './Footer';
 import ItemCard from './ItemCard';
+import { useDarkMode } from './useDarkMode';
 import { fetchAllItems, isUsingMockData, type DataSource, type GroceryItem } from './groceryData';
 
 const Home: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [items, setItems] = useState<GroceryItem[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>('mock');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
 
   useEffect(() => {
     let isMounted = true;
