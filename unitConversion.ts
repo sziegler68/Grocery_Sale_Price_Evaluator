@@ -1,4 +1,5 @@
 import type { UnitPreferences } from './Settings';
+import { getItemWeightEstimate, type ItemWeightEstimate } from './itemWeightEstimates';
 
 // Unit conversion factors
 const WEIGHT_CONVERSIONS = {
@@ -27,6 +28,8 @@ export interface NormalizedPrice {
   isNormalized: boolean;
   originalPrice?: number;
   originalUnit?: string;
+  usedEstimate?: boolean;
+  estimate?: ItemWeightEstimate;
 }
 
 /**
@@ -104,7 +107,8 @@ export const normalizePrice = (
   quantity: number,
   unitType: string,
   preferences: UnitPreferences,
-  category?: string
+  category?: string,
+  itemName?: string
 ): NormalizedPrice => {
   const originalPricePerUnit = price / quantity;
   
@@ -123,6 +127,39 @@ export const normalizePrice = (
     }
   }
 
+  // Try to convert "each" to weight using estimated weights
+  if (unitType === 'each' && itemName && preferredUnit && WEIGHT_UNITS.includes(preferredUnit)) {
+    const estimate = getItemWeightEstimate(itemName);
+    if (estimate) {
+      // We have an estimate! Convert "each" to pounds first
+      const pricePerPound = originalPricePerUnit / estimate.weight;
+      
+      // Now convert to preferred unit if needed
+      if (preferredUnit === 'pound') {
+        return {
+          price: pricePerPound,
+          unit: 'pound',
+          isNormalized: true,
+          originalPrice: originalPricePerUnit,
+          originalUnit: 'each',
+          usedEstimate: true,
+          estimate,
+        };
+      } else if (preferredUnit === 'ounce') {
+        const pricePerOunce = pricePerPound / 16;
+        return {
+          price: pricePerOunce,
+          unit: 'ounce',
+          isNormalized: true,
+          originalPrice: originalPricePerUnit,
+          originalUnit: 'each',
+          usedEstimate: true,
+          estimate,
+        };
+      }
+    }
+  }
+
   // If no preferred unit or already in preferred unit, return as-is
   if (!preferredUnit || unitType === preferredUnit) {
     return {
@@ -132,7 +169,7 @@ export const normalizePrice = (
     };
   }
 
-  // Convert to preferred unit
+  // Convert to preferred unit (for compatible units only)
   const converted = convertUnit(price, quantity, unitType, preferredUnit);
   if (!converted) {
     // Conversion failed, return original
