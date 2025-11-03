@@ -2,7 +2,8 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/Grocery_Sale_Price_Evaluator/' : '/',
   plugins: [
     react(),
     VitePWA({
@@ -81,4 +82,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
