@@ -1,16 +1,12 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from './supabaseConfig';
 
 let supabase: SupabaseClient | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    '[Supabase] Environment variables missing. The app will fall back to demo data until you configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
-  );
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.warn('[Supabase] Missing Supabase credentials. Falling back to demo data.');
 } else {
-  supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,

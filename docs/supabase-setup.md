@@ -18,29 +18,18 @@ Use this checklist to connect the Grocery Price Tracker web app to Supabase.
 
 > **Tip:** If you re-run the script later it will no-op safely thanks to the `if not exists` checks.
 
-## 3. Configure API keys locally
-- Back in Supabase, go to **Project Settings ? API**.
-- Under **Project URL** copy the value (it looks like `https://xyzcompany.supabase.co`).
-- Under **Project API Keys**, copy the **anon public** key.
-- Locally, duplicate the sample env file:
-
-  ```bash
-  cp .env.example .env
-  ```
-
-- Open `.env` and replace the placeholders:
-
-  ```env
-  VITE_SUPABASE_URL="https://xyzcompany.supabase.co"
-  VITE_SUPABASE_ANON_KEY="your-anon-public-key"
-  ```
+## 3. Configure API keys in the app
+- In Supabase, go to **Project Settings ? API**.
+- Copy the **Project URL** (it looks like `https://xyzcompany.supabase.co`).
+- Copy the **anon public** key from the API keys section.
+- Open `supabaseConfig.ts` and replace the `SUPABASE_URL` and `SUPABASE_ANON_KEY` constants with your values.
 
 ## 4. Optional: Service key for admin scripts
 If you write admin tooling later, store the `service_role` key somewhere secure (never commit it). The app itself only needs the anon key from step 3.
 
 ## 5. Verify the connection
 - From the project root run `npm run dev`.
-- The `supabaseClient.ts` helper throws a clear error if either env var is missing.
-- Once we hook up queries, you?ll see the live data populate the UI.
+- The `supabaseClient.ts` helper logs a warning if the constants are missing and falls back to demo data.
+- Once the data layer is configured, the UI will load live prices from Supabase.
 
-That?s it?your Supabase backend is ready for the app to read/write grocery items.
+That's it?your Supabase backend is ready for the app to read/write grocery items.

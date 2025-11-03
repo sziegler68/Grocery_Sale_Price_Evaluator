@@ -10,15 +10,10 @@ Help track sale prices and price-per-unit trends so you and your family can spot
    npm install
    ```
 
-2. **Configure environment variables**
+2. **Configure Supabase (optional)**
 
-   - Copy the sample env file and fill in your Supabase project details:
-
-     ```bash
-     cp .env.example .env
-     ```
-
-   - Populate `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` with the values from your Supabase project settings.
+   - The repo already includes a `supabaseConfig.ts` with a shared Supabase project.
+   - To use your own project, edit `supabaseConfig.ts` and replace the `SUPABASE_URL` and `SUPABASE_ANON_KEY` constants with the values from your Supabase dashboard.
 
 3. **Run the development server**
 
@@ -38,7 +33,7 @@ Help track sale prices and price-per-unit trends so you and your family can spot
 ## Supabase Bootstrap Checklist
 
 - Create a Supabase project and run the SQL in `supabase/schema.sql` via the Supabase SQL Editor (this creates enums, the `grocery_items` table, indexes, and row-level security policies).
-- Generate an anonymous public API key and add it to your `.env` file.
+- Generate an anonymous public API key and (optionally) replace the constants in `supabaseConfig.ts`.
 - Once the schema is ready, wire the React pages to the Supabase client exported from `supabaseClient.ts` and replace the current mock data.
 - See `docs/supabase-setup.md` for a detailed walkthrough of these steps.
 
