@@ -10,6 +10,7 @@ const beefQualities = ['Choice', 'Prime', 'Wagyu', 'Grassfed', 'Organic'];
 const porkQualities = ['Regular', 'Organic'];
 const chickenQualities = ['Regular', 'Organic', 'Free Range'];
 const seafoodQualities = ['Fresh', 'Farm Raised', 'Frozen'];
+const stores = ['Costco', 'Farmers', 'FoodMaxx', 'Lucky', 'Mexican Market', 'Raley', 'Ranch 99', 'Safeway', 'Trader Joes', 'WinCo', 'Other'];
 const unitTypes = ['pound', 'ounce', 'can', 'each', 'liter', 'ml', 'gallon', 'quart', 'pint', 'cup', 'tablespoon', 'teaspoon'];
 
 const formSchema = z.object({
@@ -36,6 +37,8 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
   const [calculatedUnitPrice, setCalculatedUnitPrice] = useState<number | null>(null);
   const [priceDisplay, setPriceDisplay] = useState<string>('');
   const [targetPriceDisplay, setTargetPriceDisplay] = useState<string>('');
+  const [selectedStore, setSelectedStore] = useState<string>('');
+  const [customStoreName, setCustomStoreName] = useState<string>('');
 
   const {
     register,
@@ -123,8 +126,17 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
     try {
       const unitPrice = calculateUnitPrice(data.price, data.quantity);
       
+      // Use custom store name if "Other" is selected
+      const finalStoreName = selectedStore === 'Other' ? customStoreName : data.storeName;
+      
+      if (!finalStoreName || finalStoreName.trim() === '') {
+        toast.error('Please enter a store name');
+        return;
+      }
+      
       await onSubmit({
         ...data,
+        storeName: finalStoreName,
         unitPrice,
         datePurchased: new Date()
       });
@@ -133,6 +145,8 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
       setCalculatedUnitPrice(null);
       setPriceDisplay('');
       setTargetPriceDisplay('');
+      setSelectedStore('');
+      setCustomStoreName('');
     } catch {
       toast.error('Failed to add item. Please try again.');
     }
@@ -252,18 +266,45 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
 
           <div>
             <label className="block text-sm font-medium mb-2">Store Name *</label>
-            <input
+            <select
               {...register('storeName')}
-              type="text"
+              value={selectedStore}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedStore(value);
+                setValue('storeName', value);
+                if (value !== 'Other') {
+                  setCustomStoreName('');
+                }
+              }}
               className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                 darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
               }`}
-              placeholder="e.g., Walmart"
-            />
+            >
+              <option value="">Select store</option>
+              {stores.map(store => (
+                <option key={store} value={store}>{store}</option>
+              ))}
+            </select>
             {errors.storeName && (
               <p className="text-red-500 text-sm mt-1">{errors.storeName.message}</p>
             )}
           </div>
+
+          {selectedStore === 'Other' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Custom Store Name *</label>
+              <input
+                type="text"
+                value={customStoreName}
+                onChange={(e) => setCustomStoreName(e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+                placeholder="Enter store name"
+              />
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-2">Price *</label>
