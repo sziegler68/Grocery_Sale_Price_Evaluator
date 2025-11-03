@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { toast } from 'react-toastify';
 import AddItemForm from './AddItemForm';
-import { createGroceryItem } from './groceryData';
+import { createGroceryItem, fetchAllItems, type GroceryItem } from './groceryData';
 
 const AddItem: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
+  const [existingItems, setExistingItems] = useState<GroceryItem[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadItems = async () => {
+      const result = await fetchAllItems();
+      setExistingItems(result.items);
+    };
+    void loadItems();
+  }, []);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -45,7 +54,7 @@ const AddItem: React.FC = () => {
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <AddItemForm darkMode={darkMode} onSubmit={handleSubmit} />
+        <AddItemForm darkMode={darkMode} onSubmit={handleSubmit} existingItems={existingItems} />
       </main>
 
       <Footer />

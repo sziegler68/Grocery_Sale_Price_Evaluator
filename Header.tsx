@@ -26,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
             <Link to="/add-item" className="hover:text-purple-600 transition-colors">Add Item</Link>
             <Link to="/items" className="hover:text-purple-600 transition-colors">My Items</Link>
             <Link to="/analytics" className="hover:text-purple-600 transition-colors">Analytics</Link>
+            <Link to="/settings" className="hover:text-purple-600 transition-colors">Settings</Link>
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-zinc-700 transition-colors"
@@ -60,6 +61,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
               <Link to="/add-item" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Add Item</Link>
               <Link to="/items" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>My Items</Link>
               <Link to="/analytics" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Analytics</Link>
+              <Link to="/settings" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Settings</Link>
             </nav>
           </div>
         )}

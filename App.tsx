@@ -10,6 +10,7 @@ import AddItem from './AddItem';
 import Items from './Items';
 import ItemDetail from './ItemDetail';
 import Analytics from './Analytics';
+import Settings from './Settings';
 import NotFound from './NotFound';
 
 const App: React.FC = () => {
@@ -23,6 +24,7 @@ const App: React.FC = () => {
             <Route path="/items" element={<Items />} />
             <Route path="/item/:id" element={<ItemDetail />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <ToastContainer

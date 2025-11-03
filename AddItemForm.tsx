@@ -26,16 +26,19 @@ type FormData = z.infer<typeof formSchema>;
 interface AddItemFormProps {
   darkMode: boolean;
   onSubmit: (data: FormData & { unitPrice: number; datePurchased: Date }) => void;
+  existingItems?: Array<{ itemName: string; targetPrice?: number }>;
 }
 
-const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit }) => {
+const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingItems = [] }) => {
   const [calculatedUnitPrice, setCalculatedUnitPrice] = useState<number | null>(null);
+  const [priceDisplay, setPriceDisplay] = useState<string>('');
 
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm<FormData>({
     resolver: zodResolver(formSchema)
@@ -45,41 +48,53 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit }) => {
   const watchedPrice = watch('price');
   const watchedQuantity = watch('quantity');
   const watchedUnitType = watch('unitType');
+  const watchedItemName = watch('itemName');
 
-  // Unit price calculator
-  const calculateUnitPrice = (price: number, quantity: number, unitType: string): number => {
-    let normalizedQuantity = quantity;
-    
-    // Normalize to ounces for weight
-    if (unitType === 'pound') {
-      normalizedQuantity = quantity * 16;
-    }
-    // Normalize to ml for volume
-    else if (unitType === 'liter') {
-      normalizedQuantity = quantity * 1000;
-    } else if (unitType === 'gallon') {
-      normalizedQuantity = quantity * 3785.41;
-    } else if (unitType === 'quart') {
-      normalizedQuantity = quantity * 946.35;
-    } else if (unitType === 'pint') {
-      normalizedQuantity = quantity * 473.18;
-    } else if (unitType === 'cup') {
-      normalizedQuantity = quantity * 236.59;
-    }
-    
-    return price / normalizedQuantity;
+  // Unit price calculator - simply divide price by quantity
+  const calculateUnitPrice = (price: number, quantity: number): number => {
+    return price / quantity;
   };
+
+  // Handle price input with auto-formatting
+  const handlePriceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (input === '') {
+      setPriceDisplay('');
+      setValue('price', 0);
+      return;
+    }
+    
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    const formatted = `${dollars}.${cents.toString().padStart(2, '0')}`;
+    
+    setPriceDisplay(formatted);
+    setValue('price', parseFloat(formatted));
+  };
+
+  // Auto-fill target price from existing items with same name
+  React.useEffect(() => {
+    if (watchedItemName && existingItems.length > 0) {
+      const matchingItem = existingItems.find(
+        item => item.itemName.toLowerCase() === watchedItemName.toLowerCase() && item.targetPrice != null
+      );
+      if (matchingItem && matchingItem.targetPrice) {
+        setValue('targetPrice', matchingItem.targetPrice);
+      }
+    }
+  }, [watchedItemName, existingItems, setValue]);
 
   React.useEffect(() => {
     if (watchedPrice && watchedQuantity && watchedUnitType) {
-      const unitPrice = calculateUnitPrice(watchedPrice, watchedQuantity, watchedUnitType);
+      const unitPrice = calculateUnitPrice(watchedPrice, watchedQuantity);
       setCalculatedUnitPrice(unitPrice);
     }
   }, [watchedPrice, watchedQuantity, watchedUnitType]);
 
   const onFormSubmit = async (data: FormData) => {
     try {
-      const unitPrice = calculateUnitPrice(data.price, data.quantity, data.unitType);
+      const unitPrice = calculateUnitPrice(data.price, data.quantity);
       
       await onSubmit({
         ...data,
@@ -89,6 +104,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit }) => {
 
       reset();
       setCalculatedUnitPrice(null);
+      setPriceDisplay('');
     } catch {
       toast.error('Failed to add item. Please try again.');
     }
@@ -172,15 +188,19 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit }) => {
 
           <div>
             <label className="block text-sm font-medium mb-2">Price *</label>
-            <input
-              {...register('price', { valueAsNumber: true })}
-              type="number"
-              step="0.01"
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-              }`}
-              placeholder="0.00"
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={priceDisplay}
+                onChange={handlePriceInput}
+                className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+                placeholder="0.00"
+              />
+            </div>
             {errors.price && (
               <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
             )}

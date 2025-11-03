@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { TrendingDown, Target, Calendar, Store } from 'lucide-react';
 import { format } from 'date-fns';
 import type { GroceryItem } from './groceryData';
+import { getUnitPreferences } from './Settings';
+import { normalizePrice } from './unitConversion';
 
 interface ItemCardProps {
   item: GroceryItem;
@@ -11,6 +13,9 @@ interface ItemCardProps {
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
+  const preferences = getUnitPreferences();
+  const normalized = normalizePrice(item.price, item.quantity, item.unitType, preferences);
+  
   const isBelowTarget = item.targetPrice && item.unitPrice <= item.targetPrice;
   const isBestPrice = bestPrice && item.unitPrice === bestPrice;
 
@@ -37,11 +42,16 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
           </div>
           <div className="text-right">
             <div className="text-xl font-bold text-purple-600">
-              ${item.unitPrice.toFixed(2)}
+              ${normalized.price.toFixed(2)}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              per {item.unitType}
+              per {normalized.unit}
             </div>
+            {normalized.isNormalized && normalized.originalPrice && normalized.originalUnit && (
+              <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                (${normalized.originalPrice.toFixed(2)}/{normalized.originalUnit})
+              </div>
+            )}
           </div>
         </div>
 
