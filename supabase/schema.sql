@@ -6,6 +6,10 @@ do $$
 begin
   if not exists (select 1 from pg_type where typname = 'grocery_category') then
     create type public.grocery_category as enum (
+      'Beef',
+      'Pork',
+      'Chicken',
+      'Seafood',
       'Meat',
       'Dairy',
       'Produce',
@@ -17,7 +21,18 @@ begin
   end if;
 
   if not exists (select 1 from pg_type where typname = 'meat_quality') then
-    create type public.meat_quality as enum ('Choice', 'Prime', 'Wagyu');
+    create type public.meat_quality as enum (
+      'Choice',
+      'Prime',
+      'Wagyu',
+      'Grassfed',
+      'Organic',
+      'Regular',
+      'Free Range',
+      'Fresh',
+      'Farm Raised',
+      'Frozen'
+    );
   end if;
 end $$;
 
