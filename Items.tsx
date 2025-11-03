@@ -23,6 +23,7 @@ const Items: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedStore, setSelectedStore] = useState('');
   const [showBelowTarget, setShowBelowTarget] = useState(false);
+  const [showAboveTarget, setShowAboveTarget] = useState(false);
   const [showBestPrices, setShowBestPrices] = useState(false);
 
   useEffect(() => {
@@ -77,6 +78,13 @@ const Items: React.FC = () => {
       );
     }
 
+    // Above target filter
+    if (showAboveTarget) {
+      filtered = filtered.filter(item => 
+        item.targetPrice && item.unitPrice > item.targetPrice
+      );
+    }
+
     // Best prices filter
     if (showBestPrices) {
       const itemGroups = filtered.reduce((acc, item) => {
@@ -95,7 +103,7 @@ const Items: React.FC = () => {
     }
 
     setFilteredItems(filtered);
-  }, [items, searchTerm, selectedCategory, selectedStore, showBelowTarget, showBestPrices]);
+  }, [items, searchTerm, selectedCategory, selectedStore, showBelowTarget, showAboveTarget, showBestPrices]);
 
   const categories = useMemo(() => [...new Set(items.map(item => item.category))], [items]);
   const stores = useMemo(() => [...new Set(items.map(item => item.storeName))], [items]);
@@ -140,6 +148,8 @@ const Items: React.FC = () => {
           onStoreChange={setSelectedStore}
           showBelowTarget={showBelowTarget}
           onBelowTargetChange={setShowBelowTarget}
+          showAboveTarget={showAboveTarget}
+          onAboveTargetChange={setShowAboveTarget}
           showBestPrices={showBestPrices}
           onBestPricesChange={setShowBestPrices}
           categories={categories}

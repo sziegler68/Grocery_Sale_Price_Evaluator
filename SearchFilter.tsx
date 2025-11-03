@@ -10,6 +10,8 @@ interface SearchFilterProps {
   onStoreChange: (store: string) => void;
   showBelowTarget: boolean;
   onBelowTargetChange: (show: boolean) => void;
+  showAboveTarget: boolean;
+  onAboveTargetChange: (show: boolean) => void;
   showBestPrices: boolean;
   onBestPricesChange: (show: boolean) => void;
   categories: string[];
@@ -26,6 +28,8 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   onStoreChange,
   showBelowTarget,
   onBelowTargetChange,
+  showAboveTarget,
+  onAboveTargetChange,
   showBestPrices,
   onBestPricesChange,
   categories,
@@ -92,6 +96,16 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
               className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
             />
             <span className="text-sm">Below Target Only</span>
+          </label>
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={showAboveTarget}
+              onChange={(e) => onAboveTargetChange(e.target.checked)}
+              className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+            />
+            <span className="text-sm text-red-600">Above Target Only ??</span>
           </label>
 
           <label className="flex items-center space-x-2">

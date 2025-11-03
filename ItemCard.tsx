@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingDown, Target, Calendar, Store } from 'lucide-react';
+import { TrendingDown, Target, Calendar, Store, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import type { GroceryItem } from './groceryData';
 import { getUnitPreferences } from './Settings';
@@ -17,6 +17,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
   const normalized = normalizePrice(item.price, item.quantity, item.unitType, preferences, item.category);
   
   const isBelowTarget = item.targetPrice && item.unitPrice <= item.targetPrice;
+  const isAboveTarget = item.targetPrice && item.unitPrice > item.targetPrice;
   const isBestPrice = bestPrice && item.unitPrice === bestPrice;
 
   return (
@@ -24,7 +25,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
       <div className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
         darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
       } border-l-4 ${
-        isBestPrice ? 'border-green-500' : isBelowTarget ? 'border-cyan-500' : 'border-purple-600'
+        isBestPrice ? 'border-green-500' : isAboveTarget ? 'border-red-500' : isBelowTarget ? 'border-cyan-500' : 'border-purple-600'
       }`}>
         <div className="flex justify-between items-start mb-3">
           <div>
@@ -72,6 +73,12 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
               <div className="flex items-center space-x-1 text-green-600">
                 <TrendingDown className="h-4 w-4" />
                 <span className="text-xs font-medium">Best Price</span>
+              </div>
+            )}
+            {isAboveTarget && !isBestPrice && (
+              <div className="flex items-center space-x-1 text-red-600">
+                <AlertTriangle className="h-4 w-4" />
+                <span className="text-xs font-medium">Above Target</span>
               </div>
             )}
             {isBelowTarget && !isBestPrice && (
