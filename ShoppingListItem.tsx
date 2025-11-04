@@ -20,47 +20,37 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.item_name);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleCheckToggle = async () => {
     const newCheckedState = !item.is_checked;
-    
-    // Start animation
-    setIsAnimating(true);
     
     // Immediately update UI (optimistic)
     if (onOptimisticCheck) {
       onOptimisticCheck(item.id, newCheckedState);
     }
     
-    // Update database in background
+    // Update database - the real-time subscription will sync across devices
     try {
       if (item.is_checked) {
         await uncheckItem(item.id);
       } else {
         await checkItem(item.id);
         
-        // Send notification for checking item (throttled) - don't block on this
+        // Send notification for checking item (non-blocking, fire and forget)
         if (listId && listName && shareCode) {
           const userName = getUserNameForList(shareCode);
           if (userName) {
-            notifyItemsPurchased(listId, listName, 1, userName).catch(err => {
-              console.warn('Failed to send notification:', err);
+            notifyItemsPurchased(listId, listName, 1, userName).catch(() => {
+              // Silently fail - don't block UI or show errors for notifications
             });
           }
         }
       }
-      
-      // Wait for animation to complete
-      setTimeout(() => {
-        setIsAnimating(false);
-        // Don't call onUpdate here - let the optimistic handler manage refresh timing
-      }, 300);
+      // Success - real-time subscription will handle UI sync across all devices
     } catch (error: any) {
       const errorMessage = error?.message || 'Failed to update item';
       toast.error(errorMessage);
       console.error('Error updating item:', error);
-      setIsAnimating(false);
       // Revert optimistic update on error
       if (onOptimisticCheck) {
         onOptimisticCheck(item.id, item.is_checked);
@@ -111,9 +101,9 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
 
   return (
     <div
-      className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 ${
+      className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
         darkMode ? 'bg-zinc-700' : 'bg-gray-50'
-      } ${item.is_checked ? 'opacity-60' : ''} ${isAnimating ? 'animate-pulse' : ''}`}
+      } ${item.is_checked ? 'opacity-60' : ''}`}
     >
       {/* Checkbox */}
       <button

@@ -282,7 +282,8 @@ export const clearAllItems = async (listId: string): Promise<void> => {
  */
 export const subscribeToListItems = (
   listId: string,
-  callback: (item: ShoppingListItem) => void
+  onUpdate: (item: ShoppingListItem) => void,
+  onDelete?: (itemId: string) => void
 ) => {
   if (!isSupabaseConfigured) {
     return () => {}; // Return no-op unsubscribe
@@ -301,8 +302,13 @@ export const subscribeToListItems = (
         filter: `list_id=eq.${listId}`,
       },
       (payload) => {
-        if (payload.new) {
-          callback(payload.new as ShoppingListItem);
+        // Handle INSERT and UPDATE events
+        if (payload.new && (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE')) {
+          onUpdate(payload.new as ShoppingListItem);
+        }
+        // Handle DELETE events
+        if (payload.eventType === 'DELETE' && payload.old && onDelete) {
+          onDelete((payload.old as any).id);
         }
       }
     )

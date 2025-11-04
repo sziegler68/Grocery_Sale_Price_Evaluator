@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt } from 'lucide-react';
 import Header from './Header';
@@ -15,7 +15,8 @@ import {
   getShoppingListByCode, 
   getItemsForList, 
   deleteShoppingList, 
-  clearAllItems 
+  clearAllItems,
+  subscribeToListItems 
 } from './shoppingListApi';
 import { getActiveTrip, createShoppingTrip } from './shoppingTripApi';
 import { createGroceryItem } from './groceryData';
@@ -40,8 +41,9 @@ const ShoppingListDetail: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null);
   const [activeTrip, setActiveTrip] = useState<ShoppingTrip | null>(null);
   const [viewingTrip, setViewingTrip] = useState(false);
+  const loadDataTimeoutRef = useRef<number | null>(null);
 
-  const loadListData = async (showLoading = true) => {
+  const loadListData = useCallback(async (showLoading = true) => {
     if (!shareCode) return;
 
     if (showLoading) {
@@ -79,15 +81,28 @@ const ShoppingListDetail: React.FC = () => {
         setIsLoading(false);
       }
     }
-  };
+  }, [shareCode, navigate]);
+
+  // Debounced version of loadListData to prevent rapid successive calls
+  const debouncedLoadListData = useCallback(() => {
+    // Clear any pending reload
+    if (loadDataTimeoutRef.current !== null) {
+      clearTimeout(loadDataTimeoutRef.current);
+    }
+    
+    // Schedule a new reload
+    loadDataTimeoutRef.current = window.setTimeout(() => {
+      loadListData(false);
+    }, 300);
+  }, [loadListData]);
 
   const handleItemUpdate = () => {
-    // Refresh data without showing loading spinner
-    loadListData(false);
+    // Use debounced reload to prevent excessive database calls
+    debouncedLoadListData();
   };
 
   const handleOptimisticCheck = (itemId: string, newCheckedState: boolean) => {
-    // Immediately update UI (optimistic) - keep item in same position initially
+    // Immediately update UI (optimistic)
     setItems(prevItems => 
       prevItems.map(item => 
         item.id === itemId 
@@ -95,12 +110,7 @@ const ShoppingListDetail: React.FC = () => {
           : item
       )
     );
-    
-    // Delay the database refresh to allow animations to complete
-    // Don't reload at all - let next natural refresh handle it, or manual refresh
-    setTimeout(() => {
-      loadListData(false);
-    }, 600);
+    // No reload needed - trust the optimistic update and real-time sync
   };
 
   useEffect(() => {
@@ -117,6 +127,38 @@ const ShoppingListDetail: React.FC = () => {
       }
     }
   }, [shareCode]);
+
+  // Real-time subscription for list items
+  useEffect(() => {
+    if (!list) return;
+
+    const unsubscribe = subscribeToListItems(
+      list.id,
+      // Handle updates and inserts
+      (updatedItem) => {
+        setItems(prevItems => {
+          const itemIndex = prevItems.findIndex(item => item.id === updatedItem.id);
+          if (itemIndex >= 0) {
+            // Update existing item
+            const newItems = [...prevItems];
+            newItems[itemIndex] = updatedItem;
+            return newItems;
+          } else {
+            // New item added - append it
+            return [...prevItems, updatedItem];
+          }
+        });
+      },
+      // Handle deletes
+      (deletedItemId) => {
+        setItems(prevItems => prevItems.filter(item => item.id !== deletedItemId));
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [list?.id]);
 
   const handleSaveName = (name: string) => {
     if (shareCode) {
