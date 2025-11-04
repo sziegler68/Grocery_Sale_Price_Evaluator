@@ -11,6 +11,8 @@ import Items from './Items';
 import ItemDetail from './ItemDetail';
 import Analytics from './Analytics';
 import Settings from './Settings';
+import ShoppingLists from './ShoppingLists';
+import ShoppingListDetail from './ShoppingListDetail';
 import NotFound from './NotFound';
 
 const App: React.FC = () => {
@@ -24,6 +26,8 @@ const App: React.FC = () => {
             <Route path="/items" element={<Items />} />
             <Route path="/item/:id" element={<ItemDetail />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/shopping-lists" element={<ShoppingLists />} />
+            <Route path="/shopping-list/:shareCode" element={<ShoppingListDetail />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
