@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, TrendingDown, Target, ShoppingCart, BarChart3 } from 'lucide-react';
+import { Plus, TrendingDown, Target, ShoppingCart, List } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import ItemCard from './ItemCard';
@@ -207,15 +207,15 @@ const Home: React.FC = () => {
             </Link>
 
             <Link
-              to="/analytics"
+              to="/shopping-lists"
               className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all ${
                 darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
               }`}
             >
-              <BarChart3 className="h-8 w-8 text-cyan-600 mx-auto mb-3" />
-              <h3 className="font-semibold mb-2">View Analytics</h3>
+              <List className="h-8 w-8 text-green-600 mx-auto mb-3" />
+              <h3 className="font-semibold mb-2">Shopping Lists</h3>
               <p className="text-gray-600 dark:text-gray-300 text-sm">
-                See price trends and savings insights
+                Create and share grocery lists with family
               </p>
             </Link>
           </div>
