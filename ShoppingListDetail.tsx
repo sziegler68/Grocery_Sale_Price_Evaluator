@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, startTransition } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt } from 'lucide-react';
 import Header from './Header';
@@ -44,6 +44,7 @@ const ShoppingListDetail: React.FC = () => {
   const loadDataTimeoutRef = useRef<number | null>(null);
   const subscriptionBatchRef = useRef<Map<string, ShoppingListItemType>>(new Map());
   const subscriptionTimeoutRef = useRef<number | null>(null);
+  const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
 
   const loadListData = useCallback(async (showLoading = true) => {
     if (!shareCode) return;
@@ -104,17 +105,22 @@ const ShoppingListDetail: React.FC = () => {
   };
 
   const handleOptimisticCheck = useCallback((itemId: string, newCheckedState: boolean) => {
-    // Immediately update UI (optimistic) - use startTransition for smooth updates
-    startTransition(() => {
-      setItems(prevItems => 
-        prevItems.map(item => 
-          item.id === itemId 
-            ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
-            : item
-        )
-      );
-    });
-    // No reload needed - trust the optimistic update and real-time sync
+    // Mark this item as having a pending optimistic update
+    optimisticUpdatesRef.current.add(itemId);
+    
+    // Immediately update UI (optimistic) - NO startTransition, we want instant response!
+    setItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId 
+          ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
+          : item
+      )
+    );
+    
+    // Clear optimistic flag after a short delay (assume API completed)
+    setTimeout(() => {
+      optimisticUpdatesRef.current.delete(itemId);
+    }, 500);
   }, []);
 
   useEffect(() => {
@@ -139,29 +145,35 @@ const ShoppingListDetail: React.FC = () => {
     const updates = new Map(subscriptionBatchRef.current);
     subscriptionBatchRef.current.clear();
 
-    // Use startTransition for non-urgent updates to prevent blocking
-    startTransition(() => {
-      setItems(prevItems => {
-        const newItems = [...prevItems];
-        let hasChanges = false;
+    // Direct update - no startTransition to avoid delays
+    setItems(prevItems => {
+      const newItems = [...prevItems];
+      let hasChanges = false;
 
-        updates.forEach((updatedItem, itemId) => {
-          const itemIndex = newItems.findIndex(item => item.id === itemId);
-          if (itemIndex >= 0) {
-            // Only update if actually different
-            if (JSON.stringify(newItems[itemIndex]) !== JSON.stringify(updatedItem)) {
-              newItems[itemIndex] = updatedItem;
-              hasChanges = true;
-            }
-          } else {
-            // New item
-            newItems.push(updatedItem);
+      updates.forEach((updatedItem, itemId) => {
+        // Skip updates for items with pending optimistic updates to prevent conflicts
+        if (optimisticUpdatesRef.current.has(itemId)) {
+          return;
+        }
+        
+        const itemIndex = newItems.findIndex(item => item.id === itemId);
+        if (itemIndex >= 0) {
+          const existingItem = newItems[itemIndex];
+          // Shallow comparison (much faster than JSON.stringify)
+          if (existingItem.is_checked !== updatedItem.is_checked ||
+              existingItem.item_name !== updatedItem.item_name ||
+              existingItem.checked_at !== updatedItem.checked_at) {
+            newItems[itemIndex] = updatedItem;
             hasChanges = true;
           }
-        });
-
-        return hasChanges ? newItems : prevItems;
+        } else {
+          // New item
+          newItems.push(updatedItem);
+          hasChanges = true;
+        }
       });
+
+      return hasChanges ? newItems : prevItems;
     });
   }, []);
 
@@ -181,16 +193,14 @@ const ShoppingListDetail: React.FC = () => {
           clearTimeout(subscriptionTimeoutRef.current);
         }
 
-        // Schedule batched update
+        // Schedule batched update with reduced delay for faster response
         subscriptionTimeoutRef.current = window.setTimeout(() => {
           processBatchedUpdates();
-        }, 100); // Batch updates within 100ms window
+        }, 50); // Batch updates within 50ms window (reduced from 100ms)
       },
-      // Handle deletes - immediate (less common)
+      // Handle deletes - immediate
       (deletedItemId) => {
-        startTransition(() => {
-          setItems(prevItems => prevItems.filter(item => item.id !== deletedItemId));
-        });
+        setItems(prevItems => prevItems.filter(item => item.id !== deletedItemId));
       }
     );
 
