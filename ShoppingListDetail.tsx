@@ -10,7 +10,7 @@ import StartShoppingTripModal from './StartShoppingTripModal';
 import ShoppingTripView from './ShoppingTripView';
 import { useDarkMode } from './useDarkMode';
 import { getUserNameForList, setUserNameForList, removeUserNameForList } from './listUserNames';
-import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased } from './notificationService';
+import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from './notificationService';
 import { 
   getShoppingListByCode, 
   getItemsForList, 
@@ -135,24 +135,30 @@ const ShoppingListDetail: React.FC = () => {
       
       await Promise.all(promises);
       
-      // Send ONE batched notification if there were checks (not unchecks)
+      // Send notification for first checkbox activity in 1 hour window
       const checkedCount = Array.from(updates.values()).filter(v => v).length;
       if (checkedCount > 0 && list && shareCode) {
         const userName = getUserNameForList(shareCode);
         if (userName) {
-          notificationBatchRef.current.count += checkedCount;
-          
-          // Only send notification if enough time has passed (5 seconds)
+          // Check if we should send notification (1 hour throttle for checkbox activity)
           const now = Date.now();
-          if (now - notificationBatchRef.current.lastUpdate > 5000) {
-            const totalCount = notificationBatchRef.current.count;
-            notificationBatchRef.current = {count: 0, lastUpdate: now};
+          const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+          
+          // Only send if first activity or more than 1 hour since last notification
+          if (notificationBatchRef.current.lastUpdate === 0 || 
+              now - notificationBatchRef.current.lastUpdate > oneHour) {
+            
+            notificationBatchRef.current = {count: checkedCount, lastUpdate: now};
+            
+            // Send notification: "User started shopping" (first check) or "User is shopping"
+            const message = `${userName} started checking items off ${list.name}`;
             
             // Fire and forget - don't block
-            notifyItemsPurchased(list.id, list.name, totalCount, userName).catch(() => {
+            notifyItemsPurchased(list.id, list.name, checkedCount, userName, message).catch(() => {
               // Silently fail
             });
           }
+          // Otherwise, silently check items without notification (already notified in past hour)
         }
       }
       
@@ -470,6 +476,14 @@ const ShoppingListDetail: React.FC = () => {
       setViewingTrip(true);
       setShowStartTripModal(false);
       toast.success('Shopping trip started!');
+      
+      // Send notification that shopping trip started
+      if (userName && shareCode) {
+        const message = `${userName} started a shopping trip at ${storeName} (Budget: $${budget.toFixed(2)})`;
+        sendLiveNotification(list.id, message, 'trip_started', userName).catch(() => {
+          // Silently fail
+        });
+      }
     } catch (error) {
       console.error('Failed to start trip:', error);
       toast.error('Failed to start trip. Make sure you\'ve run the database migration (shopping_trip_schema.sql)');
@@ -537,14 +551,22 @@ const ShoppingListDetail: React.FC = () => {
     const overBudget = completedTrip.total_spent > completedTrip.budget;
     const difference = Math.abs(completedTrip.total_spent - completedTrip.budget);
     
+    const summaryMessage = overBudget 
+      ? `$${difference.toFixed(2)} over budget`
+      : `Saved $${difference.toFixed(2)}!`;
+    
     toast.success(
-      `Trip complete! Spent $${completedTrip.total_spent.toFixed(2)}. ` +
-      (overBudget 
-        ? `$${difference.toFixed(2)} over budget.`
-        : `Saved $${difference.toFixed(2)}!`
-      ),
+      `Trip complete! Spent $${completedTrip.total_spent.toFixed(2)}. ${summaryMessage}`,
       { autoClose: 5000 }
     );
+
+    // Send notification that shopping trip ended
+    if (userName && shareCode) {
+      const notifMessage = `${userName} completed shopping trip. Spent $${completedTrip.total_spent.toFixed(2)} (${summaryMessage})`;
+      sendLiveNotification(list.id, notifMessage, 'trip_completed', userName).catch(() => {
+        // Silently fail
+      });
+    }
 
     // Return to list view
     setViewingTrip(false);

@@ -151,7 +151,7 @@ export const recordNotificationSent = async (
 };
 
 /**
- * Send notification for items added
+ * Send notification for items added (throttled to 1 hour)
  */
 export const notifyItemsAdded = async (
   listId: string,
@@ -164,14 +164,18 @@ export const notifyItemsAdded = async (
     return;
   }
 
+  // Check 1-hour throttle
   const shouldSend = await shouldSendNotification(listId, 'items_added');
   if (!shouldSend) {
-    return;
+    return; // Already sent notification in past hour
   }
 
   const message = `${userName} added ${count} item${count > 1 ? 's' : ''} to ${listName}`;
-  sendPushNotification('Shopping List Updated', message);
   
+  // Send live notification to all users
+  await sendLiveNotification(listId, message, 'items_added', userName);
+  
+  // Record in history for throttling
   await recordNotificationSent(listId, 'items_added', count, userName);
 };
 
@@ -182,21 +186,21 @@ export const notifyItemsPurchased = async (
   listId: string,
   listName: string,
   count: number,
-  userName: string
+  userName: string,
+  customMessage?: string
 ): Promise<void> => {
   const settings = getNotificationSettings();
   if (!settings.enabled || !settings.types.itemsPurchased) {
     return;
   }
 
-  const shouldSend = await shouldSendNotification(listId, 'items_purchased');
-  if (!shouldSend) {
-    return;
-  }
-
-  const message = `${userName} checked off ${count} item${count > 1 ? 's' : ''} from ${listName}`;
-  sendPushNotification('Shopping List Updated', message);
+  // Use custom message or default
+  const message = customMessage || `${userName} checked off ${count} item${count > 1 ? 's' : ''} from ${listName}`;
   
+  // Send live notification to all users
+  await sendLiveNotification(listId, message, 'items_purchased', userName);
+  
+  // Record in history
   await recordNotificationSent(listId, 'items_purchased', count, userName);
 };
 

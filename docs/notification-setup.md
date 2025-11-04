@@ -138,16 +138,42 @@ Users can control notifications in **Settings** page:
 
 ## Technical Details
 
-### Batching & Throttling
+### Smart Activity-Based Throttling (1 Hour)
 
-**Checkbox Changes**:
-- Batched over 5-second window
-- Prevents notification spam during rapid checking
-- One notification for multiple checks
+**The 1-Hour Rule**: Only ONE notification per activity type per hour
 
-**Manual Notifications**:
-- Not throttled (sent immediately)
-- Each manual button click = one notification
+**Activity Types**:
+
+1. **Adding Items** (1 hour throttle)
+   - Monday 2:00 PM: Add 5 items → notification sent
+   - Monday 2:30 PM: Add 3 more items → NO notification (within 1 hour)
+   - Monday 3:01 PM: Add 1 item → notification sent (1 hour passed)
+
+2. **Checking Items Off** (1 hour throttle)
+   - First checkbox checked → notification sent: "User started checking items off List"
+   - Next 20 checkboxes over 30 minutes → NO notifications
+   - 1 hour later, first new checkbox → notification sent again
+
+3. **Shopping Trip Start** (immediate)
+   - Always sends notification with budget and store info
+
+4. **Shopping Trip End** (immediate)
+   - Always sends notification with total spent and over/under budget
+
+5. **Manual Buttons** (immediate)
+   - "Mark Complete" → always sends notification
+   - "Missing Items" → always sends notification
+
+**Example Workflow**:
+- **Monday**: Create list, add 10 items over 30 minutes = ONE notification
+- **Tuesday**: Add 3 forgotten items = ONE notification (24 hours passed)
+- **Wednesday**: Start shopping trip = notification
+- **Wednesday**: Check off first item = ONE notification
+- **Wednesday**: Check off 15 more items over 45 minutes = ZERO notifications
+- **Wednesday**: Complete trip = notification
+- **Wednesday**: Press "Missing Items" = notification
+- **Thursday**: Different store, check first item = ONE notification (1 hour passed)
+- **Thursday**: Check off 10 more items = ZERO notifications
 
 ### Auto-Cleanup
 
