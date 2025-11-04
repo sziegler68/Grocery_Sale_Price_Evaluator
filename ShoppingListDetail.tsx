@@ -528,8 +528,15 @@ const ShoppingListDetail: React.FC = () => {
     })).filter(group => group.items.length > 0);
   }, [groupedItems]);
 
+  // Checked items stay in the order they were checked off (sort by checked_at timestamp)
   const checkedItems = useMemo(() => {
-    return groupedItems['checked'] || [];
+    const checked = groupedItems['checked'] || [];
+    return checked.sort((a, b) => {
+      // Sort by checked_at timestamp (most recently checked at bottom)
+      const timeA = a.checked_at ? new Date(a.checked_at).getTime() : 0;
+      const timeB = b.checked_at ? new Date(b.checked_at).getTime() : 0;
+      return timeA - timeB;
+    });
   }, [groupedItems]);
 
   if (isLoading) {
