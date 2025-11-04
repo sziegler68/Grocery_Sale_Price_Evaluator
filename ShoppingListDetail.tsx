@@ -20,6 +20,7 @@ import {
   checkItem,
   uncheckItem
 } from './shoppingListApi';
+import { getSupabaseClient } from './supabaseClient';
 import { getActiveTrip, createShoppingTrip } from './shoppingTripApi';
 import { createGroceryItem } from './groceryData';
 import { removeShareCode } from './shoppingListStorage';
@@ -315,6 +316,57 @@ const ShoppingListDetail: React.FC = () => {
       }
     };
   }, [syncCheckboxChanges]);
+
+  // Subscribe to live notifications
+  useEffect(() => {
+    if (!list) return;
+
+    const client = getSupabaseClient();
+    
+    const channel = client
+      .channel(`notifications-${list.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'live_notifications',
+          filter: `list_id=eq.${list.id}`,
+        },
+        (payload) => {
+          const notification = payload.new as any;
+          
+          // Don't show notifications triggered by yourself
+          if (userName && notification.triggered_by === userName) {
+            return;
+          }
+          
+          // Show toast notification
+          toast.info(notification.message, {
+            position: 'top-center',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+
+          // Also send browser notification if enabled
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Shopping List Update', {
+              body: notification.message,
+              icon: '/icons/192x192.png',
+              tag: 'shopping-list-notification',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [list?.id, userName]);
 
   const handleSaveName = (name: string) => {
     if (shareCode) {

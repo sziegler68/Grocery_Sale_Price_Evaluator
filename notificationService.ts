@@ -201,6 +201,44 @@ export const notifyItemsPurchased = async (
 };
 
 /**
+ * Send a live notification to all users viewing the list
+ */
+export const sendLiveNotification = async (
+  listId: string,
+  message: string,
+  notificationType: string,
+  triggeredBy: string
+): Promise<void> => {
+  if (!isSupabaseConfigured) {
+    console.warn('Supabase not configured - notification not sent');
+    return;
+  }
+
+  try {
+    const client = getSupabaseClient();
+    const { error } = await client
+      .from('live_notifications')
+      .insert({
+        list_id: listId,
+        message: message,
+        notification_type: notificationType,
+        triggered_by: triggeredBy
+      });
+
+    if (error) {
+      console.error('Failed to send live notification:', error);
+      throw error;
+    }
+
+    // Also send local browser notification if enabled
+    sendPushNotification('Shopping List Update', message);
+  } catch (error) {
+    console.error('Error sending live notification:', error);
+    throw error;
+  }
+};
+
+/**
  * Send notification for shopping complete
  */
 export const notifyShoppingComplete = async (
@@ -215,11 +253,13 @@ export const notifyShoppingComplete = async (
   }
 
   const message = allItemsPurchased
-    ? `${userName} finished shopping! ? All items purchased from ${listName}`
+    ? `${userName} finished shopping! ✓ All items purchased from ${listName}`
     : `${userName} finished shopping at ${listName}`;
     
-  sendPushNotification('Shopping Complete', message);
+  // Send live notification to all users
+  await sendLiveNotification(listId, message, 'shopping_complete', userName);
   
+  // Record in history for throttling
   await recordNotificationSent(listId, 'shopping_complete', 0, userName);
 };
 
@@ -238,7 +278,10 @@ export const notifyMissingItems = async (
   }
 
   const message = `${userName} finished shopping. ${missingCount} item${missingCount > 1 ? 's' : ''} still needed in ${listName}`;
-  sendPushNotification('Shopping Update', message);
   
+  // Send live notification to all users
+  await sendLiveNotification(listId, message, 'missing_items', userName);
+  
+  // Record in history
   await recordNotificationSent(listId, 'missing_items', missingCount, userName);
 };
