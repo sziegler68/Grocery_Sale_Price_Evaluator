@@ -28,10 +28,13 @@ const ShoppingListDetail: React.FC = () => {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const loadListData = async () => {
+  const loadListData = async (showLoading = true) => {
     if (!shareCode) return;
 
-    setIsLoading(true);
+    if (showLoading) {
+      setIsLoading(true);
+    }
+    
     try {
       const [loadedList, loadedItems] = await Promise.all([
         getShoppingListByCode(shareCode),
@@ -52,8 +55,15 @@ const ShoppingListDetail: React.FC = () => {
       console.error('Failed to load shopping list:', error);
       toast.error('Failed to load shopping list');
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
+  };
+
+  const handleItemUpdate = () => {
+    // Refresh data without showing loading spinner
+    loadListData(false);
   };
 
   useEffect(() => {
@@ -242,7 +252,7 @@ const ShoppingListDetail: React.FC = () => {
                         key={item.id}
                         item={item}
                         darkMode={darkMode}
-                        onUpdate={loadListData}
+                        onUpdate={handleItemUpdate}
                       />
                     ))}
                   </div>
@@ -265,7 +275,7 @@ const ShoppingListDetail: React.FC = () => {
                         key={item.id}
                         item={item}
                         darkMode={darkMode}
-                        onUpdate={loadListData}
+                        onUpdate={handleItemUpdate}
                       />
                     ))}
                   </div>
@@ -304,7 +314,7 @@ const ShoppingListDetail: React.FC = () => {
           listId={list.id}
           darkMode={darkMode}
           onClose={() => setShowAddItemModal(false)}
-          onAdded={loadListData}
+          onAdded={handleItemUpdate}
         />
       )}
     </div>

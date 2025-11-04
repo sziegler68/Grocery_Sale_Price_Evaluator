@@ -16,19 +16,20 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onU
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckToggle = async () => {
-    setIsLoading(true);
+    // Optimistic update - don't show loading state
     try {
       if (item.is_checked) {
         await uncheckItem(item.id);
       } else {
         await checkItem(item.id);
       }
+      // Trigger parent to refresh data in background
       onUpdate();
     } catch (error) {
       toast.error('Failed to update item');
       console.error(error);
-    } finally {
-      setIsLoading(false);
+      // Trigger update to revert on error
+      onUpdate();
     }
   };
 
