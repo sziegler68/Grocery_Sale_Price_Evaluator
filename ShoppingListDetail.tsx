@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import ShoppingListItem from './ShoppingListItem';
 import AddItemToListModal from './AddItemToListModal';
 import SetNameModal from './SetNameModal';
+import StartShoppingTripModal from './StartShoppingTripModal';
+import ShoppingTripView from './ShoppingTripView';
 import { useDarkMode } from './useDarkMode';
 import { getUserNameForList, setUserNameForList, removeUserNameForList } from './listUserNames';
 import { notifyShoppingComplete, notifyMissingItems } from './notificationService';
@@ -15,9 +17,12 @@ import {
   deleteShoppingList, 
   clearAllItems 
 } from './shoppingListApi';
+import { getActiveTrip, createShoppingTrip } from './shoppingTripApi';
+import { createGroceryItem } from './groceryData';
 import { removeShareCode } from './shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from './shoppingListTypes';
 import type { ShoppingList, ShoppingListItem as ShoppingListItemType } from './shoppingListTypes';
+import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
 import { toast } from 'react-toastify';
 
 const ShoppingListDetail: React.FC = () => {
@@ -30,8 +35,11 @@ const ShoppingListDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
+  const [showStartTripModal, setShowStartTripModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
+  const [activeTrip, setActiveTrip] = useState<ShoppingTrip | null>(null);
+  const [viewingTrip, setViewingTrip] = useState(false);
 
   const loadListData = async (showLoading = true) => {
     if (!shareCode) return;
@@ -41,21 +49,22 @@ const ShoppingListDetail: React.FC = () => {
     }
     
     try {
-      const [loadedList, loadedItems] = await Promise.all([
-        getShoppingListByCode(shareCode),
-        getShoppingListByCode(shareCode).then(list => 
-          list ? getItemsForList(list.id) : []
-        )
-      ]);
-
+      const loadedList = await getShoppingListByCode(shareCode);
+      
       if (!loadedList) {
         toast.error('Shopping list not found');
         navigate('/shopping-lists');
         return;
       }
 
+      const [loadedItems, trip] = await Promise.all([
+        getItemsForList(loadedList.id),
+        getActiveTrip(loadedList.id)
+      ]);
+
       setList(loadedList);
       setItems(loadedItems);
+      setActiveTrip(trip);
     } catch (error) {
       console.error('Failed to load shopping list:', error);
       toast.error('Failed to load shopping list');
@@ -191,6 +200,102 @@ const ShoppingListDetail: React.FC = () => {
     }
   };
 
+  const handleStartTrip = async (budget: number, storeName: string) => {
+    if (!list) return;
+
+    try {
+      const trip = await createShoppingTrip({
+        list_id: list.id,
+        budget,
+        store_name: storeName
+      });
+      
+      setActiveTrip(trip);
+      setViewingTrip(true);
+      setShowStartTripModal(false);
+      toast.success('Shopping trip started!');
+    } catch (error) {
+      console.error('Failed to start trip:', error);
+      toast.error('Failed to start trip');
+    }
+  };
+
+  const handleCompleteTrip = async (completedTrip: ShoppingTrip, cartItems: CartItem[]) => {
+    if (!list) return;
+
+    // Ask if user wants to save prices to database
+    if (cartItems.length > 0) {
+      const shouldSave = window.confirm(
+        `Save ${cartItems.length} item price${cartItems.length !== 1 ? 's' : ''} to Price Tracker?\n\nThis will add today's prices to your price history for comparison.`
+      );
+
+      if (shouldSave) {
+        let savedCount = 0;
+        let errorCount = 0;
+
+        for (const item of cartItems) {
+          try {
+            // Map shopping list categories to grocery item categories
+            const categoryMap: Record<string, 'Beef' | 'Pork' | 'Chicken' | 'Seafood' | 'Dairy' | 'Produce' | 'Snacks' | 'Drinks' | 'Household' | 'Other'> = {
+              'Meats': 'Chicken',
+              'Dairy': 'Dairy',
+              'Produce': 'Produce',
+              'Snacks': 'Snacks',
+              'Drinks': 'Drinks',
+              'Household': 'Household'
+            };
+            const groceryCategory = item.category ? (categoryMap[item.category] || 'Other') : 'Other';
+            
+            // Calculate unit price
+            const unitPrice = item.price_paid / item.quantity;
+            
+            await createGroceryItem({
+              itemName: item.item_name,
+              price: item.price_paid,
+              quantity: item.quantity,
+              unitType: item.unit_type || 'each',
+              unitPrice: unitPrice,
+              datePurchased: new Date(),
+              storeName: completedTrip.store_name,
+              category: groceryCategory,
+              targetPrice: item.target_price || undefined,
+              meatQuality: undefined
+            });
+            savedCount++;
+          } catch (error) {
+            console.error(`Failed to save ${item.item_name}:`, error);
+            errorCount++;
+          }
+        }
+
+        if (savedCount > 0) {
+          toast.success(`Saved ${savedCount} price${savedCount !== 1 ? 's' : ''} to Price Tracker!`);
+        }
+        if (errorCount > 0) {
+          toast.warning(`Failed to save ${errorCount} item${errorCount !== 1 ? 's' : ''}`);
+        }
+      }
+    }
+
+    // Show trip summary
+    const overBudget = completedTrip.total_spent > completedTrip.budget;
+    const difference = Math.abs(completedTrip.total_spent - completedTrip.budget);
+    
+    toast.success(
+      `Trip complete! Spent $${completedTrip.total_spent.toFixed(2)}. ` +
+      (overBudget 
+        ? `$${difference.toFixed(2)} over budget.`
+        : `Saved $${difference.toFixed(2)}!`
+      ),
+      { autoClose: 5000 }
+    );
+
+    // Return to list view
+    setViewingTrip(false);
+    setActiveTrip(null);
+    loadListData(false);
+  };
+
   // Group items by category
   const groupedItems = items.reduce((acc, item) => {
     const key = item.is_checked ? 'checked' : item.category;
@@ -286,14 +391,39 @@ const ShoppingListDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Add Item Button */}
-        <button
-          onClick={() => setShowAddItemModal(true)}
-          className="w-full mb-6 flex items-center justify-center space-x-2 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors shadow-lg"
-        >
-          <Plus className="h-5 w-5" />
-          <span>Add Item to List</span>
-        </button>
+        {/* Action Buttons */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            onClick={() => setShowAddItemModal(true)}
+            className="flex items-center justify-center space-x-2 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Add Item to List</span>
+          </button>
+          
+          {activeTrip ? (
+            <button
+              onClick={() => setViewingTrip(true)}
+              className="flex items-center justify-center space-x-2 px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+            >
+              <Receipt className="h-5 w-5" />
+              <span>View Active Trip</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowStartTripModal(true)}
+              disabled={items.length === 0}
+              className={`flex items-center justify-center space-x-2 px-6 py-4 rounded-xl font-medium transition-colors shadow-lg ${
+                items.length === 0
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
+            >
+              <ShoppingCart className="h-5 w-5" />
+              <span>Start Shopping Trip</span>
+            </button>
+          )}
+        </div>
 
         {/* Items by Category */}
         <div className="space-y-6">
@@ -431,6 +561,30 @@ const ShoppingListDetail: React.FC = () => {
           onClose={() => setShowAddItemModal(false)}
           onAdded={handleItemUpdate}
         />
+      )}
+
+      {showStartTripModal && list && (
+        <StartShoppingTripModal
+          isOpen={showStartTripModal}
+          onClose={() => setShowStartTripModal(false)}
+          onStart={handleStartTrip}
+          listName={list.name}
+          defaultStore=""
+          darkMode={darkMode}
+        />
+      )}
+
+      {/* Shopping Trip View (full screen overlay) */}
+      {viewingTrip && activeTrip && (
+        <div className="fixed inset-0 z-50 bg-white dark:bg-zinc-900">
+          <ShoppingTripView
+            trip={activeTrip}
+            listItems={items}
+            darkMode={darkMode}
+            onBack={() => setViewingTrip(false)}
+            onComplete={handleCompleteTrip}
+          />
+        </div>
       )}
     </div>
   );
