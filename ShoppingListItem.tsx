@@ -51,10 +51,10 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
         }
       }
       
-      // Wait for animation to complete before refreshing
+      // Wait for animation to complete
       setTimeout(() => {
         setIsAnimating(false);
-        onUpdate();
+        // Don't call onUpdate here - let the optimistic handler manage refresh timing
       }, 300);
     } catch (error: any) {
       const errorMessage = error?.message || 'Failed to update item';
@@ -65,7 +65,6 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
       if (onOptimisticCheck) {
         onOptimisticCheck(item.id, item.is_checked);
       }
-      onUpdate();
     }
   };
 
