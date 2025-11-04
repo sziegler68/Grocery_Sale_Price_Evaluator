@@ -113,17 +113,20 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
         added_by: userName || undefined,
       });
 
-      // Send notification (throttled)
+      // Send notification (throttled) - don't block on this
       if (userName) {
-        await notifyItemsAdded(listId, listName, 1, userName);
+        notifyItemsAdded(listId, listName, 1, userName).catch(err => {
+          console.warn('Failed to send notification:', err);
+        });
       }
 
       toast.success('Item added!');
       onAdded();
       onClose();
-    } catch (error) {
-      toast.error('Failed to add item');
-      console.error(error);
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Failed to add item';
+      toast.error(errorMessage);
+      console.error('Error adding item:', error);
     } finally {
       setIsAdding(false);
     }
