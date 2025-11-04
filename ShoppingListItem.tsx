@@ -15,9 +15,13 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.item_name);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleCheckToggle = async () => {
     const newCheckedState = !item.is_checked;
+    
+    // Start animation
+    setIsAnimating(true);
     
     // Immediately update UI (optimistic)
     if (onOptimisticCheck) {
@@ -31,11 +35,15 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
       } else {
         await checkItem(item.id);
       }
-      // Sync with database
-      onUpdate();
+      // Wait for animation to complete before refreshing
+      setTimeout(() => {
+        setIsAnimating(false);
+        onUpdate();
+      }, 300);
     } catch (error) {
       toast.error('Failed to update item');
       console.error(error);
+      setIsAnimating(false);
       // Revert optimistic update on error
       if (onOptimisticCheck) {
         onOptimisticCheck(item.id, item.is_checked);
@@ -89,7 +97,7 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
     <div
       className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 ${
         darkMode ? 'bg-zinc-700' : 'bg-gray-50'
-      } ${item.is_checked ? 'opacity-60' : ''}`}
+      } ${item.is_checked ? 'opacity-60' : ''} ${isAnimating ? 'animate-pulse' : ''}`}
     >
       {/* Checkbox */}
       <button
