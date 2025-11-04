@@ -299,30 +299,52 @@ const Settings: React.FC = () => {
             {notifSettings.enabled && (
               <>
                 <div className="pl-6 space-y-4 border-l-2 border-purple-200 dark:border-purple-800">
-                  <label className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium">Push Notifications</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Get notified even when app is closed
+                  <div className="space-y-3">
+                    <label className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-medium">Push Notifications</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Get notified even when app is closed
+                        </div>
                       </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={notifSettings.pushEnabled}
-                      onChange={(e) => setNotifSettings(prev => ({ ...prev, pushEnabled: e.target.checked }))}
-                      disabled={!isPushNotificationSupported()}
-                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
-                    />
-                  </label>
+                      <input
+                        type="checkbox"
+                        checked={notifSettings.pushEnabled}
+                        onChange={(e) => {
+                          const newValue = e.target.checked;
+                          setNotifSettings(prev => ({ ...prev, pushEnabled: newValue }));
+                          
+                          // If enabling and permission not granted, auto-request
+                          if (newValue && !isPushNotificationSupported()) {
+                            handleRequestPushPermission();
+                          }
+                        }}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
+                      />
+                    </label>
 
-                  {!isPushNotificationSupported() && notifSettings.pushEnabled && (
-                    <button
-                      onClick={handleRequestPushPermission}
-                      className="ml-6 text-sm px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-                    >
-                      Request Permission
-                    </button>
-                  )}
+                    {notifSettings.pushEnabled && !isPushNotificationSupported() && (
+                      <div className={`p-3 rounded-lg ${darkMode ? 'bg-amber-900/20' : 'bg-amber-50'} border border-amber-300`}>
+                        <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
+                          Push notifications require browser permission
+                        </p>
+                        <button
+                          onClick={handleRequestPushPermission}
+                          className="text-sm px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                        >
+                          Grant Permission
+                        </button>
+                      </div>
+                    )}
+
+                    {notifSettings.pushEnabled && isPushNotificationSupported() && (
+                      <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/20' : 'bg-green-50'} border border-green-300`}>
+                        <p className="text-sm text-green-700 dark:text-green-400">
+                          ? Push notifications enabled
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
