@@ -57,10 +57,16 @@ const ShoppingListDetail: React.FC = () => {
         return;
       }
 
-      const [loadedItems, trip] = await Promise.all([
-        getItemsForList(loadedList.id),
-        getActiveTrip(loadedList.id)
-      ]);
+      const loadedItems = await getItemsForList(loadedList.id);
+      
+      // Try to load active trip, but don't fail if tables don't exist yet
+      let trip: ShoppingTrip | null = null;
+      try {
+        trip = await getActiveTrip(loadedList.id);
+      } catch (tripError) {
+        console.warn('Could not load active trip (tables may not exist yet):', tripError);
+        // Silently ignore - trip feature not available yet
+      }
 
       setList(loadedList);
       setItems(loadedItems);
@@ -216,7 +222,7 @@ const ShoppingListDetail: React.FC = () => {
       toast.success('Shopping trip started!');
     } catch (error) {
       console.error('Failed to start trip:', error);
-      toast.error('Failed to start trip');
+      toast.error('Failed to start trip. Make sure you\'ve run the database migration (shopping_trip_schema.sql)');
     }
   };
 
