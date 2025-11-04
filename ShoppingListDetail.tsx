@@ -10,13 +10,15 @@ import StartShoppingTripModal from './StartShoppingTripModal';
 import ShoppingTripView from './ShoppingTripView';
 import { useDarkMode } from './useDarkMode';
 import { getUserNameForList, setUserNameForList, removeUserNameForList } from './listUserNames';
-import { notifyShoppingComplete, notifyMissingItems } from './notificationService';
+import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased } from './notificationService';
 import { 
   getShoppingListByCode, 
   getItemsForList, 
   deleteShoppingList, 
   clearAllItems,
-  subscribeToListItems 
+  subscribeToListItems,
+  checkItem,
+  uncheckItem
 } from './shoppingListApi';
 import { getActiveTrip, createShoppingTrip } from './shoppingTripApi';
 import { createGroceryItem } from './groceryData';
@@ -45,6 +47,11 @@ const ShoppingListDetail: React.FC = () => {
   const subscriptionBatchRef = useRef<Map<string, ShoppingListItemType>>(new Map());
   const subscriptionTimeoutRef = useRef<number | null>(null);
   const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
+  
+  // Batched checkbox sync queue
+  const checkboxSyncQueueRef = useRef<Map<string, boolean>>(new Map()); // itemId -> newCheckedState
+  const checkboxSyncTimeoutRef = useRef<number | null>(null);
+  const notificationBatchRef = useRef<{count: number, lastUpdate: number}>({count: 0, lastUpdate: 0});
 
   const loadListData = useCallback(async (showLoading = true) => {
     if (!shareCode) return;
@@ -104,11 +111,61 @@ const ShoppingListDetail: React.FC = () => {
     debouncedLoadListData();
   };
 
+  // Sync batched checkbox changes to Supabase
+  const syncCheckboxChanges = useCallback(async () => {
+    if (checkboxSyncQueueRef.current.size === 0) return;
+    
+    const updates = new Map(checkboxSyncQueueRef.current);
+    checkboxSyncQueueRef.current.clear();
+    
+    // Batch update to Supabase in background
+    try {
+      const promises = Array.from(updates.entries()).map(([itemId, isChecked]) => {
+        if (isChecked) {
+          return checkItem(itemId);
+        } else {
+          return uncheckItem(itemId);
+        }
+      });
+      
+      await Promise.all(promises);
+      
+      // Send ONE batched notification if there were checks (not unchecks)
+      const checkedCount = Array.from(updates.values()).filter(v => v).length;
+      if (checkedCount > 0 && list && shareCode) {
+        const userName = getUserNameForList(shareCode);
+        if (userName) {
+          notificationBatchRef.current.count += checkedCount;
+          
+          // Only send notification if enough time has passed (5 seconds)
+          const now = Date.now();
+          if (now - notificationBatchRef.current.lastUpdate > 5000) {
+            const totalCount = notificationBatchRef.current.count;
+            notificationBatchRef.current = {count: 0, lastUpdate: now};
+            
+            // Fire and forget - don't block
+            notifyItemsPurchased(list.id, list.name, totalCount, userName).catch(() => {
+              // Silently fail
+            });
+          }
+        }
+      }
+      
+      // Clear optimistic flags
+      updates.forEach((_, itemId) => {
+        optimisticUpdatesRef.current.delete(itemId);
+      });
+    } catch (error) {
+      console.error('Failed to sync checkbox changes:', error);
+      // Don't revert UI - real-time subscription will sync eventually
+    }
+  }, [list, shareCode]);
+
   const handleOptimisticCheck = useCallback((itemId: string, newCheckedState: boolean) => {
     // Mark this item as having a pending optimistic update
     optimisticUpdatesRef.current.add(itemId);
     
-    // Immediately update UI (optimistic) - NO startTransition, we want instant response!
+    // Immediately update UI (optimistic) - instant response!
     setItems(prevItems => 
       prevItems.map(item => 
         item.id === itemId 
@@ -117,11 +174,19 @@ const ShoppingListDetail: React.FC = () => {
       )
     );
     
-    // Clear optimistic flag after a short delay (assume API completed)
-    setTimeout(() => {
-      optimisticUpdatesRef.current.delete(itemId);
-    }, 500);
-  }, []);
+    // Queue for batched background sync
+    checkboxSyncQueueRef.current.set(itemId, newCheckedState);
+    
+    // Clear any existing sync timeout
+    if (checkboxSyncTimeoutRef.current !== null) {
+      clearTimeout(checkboxSyncTimeoutRef.current);
+    }
+    
+    // Schedule batched sync (1 second delay to batch multiple rapid clicks)
+    checkboxSyncTimeoutRef.current = window.setTimeout(() => {
+      syncCheckboxChanges();
+    }, 1000);
+  }, [syncCheckboxChanges]);
 
   useEffect(() => {
     loadListData();
@@ -211,6 +276,19 @@ const ShoppingListDetail: React.FC = () => {
       }
     };
   }, [list?.id, processBatchedUpdates]);
+
+  // Flush pending checkbox changes on unmount
+  useEffect(() => {
+    return () => {
+      // Flush any pending checkbox syncs before unmounting
+      if (checkboxSyncQueueRef.current.size > 0) {
+        if (checkboxSyncTimeoutRef.current !== null) {
+          clearTimeout(checkboxSyncTimeoutRef.current);
+        }
+        syncCheckboxChanges();
+      }
+    };
+  }, [syncCheckboxChanges]);
 
   const handleSaveName = (name: string) => {
     if (shareCode) {

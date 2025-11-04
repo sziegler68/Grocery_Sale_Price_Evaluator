@@ -1,9 +1,7 @@
 import React, { useState, memo } from 'react';
 import { Check, X, Edit2, Trash2 } from 'lucide-react';
 import type { ShoppingListItem as ShoppingListItemType } from './shoppingListTypes';
-import { checkItem, uncheckItem, deleteItem, updateItem } from './shoppingListApi';
-import { getUserNameForList } from './listUserNames';
-import { notifyItemsPurchased } from './notificationService';
+import { deleteItem, updateItem } from './shoppingListApi';
 import { toast } from 'react-toastify';
 
 interface ShoppingListItemProps {
@@ -21,48 +19,20 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
   const [editName, setEditName] = useState(item.item_name);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCheckToggle = async () => {
+  const handleCheckToggle = () => {
     // Prevent double-clicks or redundant calls
     if (isLoading) return;
     
     const newCheckedState = !item.is_checked;
-    setIsLoading(true);
     
-    // Immediately update UI (optimistic)
+    // Immediately update UI (optimistic) - NO await, NO blocking
     if (onOptimisticCheck) {
       onOptimisticCheck(item.id, newCheckedState);
     }
     
-    // Update database - the real-time subscription will sync across devices
-    try {
-      if (item.is_checked) {
-        await uncheckItem(item.id);
-      } else {
-        await checkItem(item.id);
-        
-        // Send notification for checking item (non-blocking, fire and forget)
-        if (listId && listName && shareCode) {
-          const userName = getUserNameForList(shareCode);
-          if (userName) {
-            notifyItemsPurchased(listId, listName, 1, userName).catch(() => {
-              // Silently fail - don't block UI or show errors for notifications
-            });
-          }
-        }
-      }
-      // Success - real-time subscription will handle UI sync across all devices
-    } catch (error: any) {
-      const errorMessage = error?.message || 'Failed to update item';
-      toast.error(errorMessage);
-      console.error('Error updating item:', error);
-      // Revert optimistic update on error
-      if (onOptimisticCheck) {
-        onOptimisticCheck(item.id, item.is_checked);
-      }
-    } finally {
-      // Small delay to prevent rapid re-clicks
-      setTimeout(() => setIsLoading(false), 150);
-    }
+    // Lock for 150ms to prevent rapid re-clicks
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 150);
   };
 
   const handleDelete = async () => {
