@@ -2,6 +2,8 @@ import React, { useState, memo } from 'react';
 import { Check, X, Edit2, Trash2 } from 'lucide-react';
 import type { ShoppingListItem as ShoppingListItemType } from './shoppingListTypes';
 import { checkItem, uncheckItem, deleteItem, updateItem } from './shoppingListApi';
+import { getUserNameForList } from './listUserNames';
+import { notifyItemsPurchased } from './notificationService';
 import { toast } from 'react-toastify';
 
 interface ShoppingListItemProps {
@@ -9,9 +11,12 @@ interface ShoppingListItemProps {
   darkMode: boolean;
   onUpdate: () => void;
   onOptimisticCheck?: (itemId: string, newCheckedState: boolean) => void;
+  listId?: string;
+  listName?: string;
+  shareCode?: string;
 }
 
-const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck }) => {
+const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck, listId, listName, shareCode }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.item_name);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +39,16 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
         await uncheckItem(item.id);
       } else {
         await checkItem(item.id);
+        
+        // Send notification for checking item (throttled)
+        if (listId && listName && shareCode) {
+          const userName = getUserNameForList(shareCode);
+          if (userName) {
+            await notifyItemsPurchased(listId, listName, 1, userName);
+          }
+        }
       }
+      
       // Wait for animation to complete before refreshing
       setTimeout(() => {
         setIsAnimating(false);

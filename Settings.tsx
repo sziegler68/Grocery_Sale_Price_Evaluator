@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import { Settings as SettingsIcon, Save } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Bell } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useDarkMode } from './useDarkMode';
+import { 
+  getNotificationSettings, 
+  saveNotificationSettings, 
+  requestPushPermission, 
+  isPushNotificationSupported,
+  type NotificationSettings 
+} from './notificationService';
 
 export interface UnitPreferences {
   meat: 'pound' | 'ounce';
@@ -51,10 +58,22 @@ export const saveUnitPreferences = (preferences: UnitPreferences): void => {
 const Settings: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [preferences, setPreferences] = useState<UnitPreferences>(getUnitPreferences());
+  const [notifSettings, setNotifSettings] = useState<NotificationSettings>(getNotificationSettings());
 
   const handleSave = () => {
     saveUnitPreferences(preferences);
+    saveNotificationSettings(notifSettings);
     toast.success('Settings saved successfully!');
+  };
+
+  const handleRequestPushPermission = async () => {
+    const granted = await requestPushPermission();
+    if (granted) {
+      setNotifSettings(prev => ({ ...prev, pushEnabled: true }));
+      toast.success('Push notifications enabled!');
+    } else {
+      toast.error('Push notification permission denied');
+    }
   };
 
   const handleChange = (category: keyof UnitPreferences, value: string) => {
@@ -249,7 +268,131 @@ const Settings: React.FC = () => {
             className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
           >
             <Save className="h-5 w-5" />
-            <span>Save Preferences</span>
+            <span>Save Unit Preferences</span>
+          </button>
+        </div>
+
+        {/* Notification Settings */}
+        <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 ${
+          darkMode ? 'bg-zinc-800' : 'bg-white'
+        }`}>
+          <div className="flex items-center space-x-2 mb-6">
+            <Bell className="h-6 w-6 text-purple-600" />
+            <h2 className="text-2xl font-bold">Notification Settings</h2>
+          </div>
+
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Get notified when others update shared shopping lists. Notifications are throttled to prevent spam.
+          </p>
+
+          <div className="space-y-6">
+            <label className="flex items-center justify-between">
+              <span className="text-sm font-medium">Enable Notifications</span>
+              <input
+                type="checkbox"
+                checked={notifSettings.enabled}
+                onChange={(e) => setNotifSettings(prev => ({ ...prev, enabled: e.target.checked }))}
+                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
+              />
+            </label>
+
+            {notifSettings.enabled && (
+              <>
+                <div className="pl-6 space-y-4 border-l-2 border-purple-200 dark:border-purple-800">
+                  <label className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium">Push Notifications</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Get notified even when app is closed
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notifSettings.pushEnabled}
+                      onChange={(e) => setNotifSettings(prev => ({ ...prev, pushEnabled: e.target.checked }))}
+                      disabled={!isPushNotificationSupported()}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
+                    />
+                  </label>
+
+                  {!isPushNotificationSupported() && notifSettings.pushEnabled && (
+                    <button
+                      onClick={handleRequestPushPermission}
+                      className="ml-6 text-sm px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    >
+                      Request Permission
+                    </button>
+                  )}
+                </div>
+
+                <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
+                  <h3 className="text-sm font-semibold mb-3">Notify me when:</h3>
+                  <div className="space-y-3">
+                    <label className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm">Items are added</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Max 1 notification per hour
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={notifSettings.types.itemsAdded}
+                        onChange={(e) => setNotifSettings(prev => ({
+                          ...prev,
+                          types: { ...prev.types, itemsAdded: e.target.checked }
+                        }))}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
+                      />
+                    </label>
+
+                    <label className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm">Items are checked off</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Max 1 notification per hour
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={notifSettings.types.itemsPurchased}
+                        onChange={(e) => setNotifSettings(prev => ({
+                          ...prev,
+                          types: { ...prev.types, itemsPurchased: e.target.checked }
+                        }))}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
+                      />
+                    </label>
+
+                    <label className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm">Shopping is complete</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          Not throttled (manual trigger)
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={notifSettings.types.shoppingComplete}
+                        onChange={(e) => setNotifSettings(prev => ({
+                          ...prev,
+                          types: { ...prev.types, shoppingComplete: e.target.checked }
+                        }))}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <button
+            onClick={handleSave}
+            className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+          >
+            <Save className="h-5 w-5" />
+            <span>Save All Settings</span>
           </button>
         </div>
       </main>

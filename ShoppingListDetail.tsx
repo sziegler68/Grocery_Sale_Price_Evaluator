@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import ShoppingListItem from './ShoppingListItem';
 import AddItemToListModal from './AddItemToListModal';
+import SetNameModal from './SetNameModal';
 import { useDarkMode } from './useDarkMode';
+import { getUserNameForList, setUserNameForList, removeUserNameForList } from './listUserNames';
+import { notifyShoppingComplete, notifyMissingItems } from './notificationService';
 import { 
   getShoppingListByCode, 
   getItemsForList, 
@@ -26,7 +29,9 @@ const ShoppingListDetail: React.FC = () => {
   const [items, setItems] = useState<ShoppingListItemType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const loadListData = async (showLoading = true) => {
     if (!shareCode) return;
@@ -85,7 +90,26 @@ const ShoppingListDetail: React.FC = () => {
 
   useEffect(() => {
     loadListData();
+    
+    // Check if user has set their name for this list
+    if (shareCode) {
+      const savedName = getUserNameForList(shareCode);
+      if (savedName) {
+        setUserName(savedName);
+      } else {
+        // Show name prompt after a brief delay
+        setTimeout(() => setShowNameModal(true), 500);
+      }
+    }
   }, [shareCode]);
+
+  const handleSaveName = (name: string) => {
+    if (shareCode) {
+      setUserNameForList(shareCode, name);
+      setUserName(name);
+    }
+    setShowNameModal(false);
+  };
 
   const handleCopyCode = () => {
     if (list) {
@@ -123,11 +147,47 @@ const ShoppingListDetail: React.FC = () => {
     try {
       await deleteShoppingList(list.id);
       removeShareCode(list.share_code);
+      if (shareCode) {
+        removeUserNameForList(shareCode);
+      }
       toast.success('Shopping list deleted');
       navigate('/shopping-lists');
     } catch (error) {
       toast.error('Failed to delete list');
       console.error(error);
+    }
+  };
+
+  const handleMarkComplete = async () => {
+    if (!list || !userName) return;
+
+    const allChecked = items.every(item => item.is_checked);
+    
+    try {
+      await notifyShoppingComplete(list.id, list.name, userName, allChecked);
+      toast.success('Shopping marked as complete!');
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      toast.error('Failed to send notification');
+    }
+  };
+
+  const handleMissingItems = async () => {
+    if (!list || !userName) return;
+
+    const uncheckedCount = items.filter(item => !item.is_checked).length;
+    
+    if (uncheckedCount === 0) {
+      toast.info('All items have been purchased!');
+      return;
+    }
+
+    try {
+      await notifyMissingItems(list.id, list.name, userName, uncheckedCount);
+      toast.success('Notification sent!');
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      toast.error('Failed to send notification');
     }
   };
 
@@ -271,6 +331,9 @@ const ShoppingListDetail: React.FC = () => {
                         darkMode={darkMode}
                         onUpdate={handleItemUpdate}
                         onOptimisticCheck={handleOptimisticCheck}
+                        listId={list.id}
+                        listName={list.name}
+                        shareCode={shareCode}
                       />
                     ))}
                   </div>
@@ -295,6 +358,9 @@ const ShoppingListDetail: React.FC = () => {
                         darkMode={darkMode}
                         onUpdate={handleItemUpdate}
                         onOptimisticCheck={handleOptimisticCheck}
+                        listId={list.id}
+                        listName={list.name}
+                        shareCode={shareCode}
                       />
                     ))}
                   </div>
@@ -304,8 +370,28 @@ const ShoppingListDetail: React.FC = () => {
           )}
         </div>
 
+        {/* Notification Buttons */}
+        {items.length > 0 && userName && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={handleMarkComplete}
+              className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+            >
+              <CheckCircle className="h-5 w-5" />
+              <span>Mark as Complete</span>
+            </button>
+            <button
+              onClick={handleMissingItems}
+              className="flex items-center justify-center space-x-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
+            >
+              <AlertCircle className="h-5 w-5" />
+              <span>Missing Items - Notify</span>
+            </button>
+          </div>
+        )}
+
         {/* Action Buttons */}
-        <div className="mt-8 flex flex-wrap gap-4">
+        <div className="mt-4 flex flex-wrap gap-4">
           {items.length > 0 && (
             <button
               onClick={handleClearAll}
@@ -327,10 +413,20 @@ const ShoppingListDetail: React.FC = () => {
 
       <Footer />
 
-      {/* Add Item Modal */}
-      {showAddItemModal && (
+      {/* Modals */}
+      {showNameModal && list && (
+        <SetNameModal
+          darkMode={darkMode}
+          listName={list.name}
+          onSave={handleSaveName}
+        />
+      )}
+
+      {showAddItemModal && list && shareCode && (
         <AddItemToListModal
           listId={list.id}
+          shareCode={shareCode}
+          listName={list.name}
           darkMode={darkMode}
           onClose={() => setShowAddItemModal(false)}
           onAdded={handleItemUpdate}

@@ -3,12 +3,15 @@ import { X, Plus, Search } from 'lucide-react';
 import { addItemToList } from './shoppingListApi';
 import { fetchAllItems } from './groceryData';
 import { mapToShoppingListCategory, SHOPPING_LIST_CATEGORIES } from './shoppingListTypes';
-import { getStoredUserName } from './shoppingListStorage';
+import { getUserNameForList } from './listUserNames';
+import { notifyItemsAdded } from './notificationService';
 import { toast } from 'react-toastify';
 import type { GroceryItem } from './groceryData';
 
 interface AddItemToListModalProps {
   listId: string;
+  shareCode: string;
+  listName: string;
   darkMode: boolean;
   onClose: () => void;
   onAdded: () => void;
@@ -16,6 +19,8 @@ interface AddItemToListModalProps {
 
 const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
   listId,
+  shareCode,
+  listName,
   darkMode,
   onClose,
   onAdded,
@@ -95,6 +100,8 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
 
     setIsAdding(true);
     try {
+      const userName = getUserNameForList(shareCode);
+      
       await addItemToList({
         list_id: listId,
         item_name: itemName.trim(),
@@ -103,8 +110,13 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
         unit_type: unitType || undefined,
         target_price: targetPrice ? parseFloat(targetPrice) : undefined,
         notes: notes.trim() || undefined,
-        added_by: getStoredUserName() || undefined,
+        added_by: userName || undefined,
       });
+
+      // Send notification (throttled)
+      if (userName) {
+        await notifyItemsAdded(listId, listName, 1, userName);
+      }
 
       toast.success('Item added!');
       onAdded();
