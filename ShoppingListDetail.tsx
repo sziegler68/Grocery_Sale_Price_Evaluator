@@ -52,6 +52,10 @@ const ShoppingListDetail: React.FC = () => {
   const checkboxSyncQueueRef = useRef<Map<string, boolean>>(new Map()); // itemId -> newCheckedState
   const checkboxSyncTimeoutRef = useRef<number | null>(null);
   const notificationBatchRef = useRef<{count: number, lastUpdate: number}>({count: 0, lastUpdate: 0});
+  
+  // Delayed re-grouping to prevent visual glitching
+  const [displayItems, setDisplayItems] = useState<ShoppingListItemType[]>([]);
+  const regroupTimeoutRef = useRef<number | null>(null);
 
   const loadListData = useCallback(async (showLoading = true) => {
     if (!shareCode) return;
@@ -174,6 +178,15 @@ const ShoppingListDetail: React.FC = () => {
       )
     );
     
+    // Immediately update display items (no re-grouping yet - keep in place)
+    setDisplayItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId 
+          ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
+          : item
+      )
+    );
+    
     // Queue for batched background sync
     checkboxSyncQueueRef.current.set(itemId, newCheckedState);
     
@@ -186,6 +199,19 @@ const ShoppingListDetail: React.FC = () => {
     checkboxSyncTimeoutRef.current = window.setTimeout(() => {
       syncCheckboxChanges();
     }, 1000);
+    
+    // Delay re-grouping to prevent visual glitching during rapid clicks
+    if (regroupTimeoutRef.current !== null) {
+      clearTimeout(regroupTimeoutRef.current);
+    }
+    
+    regroupTimeoutRef.current = window.setTimeout(() => {
+      // After 2 seconds of no activity, trigger re-grouping by syncing displayItems with items
+      setItems(latestItems => {
+        setDisplayItems(latestItems);
+        return latestItems;
+      });
+    }, 2000);
   }, [syncCheckboxChanges]);
 
   useEffect(() => {
@@ -474,9 +500,18 @@ const ShoppingListDetail: React.FC = () => {
     loadListData(false);
   };
 
+  // Sync displayItems with items when items change from external sources
+  useEffect(() => {
+    // Only update if not from user interaction (i.e., from initial load or subscription)
+    if (optimisticUpdatesRef.current.size === 0) {
+      setDisplayItems(items);
+    }
+  }, [items]);
+
   // Group items by category (memoized to prevent recalculation on every render)
+  // Use displayItems instead of items to control when re-grouping happens
   const groupedItems = useMemo(() => {
-    return items.reduce((acc, item) => {
+    return displayItems.reduce((acc, item) => {
       const key = item.is_checked ? 'checked' : item.category;
       if (!acc[key]) {
         acc[key] = [];
@@ -484,7 +519,7 @@ const ShoppingListDetail: React.FC = () => {
       acc[key].push(item);
       return acc;
     }, {} as Record<string, ShoppingListItemType[]>);
-  }, [items]);
+  }, [displayItems]);
 
   const uncheckedItems = useMemo(() => {
     return SHOPPING_LIST_CATEGORIES.map(category => ({
