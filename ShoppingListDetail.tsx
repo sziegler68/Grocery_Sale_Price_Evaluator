@@ -66,6 +66,17 @@ const ShoppingListDetail: React.FC = () => {
     loadListData(false);
   };
 
+  const handleOptimisticCheck = (itemId: string, newCheckedState: boolean) => {
+    // Immediately update UI (optimistic)
+    setItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId 
+          ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
+          : item
+      )
+    );
+  };
+
   useEffect(() => {
     loadListData();
   }, [shareCode]);
@@ -253,6 +264,7 @@ const ShoppingListDetail: React.FC = () => {
                         item={item}
                         darkMode={darkMode}
                         onUpdate={handleItemUpdate}
+                        onOptimisticCheck={handleOptimisticCheck}
                       />
                     ))}
                   </div>
@@ -276,6 +288,7 @@ const ShoppingListDetail: React.FC = () => {
                         item={item}
                         darkMode={darkMode}
                         onUpdate={handleItemUpdate}
+                        onOptimisticCheck={handleOptimisticCheck}
                       />
                     ))}
                   </div>

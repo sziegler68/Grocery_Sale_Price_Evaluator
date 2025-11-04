@@ -8,27 +8,38 @@ interface ShoppingListItemProps {
   item: ShoppingListItemType;
   darkMode: boolean;
   onUpdate: () => void;
+  onOptimisticCheck?: (itemId: string, newCheckedState: boolean) => void;
 }
 
-const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate }) => {
+const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.item_name);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckToggle = async () => {
-    // Optimistic update - don't show loading state
+    const newCheckedState = !item.is_checked;
+    
+    // Immediately update UI (optimistic)
+    if (onOptimisticCheck) {
+      onOptimisticCheck(item.id, newCheckedState);
+    }
+    
+    // Update database in background
     try {
       if (item.is_checked) {
         await uncheckItem(item.id);
       } else {
         await checkItem(item.id);
       }
-      // Trigger parent to refresh data in background
+      // Sync with database
       onUpdate();
     } catch (error) {
       toast.error('Failed to update item');
       console.error(error);
-      // Trigger update to revert on error
+      // Revert optimistic update on error
+      if (onOptimisticCheck) {
+        onOptimisticCheck(item.id, item.is_checked);
+      }
       onUpdate();
     }
   };
@@ -76,7 +87,7 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onU
 
   return (
     <div
-      className={`flex items-start space-x-3 p-3 rounded-lg ${
+      className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-300 ${
         darkMode ? 'bg-zinc-700' : 'bg-gray-50'
       } ${item.is_checked ? 'opacity-60' : ''}`}
     >
@@ -84,7 +95,7 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onU
       <button
         onClick={handleCheckToggle}
         disabled={isLoading}
-        className={`flex-shrink-0 mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+        className={`flex-shrink-0 mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 transform active:scale-90 ${
           item.is_checked
             ? 'bg-green-600 border-green-600'
             : darkMode
@@ -92,7 +103,7 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onU
             : 'border-gray-400 hover:border-purple-500'
         }`}
       >
-        {item.is_checked && <Check className="h-4 w-4 text-white" />}
+        {item.is_checked && <Check className="h-4 w-4 text-white transition-transform duration-200" />}
       </button>
 
       {/* Item Details */}
