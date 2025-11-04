@@ -67,7 +67,7 @@ const ShoppingListDetail: React.FC = () => {
   };
 
   const handleOptimisticCheck = (itemId: string, newCheckedState: boolean) => {
-    // Immediately update UI (optimistic)
+    // Immediately update UI (optimistic) - keep item in same position initially
     setItems(prevItems => 
       prevItems.map(item => 
         item.id === itemId 
@@ -76,10 +76,11 @@ const ShoppingListDetail: React.FC = () => {
       )
     );
     
-    // Delay the re-sort/refresh to allow smooth transition
+    // Delay the database refresh to allow animations to complete
+    // Don't reload at all - let next natural refresh handle it, or manual refresh
     setTimeout(() => {
       loadListData(false);
-    }, 400);
+    }, 600);
   };
 
   useEffect(() => {

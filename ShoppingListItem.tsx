@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Check, X, Edit2, Trash2 } from 'lucide-react';
 import type { ShoppingListItem as ShoppingListItemType } from './shoppingListTypes';
 import { checkItem, uncheckItem, deleteItem, updateItem } from './shoppingListApi';
@@ -11,7 +11,7 @@ interface ShoppingListItemProps {
   onOptimisticCheck?: (itemId: string, newCheckedState: boolean) => void;
 }
 
-const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck }) => {
+const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.item_name);
   const [isLoading, setIsLoading] = useState(false);
@@ -189,5 +189,18 @@ const ShoppingListItem: React.FC<ShoppingListItemProps> = ({ item, darkMode, onU
     </div>
   );
 };
+
+// Memoize component to prevent unnecessary re-renders
+const ShoppingListItem = memo(ShoppingListItemComponent, (prevProps, nextProps) => {
+  // Only re-render if these specific properties change
+  return (
+    prevProps.item.id === nextProps.item.id &&
+    prevProps.item.is_checked === nextProps.item.is_checked &&
+    prevProps.item.item_name === nextProps.item.item_name &&
+    prevProps.item.target_price === nextProps.item.target_price &&
+    prevProps.item.notes === nextProps.item.notes &&
+    prevProps.darkMode === nextProps.darkMode
+  );
+});
 
 export default ShoppingListItem;
