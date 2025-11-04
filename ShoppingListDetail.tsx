@@ -34,6 +34,9 @@ const ShoppingListDetail: React.FC = () => {
   const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useDarkMode();
   
+  // Debug: Verify component is loading
+  console.log('🏁 ShoppingListDetail component loaded. Share code:', shareCode);
+  
   const [list, setList] = useState<ShoppingList | null>(null);
   const [items, setItems] = useState<ShoppingListItemType[]>([]);
   const [isLoading, setIsLoading] = useState(true);

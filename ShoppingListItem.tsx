@@ -14,7 +14,7 @@ interface ShoppingListItemProps {
   shareCode?: string;
 }
 
-const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck, listId, listName, shareCode }) => {
+const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.item_name);
   const [isLoading, setIsLoading] = useState(false);
