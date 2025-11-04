@@ -305,8 +305,8 @@ const ShoppingListDetail: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        {items.length > 0 && (
-          <div className="mt-8 flex flex-wrap gap-4">
+        <div className="mt-8 flex flex-wrap gap-4">
+          {items.length > 0 && (
             <button
               onClick={handleClearAll}
               className="flex-1 flex items-center justify-center space-x-2 px-6 py-3 border border-orange-600 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg font-medium transition-colors"
@@ -314,15 +314,15 @@ const ShoppingListDetail: React.FC = () => {
               <RotateCcw className="h-5 w-5" />
               <span>Clear All Items</span>
             </button>
-            <button
-              onClick={handleDeleteList}
-              className="flex-1 flex items-center justify-center space-x-2 px-6 py-3 border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium transition-colors"
-            >
-              <Trash2 className="h-5 w-5" />
-              <span>Delete List</span>
-            </button>
-          </div>
-        )}
+          )}
+          <button
+            onClick={handleDeleteList}
+            className={`${items.length === 0 ? 'w-full' : 'flex-1'} flex items-center justify-center space-x-2 px-6 py-3 border border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium transition-colors`}
+          >
+            <Trash2 className="h-5 w-5" />
+            <span>Delete List</span>
+          </button>
+        </div>
       </main>
 
       <Footer />
