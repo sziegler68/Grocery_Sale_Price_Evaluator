@@ -13,6 +13,7 @@ import Analytics from './Analytics';
 import Settings from './Settings';
 import ShoppingLists from './ShoppingLists';
 import ShoppingListDetail from './ShoppingListDetail';
+import Help from './Help';
 import NotFound from './NotFound';
 
 const App: React.FC = () => {
@@ -29,6 +30,7 @@ const App: React.FC = () => {
             <Route path="/shopping-lists" element={<ShoppingLists />} />
             <Route path="/shopping-list/:shareCode" element={<ShoppingListDetail />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/help" element={<Help />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <ToastContainer

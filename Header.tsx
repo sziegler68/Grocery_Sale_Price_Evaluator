@@ -26,8 +26,8 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
             <Link to="/shopping-lists" className="hover:text-purple-600 transition-colors">Shopping Lists</Link>
             <Link to="/items" className="hover:text-purple-600 transition-colors">Price Tracker</Link>
             <Link to="/add-item" className="hover:text-purple-600 transition-colors">Add Item</Link>
-            <Link to="/analytics" className="hover:text-purple-600 transition-colors">Analytics</Link>
             <Link to="/settings" className="hover:text-purple-600 transition-colors">Settings</Link>
+            <Link to="/help" className="hover:text-purple-600 transition-colors">Help</Link>
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-lg hover:bg-purple-100 dark:hover:bg-zinc-700 transition-colors"
@@ -62,8 +62,8 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
               <Link to="/shopping-lists" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Shopping Lists</Link>
               <Link to="/items" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Price Tracker</Link>
               <Link to="/add-item" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Add Item</Link>
-              <Link to="/analytics" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Analytics</Link>
               <Link to="/settings" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Settings</Link>
+              <Link to="/help" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Help</Link>
             </nav>
           </div>
         )}
