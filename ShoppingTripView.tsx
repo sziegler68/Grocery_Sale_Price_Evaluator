@@ -3,7 +3,7 @@ import { ArrowLeft, Plus, Check, Trash2, ShoppingCart as ShoppingCartIcon, Alert
 import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
 import type { ShoppingListItem } from './shoppingListTypes';
 import { calculateBudgetStatus } from './shoppingTripTypes';
-import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates } from './shoppingTripApi';
+import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById } from './shoppingTripApi';
 import QuickPriceInput from './QuickPriceInput';
 import { toast } from 'react-toastify';
 
@@ -49,17 +49,22 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
 
   // Subscribe to real-time updates
   useEffect(() => {
-    const channel = subscribeToCartUpdates(trip.id, (payload) => {
+    const channel = subscribeToCartUpdates(trip.id, async (payload) => {
       console.log('Cart update:', payload);
       
-      // Reload cart items
-      getCartItems(trip.id).then(items => {
+      // Reload both cart items and trip data
+      try {
+        const [items, updatedTrip] = await Promise.all([
+          getCartItems(trip.id),
+          getTripById(trip.id)
+        ]);
+        
         setCartItems(items);
-      });
-
-      // Update trip totals if it's a trip update
-      if (payload.table === 'shopping_trips' && payload.new) {
-        setTrip(payload.new as ShoppingTrip);
+        if (updatedTrip) {
+          setTrip(updatedTrip);
+        }
+      } catch (error) {
+        console.error('Failed to reload cart data:', error);
       }
     });
 
