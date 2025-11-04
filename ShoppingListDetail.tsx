@@ -75,6 +75,11 @@ const ShoppingListDetail: React.FC = () => {
           : item
       )
     );
+    
+    // Delay the re-sort/refresh to allow smooth transition
+    setTimeout(() => {
+      loadListData(false);
+    }, 400);
   };
 
   useEffect(() => {
