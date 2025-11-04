@@ -22,7 +22,11 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckToggle = async () => {
+    // Prevent double-clicks or redundant calls
+    if (isLoading) return;
+    
     const newCheckedState = !item.is_checked;
+    setIsLoading(true);
     
     // Immediately update UI (optimistic)
     if (onOptimisticCheck) {
@@ -55,6 +59,9 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
       if (onOptimisticCheck) {
         onOptimisticCheck(item.id, item.is_checked);
       }
+    } finally {
+      // Small delay to prevent rapid re-clicks
+      setTimeout(() => setIsLoading(false), 150);
     }
   };
 
@@ -206,14 +213,19 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
 
 // Memoize component to prevent unnecessary re-renders
 const ShoppingListItem = memo(ShoppingListItemComponent, (prevProps, nextProps) => {
-  // Only re-render if these specific properties change
+  // Return true if props are EQUAL (no re-render needed)
+  // Return false if props are DIFFERENT (re-render needed)
   return (
     prevProps.item.id === nextProps.item.id &&
     prevProps.item.is_checked === nextProps.item.is_checked &&
     prevProps.item.item_name === nextProps.item.item_name &&
+    prevProps.item.quantity === nextProps.item.quantity &&
     prevProps.item.target_price === nextProps.item.target_price &&
+    prevProps.item.unit_type === nextProps.item.unit_type &&
     prevProps.item.notes === nextProps.item.notes &&
-    prevProps.darkMode === nextProps.darkMode
+    prevProps.item.added_by === nextProps.item.added_by &&
+    prevProps.darkMode === nextProps.darkMode &&
+    prevProps.listId === nextProps.listId
   );
 });
 

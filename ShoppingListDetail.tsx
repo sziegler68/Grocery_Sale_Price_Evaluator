@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, startTransition } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt } from 'lucide-react';
 import Header from './Header';
@@ -42,6 +42,8 @@ const ShoppingListDetail: React.FC = () => {
   const [activeTrip, setActiveTrip] = useState<ShoppingTrip | null>(null);
   const [viewingTrip, setViewingTrip] = useState(false);
   const loadDataTimeoutRef = useRef<number | null>(null);
+  const subscriptionBatchRef = useRef<Map<string, ShoppingListItemType>>(new Map());
+  const subscriptionTimeoutRef = useRef<number | null>(null);
 
   const loadListData = useCallback(async (showLoading = true) => {
     if (!shareCode) return;
@@ -101,17 +103,19 @@ const ShoppingListDetail: React.FC = () => {
     debouncedLoadListData();
   };
 
-  const handleOptimisticCheck = (itemId: string, newCheckedState: boolean) => {
-    // Immediately update UI (optimistic)
-    setItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId 
-          ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
-          : item
-      )
-    );
+  const handleOptimisticCheck = useCallback((itemId: string, newCheckedState: boolean) => {
+    // Immediately update UI (optimistic) - use startTransition for smooth updates
+    startTransition(() => {
+      setItems(prevItems => 
+        prevItems.map(item => 
+          item.id === itemId 
+            ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
+            : item
+        )
+      );
+    });
     // No reload needed - trust the optimistic update and real-time sync
-  };
+  }, []);
 
   useEffect(() => {
     loadListData();
@@ -128,37 +132,75 @@ const ShoppingListDetail: React.FC = () => {
     }
   }, [shareCode]);
 
+  // Batched update function for subscription
+  const processBatchedUpdates = useCallback(() => {
+    if (subscriptionBatchRef.current.size === 0) return;
+
+    const updates = new Map(subscriptionBatchRef.current);
+    subscriptionBatchRef.current.clear();
+
+    // Use startTransition for non-urgent updates to prevent blocking
+    startTransition(() => {
+      setItems(prevItems => {
+        const newItems = [...prevItems];
+        let hasChanges = false;
+
+        updates.forEach((updatedItem, itemId) => {
+          const itemIndex = newItems.findIndex(item => item.id === itemId);
+          if (itemIndex >= 0) {
+            // Only update if actually different
+            if (JSON.stringify(newItems[itemIndex]) !== JSON.stringify(updatedItem)) {
+              newItems[itemIndex] = updatedItem;
+              hasChanges = true;
+            }
+          } else {
+            // New item
+            newItems.push(updatedItem);
+            hasChanges = true;
+          }
+        });
+
+        return hasChanges ? newItems : prevItems;
+      });
+    });
+  }, []);
+
   // Real-time subscription for list items
   useEffect(() => {
     if (!list) return;
 
     const unsubscribe = subscribeToListItems(
       list.id,
-      // Handle updates and inserts
+      // Handle updates and inserts - batch them
       (updatedItem) => {
-        setItems(prevItems => {
-          const itemIndex = prevItems.findIndex(item => item.id === updatedItem.id);
-          if (itemIndex >= 0) {
-            // Update existing item
-            const newItems = [...prevItems];
-            newItems[itemIndex] = updatedItem;
-            return newItems;
-          } else {
-            // New item added - append it
-            return [...prevItems, updatedItem];
-          }
-        });
+        // Add to batch
+        subscriptionBatchRef.current.set(updatedItem.id, updatedItem);
+
+        // Clear existing timeout
+        if (subscriptionTimeoutRef.current !== null) {
+          clearTimeout(subscriptionTimeoutRef.current);
+        }
+
+        // Schedule batched update
+        subscriptionTimeoutRef.current = window.setTimeout(() => {
+          processBatchedUpdates();
+        }, 100); // Batch updates within 100ms window
       },
-      // Handle deletes
+      // Handle deletes - immediate (less common)
       (deletedItemId) => {
-        setItems(prevItems => prevItems.filter(item => item.id !== deletedItemId));
+        startTransition(() => {
+          setItems(prevItems => prevItems.filter(item => item.id !== deletedItemId));
+        });
       }
     );
 
     return () => {
       unsubscribe();
+      if (subscriptionTimeoutRef.current !== null) {
+        clearTimeout(subscriptionTimeoutRef.current);
+      }
     };
-  }, [list?.id]);
+  }, [list?.id, processBatchedUpdates]);
 
   const handleSaveName = (name: string) => {
     if (shareCode) {
@@ -344,22 +386,28 @@ const ShoppingListDetail: React.FC = () => {
     loadListData(false);
   };
 
-  // Group items by category
-  const groupedItems = items.reduce((acc, item) => {
-    const key = item.is_checked ? 'checked' : item.category;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(item);
-    return acc;
-  }, {} as Record<string, ShoppingListItemType[]>);
+  // Group items by category (memoized to prevent recalculation on every render)
+  const groupedItems = useMemo(() => {
+    return items.reduce((acc, item) => {
+      const key = item.is_checked ? 'checked' : item.category;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(item);
+      return acc;
+    }, {} as Record<string, ShoppingListItemType[]>);
+  }, [items]);
 
-  const uncheckedItems = SHOPPING_LIST_CATEGORIES.map(category => ({
-    category,
-    items: groupedItems[category] || [],
-  })).filter(group => group.items.length > 0);
+  const uncheckedItems = useMemo(() => {
+    return SHOPPING_LIST_CATEGORIES.map(category => ({
+      category,
+      items: groupedItems[category] || [],
+    })).filter(group => group.items.length > 0);
+  }, [groupedItems]);
 
-  const checkedItems = groupedItems['checked'] || [];
+  const checkedItems = useMemo(() => {
+    return groupedItems['checked'] || [];
+  }, [groupedItems]);
 
   if (isLoading) {
     return (
