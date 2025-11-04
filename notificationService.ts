@@ -5,6 +5,15 @@
 
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 
+// Debug flag - set to false to disable verbose logging
+const DEBUG_NOTIFICATIONS = true;
+
+const debugLog = (...args: any[]) => {
+  if (DEBUG_NOTIFICATIONS) {
+    console.log('[NOTIF]', ...args);
+  }
+};
+
 // Storage keys
 const NOTIF_ENABLED_KEY = 'shopping-list-notifications-enabled';
 const PUSH_ENABLED_KEY = 'shopping-list-push-enabled';
@@ -100,7 +109,10 @@ export const shouldSendNotification = async (
   listId: string,
   eventType: 'items_added' | 'items_purchased'
 ): Promise<boolean> => {
+  debugLog('Checking throttle for:', eventType, 'listId:', listId);
+  
   if (!isSupabaseConfigured) {
+    debugLog('❌ Supabase not configured - cannot check throttle');
     return false;
   }
 
@@ -113,13 +125,14 @@ export const shouldSendNotification = async (
     });
 
     if (error) {
-      console.error('Failed to check notification throttle:', error);
+      console.error('[NOTIF] ❌ Failed to check notification throttle:', error);
       return false;
     }
 
+    debugLog(data ? '✅ Should send (no recent notification)' : '⏱️ Throttled (sent within 1 hour)');
     return data === true;
   } catch (error) {
-    console.error('Error checking notification status:', error);
+    console.error('[NOTIF] ❌ Error checking notification status:', error);
     return false;
   }
 };
@@ -159,14 +172,18 @@ export const notifyItemsAdded = async (
   count: number,
   userName: string
 ): Promise<void> => {
+  debugLog('🔔 notifyItemsAdded called:', { userName, count, listName });
+  
   const settings = getNotificationSettings();
   if (!settings.enabled || !settings.types.itemsAdded) {
+    debugLog('⏭️ Notifications disabled in settings');
     return;
   }
 
   // Check 1-hour throttle
   const shouldSend = await shouldSendNotification(listId, 'items_added');
   if (!shouldSend) {
+    debugLog('⏱️ Skipping - already notified within 1 hour');
     return; // Already sent notification in past hour
   }
 
@@ -177,6 +194,8 @@ export const notifyItemsAdded = async (
   
   // Record in history for throttling
   await recordNotificationSent(listId, 'items_added', count, userName);
+  
+  debugLog('✅ Items added notification complete');
 };
 
 /**
@@ -189,19 +208,26 @@ export const notifyItemsPurchased = async (
   userName: string,
   customMessage?: string
 ): Promise<void> => {
+  debugLog('🔔 notifyItemsPurchased called:', { userName, count, customMessage: !!customMessage });
+  
   const settings = getNotificationSettings();
   if (!settings.enabled || !settings.types.itemsPurchased) {
+    debugLog('⏭️ Notifications disabled in settings');
     return;
   }
 
   // Use custom message or default
   const message = customMessage || `${userName} checked off ${count} item${count > 1 ? 's' : ''} from ${listName}`;
   
+  debugLog('📨 Sending:', message);
+  
   // Send live notification to all users
   await sendLiveNotification(listId, message, 'items_purchased', userName);
   
   // Record in history
   await recordNotificationSent(listId, 'items_purchased', count, userName);
+  
+  debugLog('✅ Items purchased notification complete');
 };
 
 /**
@@ -213,8 +239,15 @@ export const sendLiveNotification = async (
   notificationType: string,
   triggeredBy: string
 ): Promise<void> => {
+  debugLog('📤 Sending live notification:', {
+    type: notificationType,
+    message: message.substring(0, 50) + '...',
+    triggeredBy,
+    listId: listId.substring(0, 8) + '...'
+  });
+  
   if (!isSupabaseConfigured) {
-    console.warn('Supabase not configured - notification not sent');
+    console.warn('[NOTIF] ⚠️ Supabase not configured - notification not sent');
     return;
   }
 
@@ -230,14 +263,16 @@ export const sendLiveNotification = async (
       });
 
     if (error) {
-      console.error('Failed to send live notification:', error);
+      console.error('[NOTIF] ❌ Failed to send live notification:', error);
       throw error;
     }
+
+    debugLog('✅ Live notification inserted into database');
 
     // Also send local browser notification if enabled
     sendPushNotification('Shopping List Update', message);
   } catch (error) {
-    console.error('Error sending live notification:', error);
+    console.error('[NOTIF] ❌ Error sending live notification:', error);
     throw error;
   }
 };

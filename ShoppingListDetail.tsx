@@ -123,6 +123,8 @@ const ShoppingListDetail: React.FC = () => {
     const updates = new Map(checkboxSyncQueueRef.current);
     checkboxSyncQueueRef.current.clear();
     
+    console.log('[CHECKBOX] Syncing', updates.size, 'checkbox changes to Supabase');
+    
     // Batch update to Supabase in background
     try {
       const promises = Array.from(updates.entries()).map(([itemId, isChecked]) => {
@@ -134,31 +136,45 @@ const ShoppingListDetail: React.FC = () => {
       });
       
       await Promise.all(promises);
+      console.log('[CHECKBOX] ✅ Synced to database');
       
       // Send notification for first checkbox activity in 1 hour window
       const checkedCount = Array.from(updates.values()).filter(v => v).length;
       if (checkedCount > 0 && list && shareCode) {
         const userName = getUserNameForList(shareCode);
+        console.log('[CHECKBOX] Checked count:', checkedCount, 'User:', userName);
+        
         if (userName) {
           // Check if we should send notification (1 hour throttle for checkbox activity)
           const now = Date.now();
           const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+          const timeSinceLast = now - notificationBatchRef.current.lastUpdate;
+          
+          console.log('[CHECKBOX] Last notification:', 
+            notificationBatchRef.current.lastUpdate === 0 
+              ? 'Never' 
+              : `${Math.round(timeSinceLast / 1000)}s ago`);
           
           // Only send if first activity or more than 1 hour since last notification
           if (notificationBatchRef.current.lastUpdate === 0 || 
               now - notificationBatchRef.current.lastUpdate > oneHour) {
             
+            console.log('[CHECKBOX] ✅ Sending notification (1 hour passed or first activity)');
             notificationBatchRef.current = {count: checkedCount, lastUpdate: now};
             
             // Send notification: "User started shopping" (first check) or "User is shopping"
             const message = `${userName} started checking items off ${list.name}`;
             
             // Fire and forget - don't block
-            notifyItemsPurchased(list.id, list.name, checkedCount, userName, message).catch(() => {
-              // Silently fail
+            notifyItemsPurchased(list.id, list.name, checkedCount, userName, message).catch((err) => {
+              console.error('[CHECKBOX] ❌ Failed to send notification:', err);
             });
+          } else {
+            console.log('[CHECKBOX] ⏱️ Skipping notification (within 1 hour window)');
           }
           // Otherwise, silently check items without notification (already notified in past hour)
+        } else {
+          console.log('[CHECKBOX] ⚠️ No user name set - cannot send notification');
         }
       }
       
@@ -167,7 +183,7 @@ const ShoppingListDetail: React.FC = () => {
         optimisticUpdatesRef.current.delete(itemId);
       });
     } catch (error) {
-      console.error('Failed to sync checkbox changes:', error);
+      console.error('[CHECKBOX] ❌ Failed to sync checkbox changes:', error);
       // Don't revert UI - real-time subscription will sync eventually
     }
   }, [list, shareCode]);
@@ -327,6 +343,9 @@ const ShoppingListDetail: React.FC = () => {
   useEffect(() => {
     if (!list) return;
 
+    console.log('[NOTIF] 📡 Setting up notification subscription for list:', list.id.substring(0, 8) + '...');
+    console.log('[NOTIF] 👤 Current user:', userName || 'No name set');
+
     const client = getSupabaseClient();
     
     const channel = client
@@ -340,12 +359,23 @@ const ShoppingListDetail: React.FC = () => {
           filter: `list_id=eq.${list.id}`,
         },
         (payload) => {
+          console.log('[NOTIF] 📬 Received notification:', payload);
+          
           const notification = payload.new as any;
+          
+          console.log('[NOTIF] 📝 Notification details:', {
+            type: notification.notification_type,
+            triggeredBy: notification.triggered_by,
+            message: notification.message
+          });
           
           // Don't show notifications triggered by yourself
           if (userName && notification.triggered_by === userName) {
+            console.log('[NOTIF] ⏭️ Skipping - triggered by current user');
             return;
           }
+          
+          console.log('[NOTIF] 🎉 Showing notification to user');
           
           // Show toast notification
           toast.info(notification.message, {
@@ -359,6 +389,7 @@ const ShoppingListDetail: React.FC = () => {
 
           // Also send browser notification if enabled
           if ('Notification' in window && Notification.permission === 'granted') {
+            console.log('[NOTIF] 🔔 Sending browser notification');
             new Notification('Shopping List Update', {
               body: notification.message,
               icon: '/icons/192x192.png',
@@ -367,9 +398,12 @@ const ShoppingListDetail: React.FC = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[NOTIF] Subscription status:', status);
+      });
 
     return () => {
+      console.log('[NOTIF] 🔌 Unsubscribing from notifications');
       channel.unsubscribe();
     };
   }, [list?.id, userName]);
