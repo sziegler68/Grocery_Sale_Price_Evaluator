@@ -40,11 +40,13 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
       } else {
         await checkItem(item.id);
         
-        // Send notification for checking item (throttled)
+        // Send notification for checking item (throttled) - don't block on this
         if (listId && listName && shareCode) {
           const userName = getUserNameForList(shareCode);
           if (userName) {
-            await notifyItemsPurchased(listId, listName, 1, userName);
+            notifyItemsPurchased(listId, listName, 1, userName).catch(err => {
+              console.warn('Failed to send notification:', err);
+            });
           }
         }
       }
@@ -54,9 +56,10 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
         setIsAnimating(false);
         onUpdate();
       }, 300);
-    } catch (error) {
-      toast.error('Failed to update item');
-      console.error(error);
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Failed to update item';
+      toast.error(errorMessage);
+      console.error('Error updating item:', error);
       setIsAnimating(false);
       // Revert optimistic update on error
       if (onOptimisticCheck) {
