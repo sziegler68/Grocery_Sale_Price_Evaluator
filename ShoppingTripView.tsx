@@ -241,7 +241,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   // Cart items: keep in order added (no sorting)
 
   return (
-    <div className="h-full flex flex-col relative">
+    <div className="h-full flex flex-col relative bg-gray-50 dark:bg-zinc-900">
       {/* Subtle moon and stars background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-8 right-12 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-200/20 to-yellow-300/10 dark:from-blue-200/10 dark:to-purple-200/5 blur-sm" />
@@ -253,7 +253,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
         <div className="absolute bottom-48 right-20 w-1.5 h-1.5 rounded-full bg-yellow-400/40 dark:bg-purple-300/20" />
       </div>
       {/* Header */}
-      <div className={`sticky top-0 z-10 ${darkMode ? 'bg-zinc-800' : 'bg-white'} border-b border-gray-200 dark:border-zinc-700 shadow-sm relative`}>
+      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 shadow-sm relative">
         <div className="flex items-center justify-between p-4">
           <button
             onClick={onBack}
