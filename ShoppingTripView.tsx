@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Plus, Check, Trash2, ShoppingCart as ShoppingCartIcon, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Check, X, ShoppingCart as ShoppingCartIcon, AlertCircle } from 'lucide-react';
 import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
 import type { ShoppingListItem } from './shoppingListTypes';
 import { calculateBudgetStatus } from './shoppingTripTypes';
@@ -442,9 +442,9 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                                 e.stopPropagation(); // Don't trigger edit modal
                                 handleRemoveFromCart(item);
                               }}
-                              className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 rounded-lg transition-colors"
+                              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-600 dark:text-gray-400 rounded-lg transition-colors"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <X className="h-5 w-5" />
                             </button>
                           </div>
                         </div>
