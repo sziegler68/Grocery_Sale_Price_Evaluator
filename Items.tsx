@@ -134,7 +134,7 @@ const Items: React.FC = () => {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">My Grocery Items</h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-800 dark:text-gray-300">
             Track and compare prices across different stores
           </p>
         </div>

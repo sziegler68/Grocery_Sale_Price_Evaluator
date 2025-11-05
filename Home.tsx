@@ -30,7 +30,7 @@ const Home: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-400 bg-clip-text text-transparent">
               LunaCart
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-800 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
               Illuminate the Best Deals
             </p>
             

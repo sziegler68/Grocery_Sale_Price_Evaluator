@@ -18,7 +18,7 @@ const Help: React.FC = () => {
             <HelpCircle className="h-8 w-8 text-purple-600" />
             <h1 className="text-3xl font-bold">Help & Guide</h1>
           </div>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-800 dark:text-gray-300">
             Learn how to use LunaCart to illuminate the best deals and organize your shopping
           </p>
         </div>
@@ -26,7 +26,7 @@ const Help: React.FC = () => {
         {/* What is this app */}
         <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
           <h2 className="text-2xl font-bold mb-4">🌙 What is LunaCart?</h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
+          <p className="text-gray-800 dark:text-gray-300 mb-4">
             This app has <strong>two main features</strong> that work together:
           </p>
           <div className="space-y-4">

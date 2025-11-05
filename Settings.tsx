@@ -139,7 +139,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Unit Preferences</h2>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
+          <p className="text-gray-800 dark:text-gray-300 mb-6">
             Set your preferred units for comparing prices. Items will be normalized to these units when displaying price comparisons.
           </p>
 
@@ -317,7 +317,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Sales Tax</h2>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
+          <p className="text-gray-800 dark:text-gray-300 mb-6">
             Set your local sales tax rate. This will be used when calculating cart totals during shopping trips.
           </p>
 
@@ -359,7 +359,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Notification Settings</h2>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
+          <p className="text-gray-800 dark:text-gray-300 mb-6">
             Get notified when others update shared shopping lists. Notifications are throttled to prevent spam.
           </p>
 
