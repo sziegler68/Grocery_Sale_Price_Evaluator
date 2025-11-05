@@ -156,11 +156,11 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div
         className={`w-full max-w-md rounded-xl shadow-xl max-h-[90vh] overflow-y-auto ${
-          darkMode ? 'bg-zinc-800' : 'bg-white'
+          bg-card
         }`}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-gray-200 dark:border-zinc-700 bg-inherit">
+        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-primary bg-inherit">
           <div className="flex items-center space-x-2">
             <Plus className="h-6 w-6 text-purple-600" />
             <h2 className="text-xl font-bold">Add Item</h2>
@@ -189,7 +189,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 onFocus={() => setShowSuggestions(true)}
                 placeholder="Start typing..."
                 className={`w-full px-4 py-3 pr-10 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
                 autoFocus
                 disabled={isAdding}
@@ -201,7 +201,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
             {showSuggestions && suggestions.length > 0 && (
               <div
                 className={`absolute z-20 w-full mt-1 rounded-lg shadow-lg border max-h-60 overflow-y-auto ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-200'
+                  bg-input border-primary
                 }`}
               >
                 {suggestions.map((item) => (
@@ -212,7 +212,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                     className={`w-full text-left px-4 py-3 hover:bg-purple-50 dark:hover:bg-zinc-600 border-b border-gray-100 dark:border-zinc-600 last:border-0`}
                   >
                     <div className="font-medium">{item.itemName}</div>
-                    <div className="text-sm text-gray-900 dark:text-gray-400">
+                    <div className="text-sm text-secondary">
                       {item.category}
                       {item.targetPrice && ` ? Target: $${item.targetPrice.toFixed(2)}/${item.unitType}`}
                     </div>
@@ -229,7 +229,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                bg-input border-input
               }`}
               disabled={isAdding}
             >
@@ -253,7 +253,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 min="0.01"
                 step="0.01"
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
                 disabled={isAdding}
               />
@@ -266,7 +266,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 onChange={(e) => setUnitType(e.target.value)}
                 placeholder="lb, gal, each"
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
                 disabled={isAdding}
               />
@@ -285,7 +285,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 onChange={handleTargetPriceInput}
                 placeholder="0.00"
                 className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
                 disabled={isAdding}
               />
@@ -301,7 +301,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
               rows={2}
               placeholder="e.g., Get the organic one"
               className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                bg-input border-input
               }`}
               disabled={isAdding}
             />
@@ -313,7 +313,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isAdding}
-              className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+              className="flex-1 px-4 py-3 rounded-lg border border-input hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
             >
               Cancel
             </button>
