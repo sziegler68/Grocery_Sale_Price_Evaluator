@@ -3,3 +3,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* SINGLE SOURCE OF TRUTH FOR TEXT COLORS */
+/* Force ALL text to be BLACK in light mode for maximum readability */
+@layer base {
+  /* Default text color - BLACK in light mode */
+  body:not(.dark) {
+    color: #000000;
+  }
+  
+  body:not(.dark) * {
+    color: inherit;
+  }
+  
+  /* Override Tailwind's gray colors in light mode to be BLACK */
+  body:not(.dark) .text-gray-300,
+  body:not(.dark) .text-gray-400,
+  body:not(.dark) .text-gray-500,
+  body:not(.dark) .text-gray-600,
+  body:not(.dark) .text-gray-700,
+  body:not(.dark) .text-gray-800,
+  body:not(.dark) .text-gray-900 {
+    color: #000000 !important;
+  }
+  
+  /* Keep dark mode colors as is */
+  body.dark {
+    color: #ffffff;
+  }
+}
