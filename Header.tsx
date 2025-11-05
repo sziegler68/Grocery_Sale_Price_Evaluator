@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
             <ShoppingCart className="h-8 w-8 text-purple-600" />
-            <span className="text-xl font-bold">PriceTracker</span>
+            <span className="text-xl font-bold">LunaCart</span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">

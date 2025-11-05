@@ -21,10 +21,10 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <p className="text-sm text-zinc-400">
-            © 2025 Grocery Price Tracker. All rights reserved.
+            © 2025 LunaCart. All rights reserved.
           </p>
           <p className="text-sm text-zinc-400 mt-2">
-            Built with ❤️ by <a rel="nofollow" target="_blank" href="https://meku.dev" className="text-purple-400 hover:text-purple-300">Meku.dev</a>
+            Built with 💚 by Greenie App Builder
           </p>
           <p className="text-xs text-zinc-500 mt-3">
             Version: <span className="font-mono text-purple-400">{version}</span>

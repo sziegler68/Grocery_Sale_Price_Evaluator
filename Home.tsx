@@ -28,10 +28,10 @@ const Home: React.FC = () => {
           {/* Hero Section */}
           <section className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-400 bg-clip-text text-transparent">
-              Grocery Price Tracker
+              LunaCart
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
-              Check if prices are good deals, create shopping lists, and track prices across stores.
+              Illuminate the Best Deals
             </p>
             
             {/* Connection Status */}

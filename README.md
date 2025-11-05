@@ -1,6 +1,8 @@
-# Grocery Price Tracker
+# LunaCart
 
-Help track sale prices and price-per-unit trends so you and your family can spot the best grocery deals, online or offline.
+**Illuminate the Best Deals**
+
+Check if prices are good deals, create shopping lists, and track prices across stores.
 
 ## Getting Started
 
