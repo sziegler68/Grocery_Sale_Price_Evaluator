@@ -324,7 +324,10 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                             ${(item.price_paid * item.quantity).toFixed(2)}
                           </span>
                           <button
-                            onClick={() => handleRemoveFromCart(item)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Don't trigger edit modal
+                              handleRemoveFromCart(item);
+                            }}
                             className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 rounded-lg transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
