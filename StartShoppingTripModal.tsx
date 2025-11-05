@@ -24,6 +24,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
   const [budgetDisplay, setBudgetDisplay] = useState<string>('');
   const [storeName, setStoreName] = useState<string>(defaultStore);
   const [customSalesTax, setCustomSalesTax] = useState<number>(salesTaxRate);
+  const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(salesTaxRate > 0 ? salesTaxRate.toFixed(2) : '');
 
   if (!isOpen) return null;
 
@@ -39,6 +40,24 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
     const numValue = parseInt(input, 10);
     setBudgetDisplay(numValue.toString());
     setBudget(numValue.toString());
+  };
+
+  // Handle sales tax input - calculator style with decimal point
+  const handleSalesTaxInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (input === '') {
+      setSalesTaxDisplay('');
+      setCustomSalesTax(0);
+      return;
+    }
+    
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    const formatted = `${dollars}.${cents.toString().padStart(2, '0')}`;
+    
+    setSalesTaxDisplay(formatted);
+    setCustomSalesTax(parseFloat(formatted));
   };
 
   const handleStart = () => {
@@ -152,25 +171,23 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
             <label className="block text-sm font-medium mb-2">
               Sales Tax Rate
             </label>
-            <div className="flex items-center space-x-2">
+            <div className="relative">
               <input
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                value={customSalesTax}
-                onChange={(e) => setCustomSalesTax(parseFloat(e.target.value) || 0)}
-                className={`flex-1 px-4 py-3 rounded-lg border ${
+                type="text"
+                inputMode="numeric"
+                value={salesTaxDisplay}
+                onChange={handleSalesTaxInput}
+                className={`w-full pl-4 pr-8 py-3 rounded-lg border ${
                   darkMode
                     ? 'bg-zinc-700 border-zinc-600 text-white'
                     : 'bg-white border-gray-300 text-gray-900'
                 } focus:ring-2 focus:ring-purple-500 focus:border-transparent`}
-                placeholder="0.00"
+                placeholder="10.25"
               />
-              <span className="text-gray-600 dark:text-gray-300">%</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Default: {salesTaxRate}% (from settings). You can override for this trip.
+              Default: {salesTaxRate.toFixed(2)}% (from settings). Type {(salesTaxRate * 100).toFixed(0)} for calculator entry.
             </p>
           </div>
         </div>
