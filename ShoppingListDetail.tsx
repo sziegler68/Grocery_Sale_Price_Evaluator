@@ -691,7 +691,7 @@ const ShoppingListDetail: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">Loading...</div>
@@ -703,7 +703,7 @@ const ShoppingListDetail: React.FC = () => {
 
   if (!list) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">List not found</div>
@@ -714,7 +714,7 @@ const ShoppingListDetail: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -730,13 +730,13 @@ const ShoppingListDetail: React.FC = () => {
         {/* List Header */}
         <div
           className={`p-6 rounded-xl shadow-lg mb-6 ${
-            darkMode ? 'bg-zinc-800' : 'bg-white'
+            bg-card
           }`}
         >
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold mb-2">{list.name}</h1>
-              <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-gray-400">
+              <div className="flex items-center space-x-2 text-sm text-secondary">
                 <span>{items.length} item{items.length !== 1 ? 's' : ''}</span>
                 <span>?</span>
                 <span>{checkedItems.length} purchased</span>
@@ -746,8 +746,8 @@ const ShoppingListDetail: React.FC = () => {
 
           {/* Share Code */}
           <div className="flex items-center space-x-2">
-            <div className={`flex-1 px-4 py-2 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
-              <div className="text-xs text-gray-900 dark:text-gray-400 mb-1">Share Code:</div>
+            <div className={`flex-1 px-4 py-2 rounded-lg bg-secondary`}>
+              <div className="text-xs text-secondary mb-1">Share Code:</div>
               <div className="font-mono font-bold text-purple-600">{list.share_code}</div>
             </div>
             <button
@@ -830,12 +830,12 @@ const ShoppingListDetail: React.FC = () => {
           {uncheckedItems.length === 0 && checkedItems.length === 0 ? (
             <div
               className={`rounded-xl border border-dashed ${
-                darkMode ? 'border-zinc-700' : 'border-gray-300'
+                border-primary
               } p-12 text-center`}
             >
               <ShoppingCart className="h-16 w-16 text-gray-700 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Items Yet</h3>
-              <p className="text-gray-900 dark:text-gray-400 mb-4">
+              <p className="text-secondary mb-4">
                 Start adding items to your shopping list
               </p>
               <button
@@ -875,7 +875,7 @@ const ShoppingListDetail: React.FC = () => {
                 <div>
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="flex-1 border-t border-gray-300 dark:border-zinc-700" />
-                    <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-400 uppercase tracking-wide">
+                    <h2 className="text-sm font-semibold text-secondary uppercase tracking-wide">
                       Purchased
                     </h2>
                     <div className="flex-1 border-t border-gray-300 dark:border-zinc-700" />
