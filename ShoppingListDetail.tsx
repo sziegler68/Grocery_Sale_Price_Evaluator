@@ -975,7 +975,6 @@ const ShoppingListDetail: React.FC = () => {
           <ShoppingTripView
             trip={activeTrip}
             listItems={items}
-            darkMode={darkMode}
             onBack={() => setViewingTrip(false)}
             onComplete={handleCompleteTrip}
           />
