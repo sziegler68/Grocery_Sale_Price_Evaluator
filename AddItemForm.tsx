@@ -31,14 +31,17 @@ interface AddItemFormProps {
   darkMode: boolean;
   onSubmit: (data: FormData & { unitPrice: number; datePurchased: Date }) => void;
   existingItems?: Array<{ itemName: string; targetPrice?: number }>;
+  initialData?: any;
+  isEditMode?: boolean;
 }
 
-const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingItems = [] }) => {
-  const [calculatedUnitPrice, setCalculatedUnitPrice] = useState<number | null>(null);
-  const [priceDisplay, setPriceDisplay] = useState<string>('');
-  const [targetPriceDisplay, setTargetPriceDisplay] = useState<string>('');
-  const [selectedStore, setSelectedStore] = useState<string>('');
+const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingItems = [], initialData, isEditMode = false }) => {
+  const [calculatedUnitPrice, setCalculatedUnitPrice] = useState<number | null>(initialData?.unitPrice || null);
+  const [priceDisplay, setPriceDisplay] = useState<string>(initialData?.price ? initialData.price.toFixed(2) : '');
+  const [targetPriceDisplay, setTargetPriceDisplay] = useState<string>(initialData?.targetPrice ? initialData.targetPrice.toFixed(2) : '');
+  const [selectedStore, setSelectedStore] = useState<string>(initialData?.storeName || '');
   const [customStoreName, setCustomStoreName] = useState<string>('');
+  const [isOrganic, setIsOrganic] = useState<boolean>(initialData?.meatQuality === 'Organic' || false);
 
   const {
     register,
@@ -48,7 +51,18 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
     setValue,
     formState: { errors, isSubmitting }
   } = useForm<FormData>({
-    resolver: zodResolver(formSchema)
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData ? {
+      itemName: initialData.itemName,
+      category: initialData.category,
+      meatQuality: initialData.meatQuality,
+      storeName: initialData.storeName,
+      price: initialData.price,
+      quantity: initialData.quantity,
+      unitType: initialData.unitType,
+      notes: initialData.notes,
+      targetPrice: initialData.targetPrice,
+    } : undefined
   });
 
   const watchedCategory = watch('category');
@@ -134,9 +148,13 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
         return;
       }
       
+      // Set meatQuality to "Organic" if organic checkbox is checked and no specific quality is selected
+      const finalMeatQuality = isOrganic && !data.meatQuality ? 'Organic' : data.meatQuality;
+      
       await onSubmit({
         ...data,
         storeName: finalStoreName,
+        meatQuality: finalMeatQuality,
         unitPrice,
         datePurchased: new Date()
       });
@@ -147,6 +165,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
       setTargetPriceDisplay('');
       setSelectedStore('');
       setCustomStoreName('');
+      setIsOrganic(false);
     } catch {
       toast.error('Failed to add item. Please try again.');
     }
@@ -158,7 +177,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
     }`}>
       <div className="flex items-center space-x-2 mb-6">
         <Plus className="h-6 w-6 text-purple-600" />
-        <h2 className="text-2xl font-bold">Add New Item</h2>
+        <h2 className="text-2xl font-bold">{isEditMode ? 'Edit Item' : 'Add New Item'}</h2>
       </div>
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
@@ -306,6 +325,19 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
             </div>
           )}
 
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="organic-checkbox"
+              checked={isOrganic}
+              onChange={(e) => setIsOrganic(e.target.checked)}
+              className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+            />
+            <label htmlFor="organic-checkbox" className="text-sm font-medium cursor-pointer">
+              Organic Product
+            </label>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">Price *</label>
             <div className="relative">
@@ -440,7 +472,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
           disabled={isSubmitting}
           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Adding Item...' : 'Add Item'}
+          {isSubmitting ? (isEditMode ? 'Updating Item...' : 'Adding Item...') : (isEditMode ? 'Update Item' : 'Add Item')}
         </button>
       </form>
     </div>

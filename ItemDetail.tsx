@@ -154,6 +154,13 @@ const ItemDetail: React.FC = () => {
                 )}
               </div>
             </div>
+            <Link
+              to={`/edit-item/${item.id}`}
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            >
+              <Edit className="h-4 w-4" />
+              <span>Edit Item</span>
+            </Link>
           </div>
         </div>
 

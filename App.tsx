@@ -7,6 +7,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './Home';
 import AddItem from './AddItem';
+import EditItem from './EditItem';
 import Items from './Items';
 import ItemDetail from './ItemDetail';
 import Analytics from './Analytics';
@@ -28,6 +29,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/add-item" element={<AddItem />} />
+            <Route path="/edit-item/:id" element={<EditItem />} />
             <Route path="/items" element={<Items />} />
             <Route path="/item/:id" element={<ItemDetail />} />
             <Route path="/analytics" element={<Analytics />} />
