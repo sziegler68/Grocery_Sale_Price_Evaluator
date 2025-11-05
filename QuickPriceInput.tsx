@@ -28,17 +28,43 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   salesTaxRate,
   darkMode
 }) => {
-  const [priceValue, setPriceValue] = useState<string>(''); // In cents
+  const [priceDisplay, setPriceDisplay] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('1');
   const [crvEnabled, setCrvEnabled] = useState<boolean>(false);
-  const [crvValue, setCrvValue] = useState<string>(''); // In cents
+  const [crvDisplay, setCrvDisplay] = useState<string>('');
   const [updateTarget, setUpdateTarget] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
+  // Handle price input - calculator style
+  const handlePriceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, '');
+    if (input === '') {
+      setPriceDisplay('');
+      return;
+    }
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    setPriceDisplay(`${dollars}.${cents.toString().padStart(2, '0')}`);
+  };
+
+  // Handle CRV input - calculator style
+  const handleCrvInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, '');
+    if (input === '') {
+      setCrvDisplay('');
+      return;
+    }
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    setCrvDisplay(`${dollars}.${cents.toString().padStart(2, '0')}`);
+  };
+
   // Display values
-  const totalPrice = priceValue ? parseFloat(priceValue) / 100 : 0;
-  const crvAmount = crvEnabled && crvValue ? parseFloat(crvValue) / 100 : 0;
+  const totalPrice = priceDisplay ? parseFloat(priceDisplay) : 0;
+  const crvAmount = crvEnabled && crvDisplay ? parseFloat(crvDisplay) : 0;
   const quantityNum = parseFloat(quantity) || 1;
   
   // Calculate unit price
@@ -54,26 +80,6 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   const isGoodDeal = priceDifference !== null && priceDifference <= 0;
   const isBadDeal = priceDifference !== null && priceDifference > 0;
 
-  const handleNumberClick = (num: string, field: 'price' | 'crv') => {
-    const currentValue = field === 'price' ? priceValue : crvValue;
-    const setValue = field === 'price' ? setPriceValue : setCrvValue;
-    
-    if (currentValue.length < 6) { // Max $9999.99
-      setValue(currentValue + num);
-    }
-  };
-
-  const handleBackspace = (field: 'price' | 'crv') => {
-    const currentValue = field === 'price' ? priceValue : crvValue;
-    const setValue = field === 'price' ? setPriceValue : setCrvValue;
-    setValue(currentValue.slice(0, -1));
-  };
-
-  const handleClear = (field: 'price' | 'crv') => {
-    const setValue = field === 'price' ? setPriceValue : setCrvValue;
-    setValue('');
-  };
-
   const handleConfirm = () => {
     if (totalPrice > 0 && quantityNum > 0) {
       onConfirm({
@@ -82,9 +88,9 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
         crvAmount,
         updateTargetPrice: updateTarget
       });
-      setPriceValue('');
+      setPriceDisplay('');
       setQuantity('1');
-      setCrvValue('');
+      setCrvDisplay('');
       setCrvEnabled(false);
       setUpdateTarget(false);
       onClose();
@@ -92,8 +98,8 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className={`w-full max-w-md rounded-2xl shadow-2xl ${
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className={`w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl shadow-2xl ${
         darkMode ? 'bg-zinc-800 text-white' : 'bg-white text-gray-900'
       }`}>
         {/* Header */}
@@ -120,10 +126,21 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
             <label className="block text-xs font-medium mb-2 text-gray-600 dark:text-gray-400">
               Total Price
             </label>
-            <div className={`text-4xl font-bold text-center py-4 rounded-xl ${
-              darkMode ? 'bg-zinc-900' : 'bg-gray-50'
-            }`}>
-              ${totalPrice.toFixed(2)}
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={priceDisplay}
+                onChange={handlePriceInput}
+                className={`w-full pl-10 pr-4 py-3 rounded-lg border text-xl font-semibold ${
+                  darkMode
+                    ? 'bg-zinc-700 border-zinc-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } focus:ring-2 focus:ring-purple-500`}
+                placeholder="0.00"
+                autoFocus
+              />
             </div>
           </div>
 
@@ -199,7 +216,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               checked={crvEnabled}
               onChange={(e) => {
                 setCrvEnabled(e.target.checked);
-                if (!e.target.checked) setCrvValue('');
+                if (!e.target.checked) setCrvDisplay('');
               }}
               className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
             />
@@ -214,12 +231,22 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               <label className="block text-xs font-medium mb-2 text-gray-600 dark:text-gray-400">
                 CRV Amount
               </label>
-              <div className={`text-2xl font-bold text-center py-3 rounded-xl ${
-                darkMode ? 'bg-zinc-900' : 'bg-gray-50'
-              }`}>
-                ${crvAmount.toFixed(2)}
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={crvDisplay}
+                  onChange={handleCrvInput}
+                  className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
+                    darkMode
+                      ? 'bg-zinc-700 border-zinc-600 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } focus:ring-2 focus:ring-purple-500`}
+                  placeholder="0.10"
+                />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Common: $0.05 or $0.10 per container
               </p>
             </div>
@@ -269,63 +296,9 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Number Pad */}
-        <div className="p-4">
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(num => (
-              <button
-                key={num}
-                onClick={() => handleNumberClick(num, crvEnabled && document.activeElement?.id === 'crv-input' ? 'crv' : 'price')}
-                className={`py-3 text-xl font-semibold rounded-lg transition-all active:scale-95 ${
-                  darkMode
-                    ? 'bg-zinc-700 hover:bg-zinc-600'
-                    : 'bg-gray-100 hover:bg-gray-200'
-                }`}
-              >
-                {num}
-              </button>
-            ))}
-            
-            <button
-              onClick={() => handleClear(crvEnabled && document.activeElement?.id === 'crv-input' ? 'crv' : 'price')}
-              className={`py-3 rounded-lg transition-all active:scale-95 text-sm font-medium ${
-                darkMode
-                  ? 'bg-zinc-700 hover:bg-zinc-600'
-                  : 'bg-gray-100 hover:bg-gray-200'
-              }`}
-            >
-              Clear
-            </button>
-            
-            <button
-              onClick={() => handleNumberClick('0', crvEnabled && document.activeElement?.id === 'crv-input' ? 'crv' : 'price')}
-              className={`py-3 text-xl font-semibold rounded-lg transition-all active:scale-95 ${
-                darkMode
-                  ? 'bg-zinc-700 hover:bg-zinc-600'
-                  : 'bg-gray-100 hover:bg-gray-200'
-              }`}
-            >
-              0
-            </button>
-            
-            <button
-              onClick={() => handleBackspace(crvEnabled && document.activeElement?.id === 'crv-input' ? 'crv' : 'price')}
-              className={`py-3 rounded-lg transition-all active:scale-95 ${
-                darkMode
-                  ? 'bg-zinc-700 hover:bg-zinc-600'
-                  : 'bg-gray-100 hover:bg-gray-200'
-              }`}
-            >
-              <svg className="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" />
-              </svg>
-            </button>
-          </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3">
+          <div className="flex space-x-3 pt-2 pb-4">
             <button
               onClick={onClose}
               className={`flex-1 py-3 rounded-xl font-medium transition-colors ${

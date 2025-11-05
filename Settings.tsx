@@ -82,6 +82,25 @@ const Settings: React.FC = () => {
   const [preferences, setPreferences] = useState<UnitPreferences>(getUnitPreferences());
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(getNotificationSettings());
   const [salesTax, setSalesTax] = useState<number>(getSalesTaxRate());
+  const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(getSalesTaxRate() > 0 ? getSalesTaxRate().toFixed(2) : '');
+
+  // Handle sales tax input - calculator style with decimal point
+  const handleSalesTaxInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (input === '') {
+      setSalesTaxDisplay('');
+      setSalesTax(0);
+      return;
+    }
+    
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    const formatted = `${dollars}.${cents.toString().padStart(2, '0')}`;
+    
+    setSalesTaxDisplay(formatted);
+    setSalesTax(parseFloat(formatted));
+  };
 
   const handleSave = () => {
     saveUnitPreferences(preferences);
@@ -304,25 +323,23 @@ const Settings: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              Sales Tax Rate (%)
+              Sales Tax Rate
             </label>
-            <div className="flex items-center space-x-2">
+            <div className="relative">
               <input
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                value={salesTax}
-                onChange={(e) => setSalesTax(parseFloat(e.target.value) || 0)}
-                className={`flex-1 px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                type="text"
+                inputMode="numeric"
+                value={salesTaxDisplay}
+                onChange={handleSalesTaxInput}
+                className={`w-full pl-4 pr-8 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                   darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
                 }`}
-                placeholder="0.00"
+                placeholder="8.50"
               />
-              <span className="text-gray-600 dark:text-gray-300">%</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Example: Enter 8.5 for 8.5% sales tax
+              Type 850 for 8.50% sales tax (calculator style)
             </p>
           </div>
 
