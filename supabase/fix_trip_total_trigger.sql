@@ -13,8 +13,9 @@ BEGIN
   WHERE id = COALESCE(NEW.trip_id, OLD.trip_id);
   
   -- Calculate subtotal (items only, CRV NOT taxed)
+  -- price_paid is TOTAL price (not per unit), so just SUM it
   SELECT COALESCE(
-    SUM(price_paid * quantity),
+    SUM(price_paid),
     0
   ) INTO subtotal
   FROM cart_items

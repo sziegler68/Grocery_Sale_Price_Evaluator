@@ -112,14 +112,12 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     if (!selectedItem) return;
 
     try {
-      // IMPORTANT: price_paid should be per unit, not total
-      // Database trigger will multiply by quantity
-      const pricePerUnit = data.quantity > 0 ? data.price / data.quantity : data.price;
-      
+      // Store TOTAL price (user's input), not per unit
+      // No more silly divide-then-multiply math!
       if (editingCartItem) {
         // Update existing cart item
         await updateCartItem(editingCartItem.id, {
-          price_paid: pricePerUnit, // Store price per unit, NOT total
+          price_paid: data.price, // Store total price as entered
           quantity: data.quantity,
           crv_amount: data.crvAmount
         });
@@ -130,7 +128,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           trip_id: trip.id,
           list_item_id: selectedItem.id,
           item_name: selectedItem.item_name,
-          price_paid: pricePerUnit, // Store price per unit, NOT total
+          price_paid: data.price, // Store total price as entered
           quantity: data.quantity,
           unit_type: selectedItem.unit_type || undefined,
           category: selectedItem.category || undefined,
@@ -321,7 +319,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                         </div>
                         <div className="flex items-center space-x-3">
                           <span className="font-bold text-lg">
-                            ${(item.price_paid * item.quantity).toFixed(2)}
+                            ${item.price_paid.toFixed(2)}
                           </span>
                           <button
                             onClick={(e) => {
@@ -406,7 +404,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           targetPrice={selectedItem.target_price || undefined}
           salesTaxRate={trip.sales_tax_rate || getSalesTaxRate()}
           darkMode={darkMode}
-          initialPrice={editingCartItem ? editingCartItem.price_paid * editingCartItem.quantity : undefined}
+          initialPrice={editingCartItem?.price_paid}
           initialQuantity={editingCartItem?.quantity}
           initialCrv={editingCartItem?.crv_amount}
         />

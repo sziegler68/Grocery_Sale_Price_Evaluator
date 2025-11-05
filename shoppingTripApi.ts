@@ -137,9 +137,34 @@ export const updateCartItem = async (itemId: string, updates: Partial<CartItem>)
   return data as CartItem;
 };
 
-// Complete a shopping trip
+// Complete a shopping trip and check off all cart items
 export const completeTrip = async (tripId: string): Promise<ShoppingTrip> => {
   const supabase = getSupabaseClient();
+  
+  // Get all cart items for this trip
+  const { data: cartItems } = await supabase
+    .from('cart_items')
+    .select('list_item_id')
+    .eq('trip_id', tripId);
+  
+  // Check off all items in the shopping list
+  if (cartItems && cartItems.length > 0) {
+    const itemIds = cartItems
+      .map(ci => ci.list_item_id)
+      .filter(id => id != null);
+    
+    if (itemIds.length > 0) {
+      await supabase
+        .from('shopping_list_items')
+        .update({ 
+          is_checked: true,
+          checked_at: new Date().toISOString()
+        })
+        .in('id', itemIds);
+    }
+  }
+  
+  // Mark trip as completed
   const { data, error } = await supabase
     .from('shopping_trips')
     .update({ completed_at: new Date().toISOString() })
