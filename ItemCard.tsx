@@ -67,7 +67,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
                         <Flag className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
                         <div className="text-xs">
                           <p className="font-semibold mb-1">Estimated Weight Used</p>
-                          <p className="text-gray-900 dark:text-gray-300 mb-1">
+                          <p className="text-primary mb-1">
                             This item was priced "per each" and converted using an estimated weight of <strong>{normalized.estimate?.weight} lb</strong> per item.
                           </p>
                           <p className="text-gray-900 dark:text-gray-400 italic">
@@ -95,11 +95,11 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
         </div>
 
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center space-x-1 text-gray-900 dark:text-gray-300">
+          <div className="flex items-center space-x-1 text-primary">
             <Store className="h-4 w-4" />
             <span>{item.storeName}</span>
           </div>
-          <div className="flex items-center space-x-1 text-gray-900 dark:text-gray-300">
+          <div className="flex items-center space-x-1 text-primary">
             <Calendar className="h-4 w-4" />
             <span>{format(item.datePurchased, 'MMM dd')}</span>
           </div>

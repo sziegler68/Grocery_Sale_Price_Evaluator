@@ -49,7 +49,7 @@ const AddItem: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Price Checker</h1>
-          <p className="text-gray-900 dark:text-gray-300 mt-2">
+          <p className="text-primary mt-2">
             Check if the current price of an item is a good deal compared to your target price.
           </p>
         </div>

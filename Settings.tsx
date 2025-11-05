@@ -139,7 +139,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Unit Preferences</h2>
           </div>
 
-          <p className="text-gray-900 dark:text-gray-300 mb-6">
+          <p className="text-primary mb-6">
             Set your preferred units for comparing prices. Items will be normalized to these units when displaying price comparisons.
           </p>
 
@@ -296,11 +296,11 @@ const Settings: React.FC = () => {
 
           <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'} border border-purple-200`}>
             <h3 className="font-medium text-sm mb-2">Example:</h3>
-            <p className="text-sm text-gray-900 dark:text-gray-300">
+            <p className="text-sm text-primary">
               If you set meat to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>, 
               and a $3.99 steak weighing 8 oz will show as <strong>$7.98/lb</strong> for easy comparison.
             </p>
-            <p className="text-sm text-gray-900 dark:text-gray-300 mt-2">
+            <p className="text-sm text-primary mt-2">
               If you set milk to "gallon", then a $1.50 quart will show as <strong>$6.00/gallon</strong> 
               alongside a $4.99 gallon for easy price comparison.
             </p>
@@ -317,7 +317,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Sales Tax</h2>
           </div>
 
-          <p className="text-gray-900 dark:text-gray-300 mb-6">
+          <p className="text-primary mb-6">
             Set your local sales tax rate. This will be used when calculating cart totals during shopping trips.
           </p>
 
@@ -344,7 +344,7 @@ const Settings: React.FC = () => {
           </div>
 
           <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
-            <p className="text-sm text-gray-900 dark:text-gray-300">
+            <p className="text-sm text-primary">
               <strong>Example:</strong> With 8.5% sales tax, a $10.00 item will cost <strong>$10.85</strong> total.
             </p>
           </div>
@@ -359,7 +359,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Notification Settings</h2>
           </div>
 
-          <p className="text-gray-900 dark:text-gray-300 mb-6">
+          <p className="text-primary mb-6">
             Get notified when others update shared shopping lists. Notifications are throttled to prevent spam.
           </p>
 

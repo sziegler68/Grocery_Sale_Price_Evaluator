@@ -362,7 +362,7 @@ const ItemDetail: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between text-sm text-gray-900 dark:text-gray-300">
+                <div className="flex items-center justify-between text-sm text-primary">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1">
                       <Store className="h-4 w-4" />
@@ -379,7 +379,7 @@ const ItemDetail: React.FC = () => {
                 </div>
                 
                 {entry.notes && (
-                  <div className="mt-2 text-sm text-gray-900 dark:text-gray-300">
+                  <div className="mt-2 text-sm text-primary">
                     <strong>Notes:</strong> {entry.notes}
                   </div>
                 )}
