@@ -241,9 +241,19 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   // Cart items: keep in order added (no sorting)
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
+      {/* Subtle moon and stars background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-8 right-12 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-200/20 to-yellow-300/10 dark:from-blue-200/10 dark:to-purple-200/5 blur-sm" />
+        <div className="absolute top-24 left-8 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
+        <div className="absolute top-32 right-24 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
+        <div className="absolute top-48 left-20 w-1.5 h-1.5 rounded-full bg-yellow-400/40 dark:bg-purple-300/20" />
+        <div className="absolute top-64 right-16 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
+        <div className="absolute bottom-32 left-12 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
+        <div className="absolute bottom-48 right-20 w-1.5 h-1.5 rounded-full bg-yellow-400/40 dark:bg-purple-300/20" />
+      </div>
       {/* Header */}
-      <div className={`sticky top-0 z-10 ${darkMode ? 'bg-zinc-800' : 'bg-white'} border-b border-gray-200 dark:border-zinc-700 shadow-sm`}>
+      <div className={`sticky top-0 z-10 ${darkMode ? 'bg-zinc-800' : 'bg-white'} border-b border-gray-200 dark:border-zinc-700 shadow-sm relative`}>
         <div className="flex items-center justify-between p-4">
           <button
             onClick={onBack}
@@ -274,7 +284,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 <span className="text-sm font-medium">
                   {trip.store_name}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                <span className="text-xs text-gray-700 dark:text-gray-400 ml-2">
                   (Tax: {(trip.sales_tax_rate || getSalesTaxRate()).toFixed(2)}%)
                 </span>
               </div>
@@ -307,7 +317,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
               <span className="text-2xl font-bold">
                 ${trip.total_spent.toFixed(2)}
               </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-gray-800 dark:text-gray-400">
                 / ${Math.round(trip.budget)}
               </span>
             </div>
@@ -327,7 +337,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 </span>
               </div>
             ) : (
-              <span className="text-sm text-gray-600 dark:text-gray-400 mt-2 block">
+              <span className="text-sm text-gray-800 dark:text-gray-400 mt-2 block">
                 ${budgetStatus.remaining.toFixed(2)} remaining
               </span>
             )}
@@ -370,12 +380,12 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                             <div className="flex-1">
                               <div className="font-medium">{item.item_name}</div>
                               {item.quantity && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                <div className="text-xs text-gray-700 dark:text-gray-400">
                                   {item.quantity} {item.unit_type || 'units'}
                                 </div>
                               )}
                               {item.target_price && (
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <div className="text-xs text-gray-800 dark:text-gray-400 mt-1">
                                   Target: ${item.target_price.toFixed(2)}
                                 </div>
                               )}
@@ -414,13 +424,13 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                           <div className="flex-1">
                             <div className="font-medium">{item.item_name}</div>
                             {item.quantity > 1 && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <div className="text-xs text-gray-700 dark:text-gray-400">
                                 Qty: {item.quantity} {item.unit_type}
                               </div>
                             )}
                             {item.target_price && item.quantity > 0 && (
                               <div className="text-xs mt-1 space-y-0.5">
-                                <div className="text-gray-600 dark:text-gray-400">
+                                <div className="text-gray-700 dark:text-gray-400">
                                   Target: ${item.target_price.toFixed(2)}/{item.unit_type || 'unit'}
                                 </div>
                                 <div className={`font-medium ${
@@ -456,7 +466,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             )}
 
             {availableItems.length === 0 && cartItems.length > 0 && (
-              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              <div className="p-8 text-center text-gray-700 dark:text-gray-400">
                 <ShoppingCartIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>All list items added to cart!</p>
                 <p className="text-sm mt-1">Tap the checkmark above to complete your trip</p>
