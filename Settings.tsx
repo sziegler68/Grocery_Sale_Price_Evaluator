@@ -127,12 +127,12 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg ${
-          darkMode ? 'bg-zinc-800' : 'bg-white'
+          bg-card
         }`}>
           <div className="flex items-center space-x-2 mb-6">
             <SettingsIcon className="h-6 w-6 text-purple-600" />
@@ -152,13 +152,13 @@ const Settings: React.FC = () => {
                 value={preferences.meat}
                 onChange={(e) => handleChange('meat', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
               >
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
               </select>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 Prices will be normalized to price per {preferences.meat}
               </p>
             </div>
@@ -171,13 +171,13 @@ const Settings: React.FC = () => {
                 value={preferences.fruit}
                 onChange={(e) => handleChange('fruit', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
               >
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
               </select>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 Prices will be normalized to price per {preferences.fruit}
               </p>
             </div>
@@ -190,13 +190,13 @@ const Settings: React.FC = () => {
                 value={preferences.veggies}
                 onChange={(e) => handleChange('veggies', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
               >
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
               </select>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 Prices will be normalized to price per {preferences.veggies}
               </p>
             </div>
@@ -209,7 +209,7 @@ const Settings: React.FC = () => {
                 value={preferences.milk}
                 onChange={(e) => handleChange('milk', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
               >
                 <option value="gallon">Gallon</option>
@@ -218,7 +218,7 @@ const Settings: React.FC = () => {
                 <option value="liter">Liter</option>
                 <option value="ml">Milliliter (ml)</option>
               </select>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 Prices will be normalized to price per {preferences.milk}
               </p>
             </div>
@@ -231,7 +231,7 @@ const Settings: React.FC = () => {
                 value={preferences.soda}
                 onChange={(e) => handleChange('soda', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
               >
                 <option value="gallon">Gallon</option>
@@ -242,7 +242,7 @@ const Settings: React.FC = () => {
                 <option value="can">Can</option>
                 <option value="each">Each</option>
               </select>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 Prices will be normalized to price per {preferences.soda}
               </p>
             </div>
@@ -255,7 +255,7 @@ const Settings: React.FC = () => {
                 value={preferences.drinks}
                 onChange={(e) => handleChange('drinks', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
               >
                 <option value="gallon">Gallon</option>
@@ -264,7 +264,7 @@ const Settings: React.FC = () => {
                 <option value="liter">Liter</option>
                 <option value="ml">Milliliter (ml)</option>
               </select>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 Prices will be normalized to price per {preferences.drinks}
               </p>
             </div>
@@ -277,7 +277,7 @@ const Settings: React.FC = () => {
                 value={preferences.dairy}
                 onChange={(e) => handleChange('dairy', e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
               >
                 <option value="pound">Pound (lb)</option>
@@ -288,13 +288,13 @@ const Settings: React.FC = () => {
                 <option value="liter">Liter</option>
                 <option value="ml">Milliliter (ml)</option>
               </select>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 Prices will be normalized to price per {preferences.dairy}
               </p>
             </div>
           </div>
 
-          <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'} border border-purple-200`}>
+          <div className={`mt-6 p-4 rounded-lg bg-brand-light border border-purple-200`}>
             <h3 className="font-medium text-sm mb-2">Example:</h3>
             <p className="text-sm text-primary">
               If you set meat to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>, 
@@ -310,7 +310,7 @@ const Settings: React.FC = () => {
 
         {/* Sales Tax Setting */}
         <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 ${
-          darkMode ? 'bg-zinc-800' : 'bg-white'
+          bg-card
         }`}>
           <div className="flex items-center space-x-2 mb-6">
             <SettingsIcon className="h-6 w-6 text-purple-600" />
@@ -332,18 +332,18 @@ const Settings: React.FC = () => {
                 value={salesTaxDisplay}
                 onChange={handleSalesTaxInput}
                 className={`w-full pl-4 pr-8 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                  bg-input border-input
                 }`}
                 placeholder="8.50"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
             </div>
-            <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
+            <p className="text-xs text-secondary mt-2">
               Type 850 for 8.50% sales tax (calculator style)
             </p>
           </div>
 
-          <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
+          <div className={`mt-6 p-4 rounded-lg bg-brand-light`}>
             <p className="text-sm text-primary">
               <strong>Example:</strong> With 8.5% sales tax, a $10.00 item will cost <strong>$10.85</strong> total.
             </p>
@@ -352,7 +352,7 @@ const Settings: React.FC = () => {
 
         {/* Notification Settings */}
         <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 ${
-          darkMode ? 'bg-zinc-800' : 'bg-white'
+          bg-card
         }`}>
           <div className="flex items-center space-x-2 mb-6">
             <Bell className="h-6 w-6 text-purple-600" />
@@ -381,7 +381,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm font-medium">Push Notifications</div>
-                        <div className="text-xs text-gray-900 dark:text-gray-400">
+                        <div className="text-xs text-secondary">
                           Get notified even when app is closed
                         </div>
                       </div>
@@ -402,7 +402,7 @@ const Settings: React.FC = () => {
                     </label>
 
                     {notifSettings.pushEnabled && !isPushNotificationSupported() && (
-                      <div className={`p-3 rounded-lg ${darkMode ? 'bg-amber-900/20' : 'bg-amber-50'} border border-amber-300`}>
+                      <div className={`p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/20 border border-amber-300`}>
                         <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
                           Push notifications require browser permission
                         </p>
@@ -431,7 +431,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm">Items are added</div>
-                        <div className="text-xs text-gray-900 dark:text-gray-400">
+                        <div className="text-xs text-secondary">
                           Max 1 notification per hour
                         </div>
                       </div>
@@ -449,7 +449,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm">Items are checked off</div>
-                        <div className="text-xs text-gray-900 dark:text-gray-400">
+                        <div className="text-xs text-secondary">
                           Max 1 notification per hour
                         </div>
                       </div>
@@ -467,7 +467,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm">Shopping is complete</div>
-                        <div className="text-xs text-gray-900 dark:text-gray-400">
+                        <div className="text-xs text-secondary">
                           Not throttled (manual trigger)
                         </div>
                       </div>
