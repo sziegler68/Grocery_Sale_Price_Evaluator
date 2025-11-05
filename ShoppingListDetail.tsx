@@ -779,7 +779,7 @@ const ShoppingListDetail: React.FC = () => {
                 onClick={() => setShowAddItemModal(true)}
                 className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
               >
-                Add First Item
+                Add Item
               </button>
             </div>
           ) : (

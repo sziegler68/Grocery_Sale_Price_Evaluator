@@ -125,7 +125,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
           ) : (
             <div className="space-y-4">
               <div className="text-center py-4">
-                <div className="text-4xl mb-4">??</div>
+                <div className="text-4xl mb-4">🎉</div>
                 <h3 className="text-lg font-semibold mb-2">List Created!</h3>
                 <p className="text-gray-600 dark:text-gray-300">
                   Your list "{createdList.name}" is ready.
