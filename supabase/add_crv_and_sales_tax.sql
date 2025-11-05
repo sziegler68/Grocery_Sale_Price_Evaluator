@@ -10,19 +10,30 @@ ALTER TABLE shopping_trips
 ADD COLUMN IF NOT EXISTS sales_tax_rate DECIMAL(5,2) DEFAULT 0;
 
 -- Update the trigger function to include CRV and sales tax in total calculation
+-- Fix: Use DECLARE to properly access sales_tax_rate from shopping_trips
 CREATE OR REPLACE FUNCTION update_trip_total()
 RETURNS TRIGGER AS $$
+DECLARE
+  trip_tax_rate DECIMAL(5,2);
+  subtotal DECIMAL(10,2);
 BEGIN
+  -- Get the trip's sales tax rate
+  SELECT sales_tax_rate INTO trip_tax_rate
+  FROM shopping_trips
+  WHERE id = COALESCE(NEW.trip_id, OLD.trip_id);
+  
+  -- Calculate subtotal (items + CRV)
+  SELECT COALESCE(
+    SUM((price_paid * quantity) + COALESCE(crv_amount, 0)),
+    0
+  ) INTO subtotal
+  FROM cart_items
+  WHERE trip_id = COALESCE(NEW.trip_id, OLD.trip_id);
+  
+  -- Update the trip with subtotal + tax
   UPDATE shopping_trips
   SET 
-    total_spent = (
-      SELECT COALESCE(
-        SUM((price_paid * quantity) + COALESCE(crv_amount, 0)),
-        0
-      ) * (1 + (sales_tax_rate / 100))
-      FROM cart_items
-      WHERE trip_id = COALESCE(NEW.trip_id, OLD.trip_id)
-    ),
+    total_spent = subtotal * (1 + (COALESCE(trip_tax_rate, 0) / 100)),
     items_purchased = (
       SELECT COUNT(*)
       FROM cart_items
