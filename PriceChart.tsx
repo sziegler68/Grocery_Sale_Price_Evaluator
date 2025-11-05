@@ -1,6 +1,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
+import { formatPrice } from './priceUtils';
 
 interface PriceEntry {
   date: Date;
@@ -32,7 +33,7 @@ const PriceChart: React.FC<PriceChartProps> = ({ data, darkMode }) => {
         }`}>
           <p className="font-medium">{label}</p>
           <p className="text-purple-600">
-            Unit Price: ${payload[0].value.toFixed(4)}
+            Unit Price: ${formatPrice(payload[0].value)}
           </p>
           <p className="text-sm text-gray-500">
             Total: ${data.price.toFixed(2)} at {data.store}

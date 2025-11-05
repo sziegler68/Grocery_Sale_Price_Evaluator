@@ -7,6 +7,7 @@ import Header from './Header';
 import Footer from './Footer';
 import PriceChart from './PriceChart';
 import { useDarkMode } from './useDarkMode';
+import { formatPrice } from './priceUtils';
 import {
   fetchItemWithHistory,
   isUsingMockData,
@@ -171,7 +172,7 @@ const ItemDetail: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
-                ${lastPrice.toFixed(4)}
+                ${formatPrice(lastPrice)}
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Last Price</div>
               <div className="text-xs text-gray-400 mt-1">
@@ -181,7 +182,7 @@ const ItemDetail: React.FC = () => {
 
             <div className="text-center">
               <div className={`text-2xl font-bold ${isBelowTarget ? 'text-cyan-600' : 'text-gray-600'}`}>
-                {targetPrice ? `$${targetPrice.toFixed(4)}` : 'Not Set'}
+                {targetPrice ? `$${formatPrice(targetPrice)}` : 'Not Set'}
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Target Price</div>
               <button
@@ -195,7 +196,7 @@ const ItemDetail: React.FC = () => {
 
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                ${bestPrice.toFixed(4)}
+                ${formatPrice(bestPrice)}
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Best Price</div>
               <div className="text-xs text-gray-400 mt-1">
@@ -306,7 +307,7 @@ const ItemDetail: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-lg">
-                      ${entry.unitPrice.toFixed(4)}
+                      ${formatPrice(entry.unitPrice)}
                     </div>
                     <div className="text-sm text-gray-500">
                       per {entry.unitType}

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-toastify';
 import { Plus, Calculator } from 'lucide-react';
+import { calculateUnitPrice as calcUnitPrice, formatPrice } from './priceUtils';
 
 const categories = ['Beef', 'Pork', 'Chicken', 'Seafood', 'Dairy', 'Produce', 'Snacks', 'Drinks', 'Household', 'Other'];
 const beefQualities = ['Choice', 'Prime', 'Wagyu', 'Grassfed', 'Organic'];
@@ -72,9 +73,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
   const watchedItemName = watch('itemName');
   const watchedTargetPrice = watch('targetPrice');
 
-  // Unit price calculator - simply divide price by quantity
+  // Unit price calculator - rounds up to 2 decimal places
   const calculateUnitPrice = (price: number, quantity: number): number => {
-    return price / quantity;
+    return calcUnitPrice(price, quantity);
   };
 
   // Handle price input with auto-formatting
@@ -428,7 +429,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
                   ? 'text-red-600'
                   : 'text-purple-600'
               }`}>
-                ${calculatedUnitPrice.toFixed(4)} per {watchedUnitType}
+                ${formatPrice(calculatedUnitPrice)} per {watchedUnitType}
               </span>
             </div>
             {watchedTargetPrice && calculatedUnitPrice > watchedTargetPrice && (
@@ -439,7 +440,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
                 <div>
                   <p className="text-sm font-semibold text-red-600">Warning: Price Above Target!</p>
                   <p className="text-sm text-red-600">
-                    This price (${calculatedUnitPrice.toFixed(2)}) is higher than your target (${watchedTargetPrice.toFixed(2)}) by ${(calculatedUnitPrice - watchedTargetPrice).toFixed(2)}.
+                    This price (${formatPrice(calculatedUnitPrice)}) is higher than your target (${formatPrice(watchedTargetPrice)}) by ${formatPrice(calculatedUnitPrice - watchedTargetPrice)}.
                   </p>
                 </div>
               </div>
