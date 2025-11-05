@@ -396,7 +396,6 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 <div className="space-y-2">
                   {cartItems.map(item => {
                     const pricePerUnit = item.quantity > 0 ? item.price_paid / item.quantity : 0;
-                    const isOverTarget = item.target_price ? pricePerUnit > item.target_price : false;
                     const isAtOrUnderTarget = item.target_price ? pricePerUnit <= item.target_price : false;
                     
                     return (
