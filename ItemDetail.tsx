@@ -63,10 +63,10 @@ const ItemDetail: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className={`mx-auto max-w-md rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-900 dark:text-gray-400`}>
+          <div className={`mx-auto max-w-md rounded-xl border border-dashed border-primary p-6 text-center text-sm text-secondary`}>
             Loading item details?
           </div>
         </main>
@@ -77,11 +77,11 @@ const ItemDetail: React.FC = () => {
 
   if (!item) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-gray-900 dark:text-gray-400">Item not found.</p>
+            <p className="text-secondary">Item not found.</p>
           </div>
         </main>
         <Footer />
@@ -138,7 +138,7 @@ const ItemDetail: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -209,7 +209,7 @@ const ItemDetail: React.FC = () => {
         </div>
 
         {/* Summary Panel */}
-        <div className={`p-6 rounded-xl shadow-lg mb-8 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-8 bg-card`}>
           <h2 className="text-xl font-bold mb-4">Price Summary</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -217,7 +217,7 @@ const ItemDetail: React.FC = () => {
               <div className="text-2xl font-bold text-purple-600">
                 ${formatPrice(lastPrice)}
               </div>
-              <div className="text-sm text-gray-900 dark:text-gray-400">Last Price</div>
+              <div className="text-sm text-secondary">Last Price</div>
               <div className="text-xs text-gray-400 mt-1">
                 {format(lastPurchaseDate, 'MMM dd, yyyy')}
               </div>
@@ -227,7 +227,7 @@ const ItemDetail: React.FC = () => {
               <div className={`text-2xl font-bold ${isBelowTarget ? 'text-cyan-600' : 'text-gray-600'}`}>
                 {targetPrice ? `$${formatPrice(targetPrice)}` : 'Not Set'}
               </div>
-              <div className="text-sm text-gray-900 dark:text-gray-400">Target Price</div>
+              <div className="text-sm text-secondary">Target Price</div>
               <button
                 onClick={() => setIsEditingTarget(true)}
                 className="text-xs text-purple-600 hover:text-purple-700 mt-1 flex items-center space-x-1 mx-auto"
@@ -241,7 +241,7 @@ const ItemDetail: React.FC = () => {
               <div className="text-2xl font-bold text-green-600">
                 ${formatPrice(bestPrice)}
               </div>
-              <div className="text-sm text-gray-900 dark:text-gray-400">Best Price</div>
+              <div className="text-sm text-secondary">Best Price</div>
               <div className="text-xs text-gray-400 mt-1">
                 All-time low
               </div>
@@ -270,7 +270,7 @@ const ItemDetail: React.FC = () => {
         {/* Target Price Edit Modal */}
         {isEditingTarget && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className={`max-w-md w-full p-6 rounded-xl ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+            <div className={`max-w-md w-full p-6 rounded-xl bg-card`}>
               <h3 className="text-lg font-bold mb-4">Set Target Price</h3>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
@@ -284,7 +284,7 @@ const ItemDetail: React.FC = () => {
                     value={targetPriceDisplay}
                     onChange={handleTargetPriceInput}
                     className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                      darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                      bg-input border-input
                     }`}
                     placeholder="0.00"
                     autoFocus
@@ -310,7 +310,7 @@ const ItemDetail: React.FC = () => {
         )}
 
         {/* Price Chart */}
-        <div className={`p-6 rounded-xl shadow-lg mb-8 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-8 bg-card`}>
           <h2 className="text-xl font-bold mb-4">Price Trend</h2>
           <PriceChart
             data={historyEntries.map(entry => ({
@@ -324,7 +324,7 @@ const ItemDetail: React.FC = () => {
         </div>
 
         {/* Price History */}
-        <div className={`p-6 rounded-xl shadow-lg ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg bg-card`}>
           <h2 className="text-xl font-bold mb-4">Price History</h2>
           
           <div className="space-y-4">
@@ -332,7 +332,7 @@ const ItemDetail: React.FC = () => {
               <div
                 key={entry.id}
                 className={`p-4 rounded-lg border ${
-                  darkMode ? 'border-zinc-700 bg-zinc-700' : 'border-gray-200 bg-gray-50'
+                  border-primary bg-secondary
                 } ${entry.unitPrice === bestPrice ? 'ring-2 ring-green-500' : ''}`}
               >
                 <div className="flex items-center justify-between mb-2">
