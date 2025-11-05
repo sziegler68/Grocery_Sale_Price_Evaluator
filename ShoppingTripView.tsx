@@ -85,23 +85,39 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     setShowPriceInput(true);
   };
 
-  const handleAddPrice = async (price: number) => {
+  const handleAddPrice = async (data: {
+    price: number;
+    quantity: number;
+    crvAmount: number;
+    updateTargetPrice: boolean;
+  }) => {
     if (!selectedItem) return;
 
     try {
+      // Add to cart with CRV
       await addItemToCart({
         trip_id: trip.id,
         list_item_id: selectedItem.id,
         item_name: selectedItem.item_name,
-        price_paid: price,
-        quantity: selectedItem.quantity || 1,
+        price_paid: data.price,
+        quantity: data.quantity,
         unit_type: selectedItem.unit_type || undefined,
         category: selectedItem.category || undefined,
-        target_price: selectedItem.target_price || undefined
+        target_price: selectedItem.target_price || undefined,
+        crv_amount: data.crvAmount
       });
+
+      // Update target price if requested
+      if (data.updateTargetPrice && data.quantity > 0) {
+        const newTargetPrice = data.price / data.quantity;
+        // TODO: Update target price in shopping_list_items table
+        // This would require a new API function
+        console.log('Update target price to:', newTargetPrice);
+      }
 
       toast.success(`Added ${selectedItem.item_name} to cart`);
       setSelectedItem(null);
+      setShowPriceInput(false);
     } catch (error) {
       console.error('Error adding to cart:', error);
       toast.error('Failed to add item');
@@ -344,7 +360,9 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           }}
           onConfirm={handleAddPrice}
           itemName={selectedItem.item_name}
+          unitType={selectedItem.unit_type || undefined}
           targetPrice={selectedItem.target_price || undefined}
+          salesTaxRate={trip.sales_tax_rate}
           darkMode={darkMode}
         />
       )}
