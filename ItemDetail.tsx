@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ArrowLeft, Edit, Target, TrendingDown, Calendar, Store, Tag } from 'lucide-react';
+import { ArrowLeft, Edit, Target, TrendingDown, Calendar, Store, Tag, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import Header from './Header';
 import Footer from './Footer';
@@ -12,12 +12,14 @@ import {
   fetchItemWithHistory,
   isUsingMockData,
   updateTargetPrice,
+  deleteGroceryItem,
   type DataSource,
   type GroceryItem,
 } from './groceryData';
 
 const ItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [item, setItem] = useState<GroceryItem | null>(null);
   const [priceHistory, setPriceHistory] = useState<GroceryItem[]>([]);
@@ -176,13 +178,33 @@ const ItemDetail: React.FC = () => {
                 )}
               </div>
             </div>
-            <Link
-              to={`/edit-item/${item.id}`}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-            >
-              <Edit className="h-4 w-4" />
-              <span>Edit Item</span>
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link
+                to={`/edit-item/${item.id}`}
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              >
+                <Edit className="h-4 w-4" />
+                <span>Edit</span>
+              </Link>
+              <button
+                onClick={async () => {
+                  if (window.confirm(`Delete "${item.itemName}"? This cannot be undone.`)) {
+                    try {
+                      await deleteGroceryItem(item.id);
+                      toast.success('Item deleted successfully');
+                      navigate('/items');
+                    } catch (error) {
+                      console.error('Error deleting item:', error);
+                      toast.error('Failed to delete item');
+                    }
+                  }
+                }}
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Delete</span>
+              </button>
+            </div>
           </div>
         </div>
 

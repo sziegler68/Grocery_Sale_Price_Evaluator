@@ -268,6 +268,23 @@ export const createGroceryItem = async (input: CreateGroceryItemInput): Promise<
   return mapRowToItem(data);
 };
 
+export const deleteGroceryItem = async (itemId: string): Promise<void> => {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const client = getSupabaseClient();
+  const { error } = await client
+    .from('grocery_items')
+    .delete()
+    .eq('id', itemId);
+
+  if (error) {
+    console.error('[Supabase] Failed to delete grocery item:', error.message);
+    throw new Error(error.message || 'Failed to delete item');
+  }
+};
+
 export const updateGroceryItem = async (update: GroceryItemsUpdate): Promise<GroceryItem> => {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error('Supabase is not configured.');
