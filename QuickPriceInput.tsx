@@ -151,9 +151,8 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                   darkMode
                     ? 'bg-zinc-700 border-zinc-600 text-white'
                     : 'bg-white border-gray-300 text-gray-900'
-                } focus:ring-2 focus:ring-purple-500`}
+                }                   focus:ring-2 focus:ring-purple-500`}
                 placeholder="0.00"
-                autoFocus
               />
             </div>
           </div>

@@ -165,9 +165,15 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
         }
       }
 
-      // Immediately reload cart items to show the update
-      const updatedItems = await getCartItems(trip.id);
+      // Immediately reload BOTH cart items AND trip data to update budget meter
+      const [updatedItems, updatedTrip] = await Promise.all([
+        getCartItems(trip.id),
+        getTripById(trip.id)
+      ]);
       setCartItems(updatedItems);
+      if (updatedTrip) {
+        setTrip(updatedTrip);
+      }
       
       setSelectedItem(null);
       setEditingCartItem(null);
@@ -182,6 +188,12 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     try {
       await removeCartItem(cartItem.id);
       toast.success(`Removed ${cartItem.item_name}`);
+      
+      // Immediately reload trip data to update budget meter
+      const updatedTrip = await getTripById(trip.id);
+      if (updatedTrip) {
+        setTrip(updatedTrip);
+      }
     } catch (error) {
       console.error('Error removing item:', error);
       toast.error('Failed to remove item');
@@ -222,16 +234,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     })).filter(group => group.items.length > 0);
   }, [availableItems]);
 
-  // Sort cart items by category (for consistency)
-  const sortedCartItems = useMemo(() => {
-    return [...cartItems].sort((a, b) => {
-      const catA = a.category || 'Other';
-      const catB = b.category || 'Other';
-      const indexA = SHOPPING_LIST_CATEGORIES.indexOf(catA as any);
-      const indexB = SHOPPING_LIST_CATEGORIES.indexOf(catB as any);
-      return indexA - indexB;
-    });
-  }, [cartItems]);
+  // Cart items: keep in order added (no sorting)
 
   return (
     <div className="h-full flex flex-col">
@@ -336,71 +339,13 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           </div>
         ) : (
           <>
-            {/* Cart Items */}
-            {sortedCartItems.length > 0 && (
-              <div className="p-4">
-                <h3 className="font-semibold mb-3 flex items-center space-x-2">
-                  <ShoppingCartIcon className="h-5 w-5 text-purple-600" />
-                  <span>In Cart ({sortedCartItems.length})</span>
-                </h3>
-                <div className="space-y-2">
-                  {sortedCartItems.map(item => (
-                    <div
-                      key={item.id}
-                      onClick={() => handleCartItemClick(item)}
-                      className={`p-3 rounded-lg border cursor-pointer hover:border-purple-500 transition-colors ${
-                        darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="font-medium">{item.item_name}</div>
-                          {item.quantity > 1 && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              Qty: {item.quantity} {item.unit_type}
-                            </div>
-                          )}
-                          {item.target_price && item.quantity > 0 && (
-                            (() => {
-                              const pricePerUnit = item.price_paid / item.quantity;
-                              const isOverTarget = pricePerUnit > item.target_price;
-                              const diff = pricePerUnit - item.target_price;
-                              return (
-                                <div className={`text-xs mt-1 ${
-                                  isOverTarget
-                                    ? 'text-red-600 dark:text-red-400'
-                                    : 'text-green-600 dark:text-green-400'
-                                }`}>
-                                  ${pricePerUnit.toFixed(4)}/{item.unit_type || 'unit'} (Target: ${item.target_price.toFixed(2)} {isOverTarget ? '+' : ''}${Math.abs(diff).toFixed(4)})
-                                </div>
-                              );
-                            })()
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <span className="font-bold text-lg">
-                            ${item.price_paid.toFixed(2)}
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation(); // Don't trigger edit modal
-                              handleRemoveFromCart(item);
-                            }}
-                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Available Items (grouped by category) */}
             {groupedAvailableItems.length > 0 && (
               <div className="p-4 space-y-6">
+                <h3 className="font-semibold mb-3 flex items-center space-x-2">
+                  <ShoppingCartIcon className="h-5 w-5 text-purple-600" />
+                  <span>On the List ({availableItems.length})</span>
+                </h3>
                 {groupedAvailableItems.map(({ category, items: categoryItems }) => (
                   <div key={category}>
                     <h3 className="text-sm font-bold text-purple-600 mb-2 uppercase tracking-wide">
@@ -438,6 +383,72 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Cart Items (below available items, unsorted) */}
+            {cartItems.length > 0 && (
+              <div className="p-4">
+                <h3 className="font-semibold mb-3 flex items-center space-x-2">
+                  <ShoppingCartIcon className="h-5 w-5 text-purple-600" />
+                  <span>In Cart ({cartItems.length})</span>
+                </h3>
+                <div className="space-y-2">
+                  {cartItems.map(item => {
+                    const pricePerUnit = item.quantity > 0 ? item.price_paid / item.quantity : 0;
+                    const isOverTarget = item.target_price ? pricePerUnit > item.target_price : false;
+                    const isAtOrUnderTarget = item.target_price ? pricePerUnit <= item.target_price : false;
+                    
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => handleCartItemClick(item)}
+                        className={`p-3 rounded-lg border cursor-pointer hover:border-purple-500 transition-colors ${
+                          darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="font-medium">{item.item_name}</div>
+                            {item.quantity > 1 && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                Qty: {item.quantity} {item.unit_type}
+                              </div>
+                            )}
+                            {item.target_price && item.quantity > 0 && (
+                              <div className="text-xs mt-1 space-y-0.5">
+                                <div className="text-gray-600 dark:text-gray-400">
+                                  Target: ${item.target_price.toFixed(2)}/{item.unit_type || 'unit'}
+                                </div>
+                                <div className={`font-medium ${
+                                  isAtOrUnderTarget
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-red-600 dark:text-red-400'
+                                }`}>
+                                  Actual: ${pricePerUnit.toFixed(2)}/{item.unit_type || 'unit'}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <span className="font-bold text-lg">
+                              ${item.price_paid.toFixed(2)}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation(); // Don't trigger edit modal
+                                handleRemoveFromCart(item);
+                              }}
+                              className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
