@@ -6,6 +6,7 @@ import { calculateBudgetStatus } from './shoppingTripTypes';
 import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById } from './shoppingTripApi';
 import QuickPriceInput from './QuickPriceInput';
 import { toast } from 'react-toastify';
+import { getSalesTaxRate } from './Settings';
 
 interface ShoppingTripViewProps {
   trip: ShoppingTrip;
@@ -180,9 +181,14 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
               : 'bg-red-50 dark:bg-red-900/20'
           }`}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">
-                {trip.store_name}
-              </span>
+              <div>
+                <span className="text-sm font-medium">
+                  {trip.store_name}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                  (Tax: {(trip.sales_tax_rate || getSalesTaxRate()).toFixed(2)}%)
+                </span>
+              </div>
               <span className={`text-xs font-medium ${
                 budgetStatus.color === 'green'
                   ? 'text-green-700 dark:text-green-400'
@@ -362,7 +368,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           itemName={selectedItem.item_name}
           unitType={selectedItem.unit_type || undefined}
           targetPrice={selectedItem.target_price || undefined}
-          salesTaxRate={trip.sales_tax_rate}
+          salesTaxRate={trip.sales_tax_rate || getSalesTaxRate()}
           darkMode={darkMode}
         />
       )}
