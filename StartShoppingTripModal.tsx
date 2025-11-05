@@ -146,7 +146,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
               Trip Budget <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
               <input
                 type="text"
                 inputMode="numeric"
@@ -161,7 +161,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
                 autoFocus
               />
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">
               Whole dollars only (e.g., type 250 for $250)
             </p>
           </div>
@@ -184,9 +184,9 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
                 } focus:ring-2 focus:ring-purple-500 focus:border-transparent`}
                 placeholder="10.25"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-700">%</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">
               Default: {salesTaxRate.toFixed(2)}% (from settings). Type {(salesTaxRate * 100).toFixed(0)} for calculator entry.
             </p>
           </div>
