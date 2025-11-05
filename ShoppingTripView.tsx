@@ -14,7 +14,6 @@ import { getSalesTaxRate } from './Settings';
 interface ShoppingTripViewProps {
   trip: ShoppingTrip;
   listItems: ShoppingListItem[];
-  darkMode: boolean;
   onBack: () => void;
   onComplete: (trip: ShoppingTrip, cartItems: CartItem[]) => void;
 }
@@ -22,7 +21,6 @@ interface ShoppingTripViewProps {
 const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   trip: initialTrip,
   listItems,
-  darkMode,
   onBack,
   onComplete
 }) => {
