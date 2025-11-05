@@ -173,11 +173,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
   };
 
   return (
-    <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg ${
-      darkMode ? 'bg-zinc-800' : 'bg-white'
-    }`}>
+    <div className="max-w-2xl mx-auto p-6 rounded-xl shadow-lg bg-card">
       <div className="flex items-center space-x-2 mb-6">
-        <Plus className="h-6 w-6 text-purple-600" />
+        <Plus className="h-6 w-6 text-brand" />
         <h2 className="text-2xl font-bold">{isEditMode ? 'Edit Item' : 'Check Price'}</h2>
       </div>
 
@@ -188,9 +186,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
             <input
               {...register('itemName')}
               type="text"
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-              }`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               placeholder="e.g., Chicken Breast"
             />
             {errors.itemName && (
@@ -202,9 +198,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
             <label className="block text-sm font-medium mb-2">Category *</label>
             <select
               {...register('category')}
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-              }`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
             >
               <option value="">Select category</option>
               {categories.map(category => (
@@ -221,9 +215,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
               <label className="block text-sm font-medium mb-2">Beef Quality</label>
               <select
                 {...register('meatQuality')}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="">Select quality (optional)</option>
                 {beefQualities.map(quality => (
@@ -238,9 +230,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
               <label className="block text-sm font-medium mb-2">Pork Quality</label>
               <select
                 {...register('meatQuality')}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="">Select quality (optional)</option>
                 {porkQualities.map(quality => (
@@ -255,9 +245,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
               <label className="block text-sm font-medium mb-2">Chicken Quality</label>
               <select
                 {...register('meatQuality')}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="">Select quality (optional)</option>
                 {chickenQualities.map(quality => (
@@ -272,9 +260,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
               <label className="block text-sm font-medium mb-2">Seafood Quality</label>
               <select
                 {...register('meatQuality')}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="">Select quality (optional)</option>
                 {seafoodQualities.map(quality => (
@@ -297,9 +283,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
                   setCustomStoreName('');
                 }
               }}
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-              }`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
             >
               <option value="">Select store</option>
               {stores.map(store => (
@@ -318,9 +302,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
                 type="text"
                 value={customStoreName}
                 onChange={(e) => setCustomStoreName(e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 placeholder="Enter store name"
               />
             </div>
@@ -332,7 +314,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
               id="organic-checkbox"
               checked={isOrganic}
               onChange={(e) => setIsOrganic(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+              className="w-5 h-5 rounded border-input text-brand focus:ring-2 focus:ring-brand"
             />
             <label htmlFor="organic-checkbox" className="text-sm font-medium cursor-pointer">
               Organic Product
@@ -342,15 +324,13 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
           <div>
             <label className="block text-sm font-medium mb-2">Price *</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-tertiary">$</span>
               <input
                 type="text"
                 inputMode="numeric"
                 value={priceDisplay}
                 onChange={handlePriceInput}
-                className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                }`}
+                className="w-full pl-8 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 placeholder="0.00"
               />
             </div>
@@ -365,9 +345,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
               {...register('quantity', { valueAsNumber: true })}
               type="number"
               step="0.01"
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-              }`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               placeholder="1"
             />
             {errors.quantity && (
@@ -379,9 +357,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
             <label className="block text-sm font-medium mb-2">Unit Type *</label>
             <select
               {...register('unitType')}
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-              }`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
             >
               <option value="">Select unit</option>
               {unitTypes.map(unit => (
@@ -396,15 +372,13 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
           <div>
             <label className="block text-sm font-medium mb-2">Target Price (per unit)</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-tertiary">$</span>
               <input
                 type="text"
                 inputMode="numeric"
                 value={targetPriceDisplay}
                 onChange={handleTargetPriceInput}
-                className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                }`}
+                className="w-full pl-8 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 placeholder="0.00"
               />
             </div>
@@ -414,20 +388,20 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
         {calculatedUnitPrice && (
           <div className={`p-4 rounded-lg border ${
             watchedTargetPrice && calculatedUnitPrice > watchedTargetPrice
-              ? darkMode ? 'bg-red-900/20 border-red-500' : 'bg-red-50 border-red-300'
-              : darkMode ? 'bg-zinc-700 border-purple-200' : 'bg-purple-50 border-purple-200'
+              ? 'bg-red-100 dark:bg-red-900/20 border-error'
+              : 'bg-brand-light border-brand'
           }`}>
             <div className="flex items-center space-x-2">
               <Calculator className={`h-5 w-5 ${
                 watchedTargetPrice && calculatedUnitPrice > watchedTargetPrice
-                  ? 'text-red-600'
-                  : 'text-purple-600'
+                  ? 'text-error'
+                  : 'text-brand'
               }`} />
               <span className="font-medium">Calculated Unit Price:</span>
               <span className={`text-lg font-bold ${
                 watchedTargetPrice && calculatedUnitPrice > watchedTargetPrice
-                  ? 'text-red-600'
-                  : 'text-purple-600'
+                  ? 'text-error'
+                  : 'text-brand'
               }`}>
                 ${formatPrice(calculatedUnitPrice)} per {watchedUnitType}
               </span>
@@ -461,17 +435,15 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
           <textarea
             {...register('notes')}
             rows={3}
-            className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-              darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-            }`}
+            className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
             placeholder="Optional notes about this purchase..."
           />
         </div>
 
-        <button
+          <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-brand hover-bg-brand text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (isEditMode ? 'Updating Item...' : 'Adding Item...') : (isEditMode ? 'Update Item' : 'Add Item')}
         </button>
