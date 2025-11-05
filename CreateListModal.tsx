@@ -98,7 +98,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
               </div>
 
               <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
-                <p className="text-sm text-gray-800 dark:text-gray-300">
+                <p className="text-sm text-gray-900 dark:text-gray-300">
                   After creating the list, you'll get a share code that you can give to family and friends
                   so they can add items too!
                 </p>
@@ -127,7 +127,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
               <div className="text-center py-4">
                 <div className="text-4xl mb-4">🎉</div>
                 <h3 className="text-lg font-semibold mb-2">List Created!</h3>
-                <p className="text-gray-800 dark:text-gray-300">
+                <p className="text-gray-900 dark:text-gray-300">
                   Your list "{createdList.name}" is ready.
                 </p>
               </div>
@@ -161,7 +161,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
                 <div className="text-2xl font-bold text-center text-purple-600 py-2">
                   {createdList.shareCode}
                 </div>
-                <p className="text-xs text-gray-700 dark:text-gray-400 text-center mt-2">
+                <p className="text-xs text-gray-900 dark:text-gray-400 text-center mt-2">
                   Share this code with others so they can view and edit this list
                 </p>
               </div>

@@ -18,7 +18,7 @@ const Help: React.FC = () => {
             <HelpCircle className="h-8 w-8 text-purple-600" />
             <h1 className="text-3xl font-bold">Help & Guide</h1>
           </div>
-          <p className="text-gray-800 dark:text-gray-300">
+          <p className="text-gray-900 dark:text-gray-300">
             Learn how to use LunaCart to illuminate the best deals and organize your shopping
           </p>
         </div>
@@ -26,7 +26,7 @@ const Help: React.FC = () => {
         {/* What is this app */}
         <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
           <h2 className="text-2xl font-bold mb-4">🌙 What is LunaCart?</h2>
-          <p className="text-gray-800 dark:text-gray-300 mb-4">
+          <p className="text-gray-900 dark:text-gray-300 mb-4">
             This app has <strong>three main features</strong> that work together:
           </p>
           <div className="space-y-4">
@@ -35,7 +35,7 @@ const Help: React.FC = () => {
                 <DollarSign className="h-5 w-5 text-purple-600" />
                 <h3 className="font-semibold">1. Price Checker</h3>
               </div>
-              <p className="text-sm text-gray-800 dark:text-gray-300">
+              <p className="text-sm text-gray-900 dark:text-gray-300">
                 Check if the current price of an item is a good deal by comparing it to your target price. 
                 Build a database of target prices for items you buy regularly.
               </p>
@@ -45,7 +45,7 @@ const Help: React.FC = () => {
                 <ShoppingCart className="h-5 w-5 text-green-600" />
                 <h3 className="font-semibold">2. Shopping Lists</h3>
               </div>
-              <p className="text-sm text-gray-800 dark:text-gray-300">
+              <p className="text-sm text-gray-900 dark:text-gray-300">
                 Create and share shopping lists with family and friends. See target prices while shopping 
                 to quickly determine if something is a good deal.
               </p>
@@ -55,7 +55,7 @@ const Help: React.FC = () => {
                 <ShoppingCart className="h-5 w-5 text-blue-600" />
                 <h3 className="font-semibold">3. Active Shopping Trip</h3>
               </div>
-              <p className="text-sm text-gray-800 dark:text-gray-300">
+              <p className="text-sm text-gray-900 dark:text-gray-300">
                 Track your spending in real-time with a budget meter. Add items to your cart, compare actual prices to targets, 
                 and stay on budget. Automatically checks off items when you complete the trip.
               </p>
@@ -73,7 +73,7 @@ const Help: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold mb-2">How to Check Prices:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>At the store, click <strong>"Price Checker"</strong></li>
                 <li>Start typing item name - it auto-suggests from database</li>
                 <li>Select category (Beef, Chicken, Produce, etc.)</li>
@@ -88,7 +88,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Comparing Prices:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Items are automatically normalized to your preferred units (set in Settings)</span>
@@ -114,7 +114,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Smart Features:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span><strong>Target Price Memory:</strong> Set it once for "Milk", it auto-fills next time</span>
@@ -142,7 +142,7 @@ const Help: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold mb-2">Creating a List:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Click <strong>"Shopping Lists"</strong> in navigation</li>
                 <li>Click <strong>"Create New List"</strong></li>
                 <li>Enter a name (e.g., "Smith Family Groceries")</li>
@@ -153,7 +153,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Joining a List:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Get a share code from someone</li>
                 <li>Click <strong>"Join Existing List"</strong></li>
                 <li>Enter the code</li>
@@ -163,7 +163,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Adding Items to List:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
                   <span>Click <strong>"Add Item to List"</strong></span>
@@ -185,7 +185,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">While Shopping:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
                   <span>Items are grouped by category (Meats, Dairy, Produce, etc.)</span>
@@ -207,7 +207,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">After Shopping:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
                   <span><strong>"Mark as Complete"</strong> - Notify others you're done</span>
@@ -238,7 +238,7 @@ const Help: React.FC = () => {
 
           <div className="space-y-6">
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
-              <p className="text-sm text-gray-800 dark:text-gray-300">
+              <p className="text-sm text-gray-900 dark:text-gray-300">
                 <strong>NEW!</strong> Track your spending in real-time while shopping. Set a budget, add items to your cart, 
                 and watch the budget meter update instantly. Compare actual prices to target prices and stay on budget!
               </p>
@@ -246,7 +246,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Starting a Shopping Trip:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Open a shopping list</li>
                 <li>Click <strong>"Start Shopping Trip"</strong> button</li>
                 <li>Set your budget in whole dollars (e.g., type "150" for $150)</li>
@@ -258,13 +258,13 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Adding Items to Cart:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Click any item from "On the List" section</li>
                 <li>Enter the <strong>total price</strong> you see on the shelf (type numbers like 699 → $6.99)</li>
                 <li>Enter the <strong>quantity</strong> (how many units)</li>
                 <li>See <strong>unit price comparison</strong>:</li>
               </ol>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-8 mt-2">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-8 mt-2">
                 <li className="flex items-start space-x-2">
                   <span className="text-green-600">✓</span>
                   <span><strong className="text-green-600">Green</strong> = At or below target price (Good deal!)</span>
@@ -274,7 +274,7 @@ const Help: React.FC = () => {
                   <span><strong className="text-red-600">Red</strong> = Above target price (Expensive!)</span>
                 </li>
               </ul>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4 mt-2" start={5}>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4 mt-2" start={5}>
                 <li>(Optional) Check "Item has CRV" and enter CRV amount (e.g., $0.05 per bottle)</li>
                 <li>(Optional) Check "Update target price" if you want to save this as your new target</li>
                 <li>Click <strong>"Add to Cart"</strong></li>
@@ -283,7 +283,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Budget Meter:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
                   <span><strong className="text-green-600">Green (0-89%)</strong> - Under budget, you're good!</span>
@@ -305,7 +305,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Managing Cart Items:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
                   <span><strong>Edit:</strong> Click any item in cart to change price/quantity</span>
@@ -323,7 +323,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Completing the Trip:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Click the <strong>checkmark</strong> button (top right)</li>
                 <li>Confirm "Complete this shopping trip?"</li>
                 <li>Choose whether to save prices to Price Tracker database</li>
@@ -335,7 +335,7 @@ const Help: React.FC = () => {
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
               <h3 className="font-semibold text-sm mb-3">Pro Tips:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <span>💡</span>
                   <span>Cart total includes item prices + sales tax + CRV (just like at checkout!)</span>
@@ -365,13 +365,13 @@ const Help: React.FC = () => {
           </h2>
 
           <div className="space-y-4">
-            <p className="text-sm text-gray-800 dark:text-gray-300">
+            <p className="text-sm text-gray-900 dark:text-gray-300">
               Get notified when others update shared shopping lists. Notifications are smart and throttled to prevent spam.
             </p>
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
               <h3 className="font-semibold text-sm mb-3">How Throttling Works:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Someone adds 10 items in 30 minutes ? You get <strong>1 notification</strong> ("Added 10 items")</span>
@@ -389,7 +389,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">To Enable Notifications:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Go to <Link to="/settings" className="text-purple-600 hover:underline">Settings</Link></li>
                 <li>Scroll to "Notification Settings"</li>
                 <li>Toggle "Enable Notifications" ON</li>
@@ -411,10 +411,10 @@ const Help: React.FC = () => {
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold mb-2">Unit Preferences:</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-300 mb-3">
+              <p className="text-sm text-gray-900 dark:text-gray-300 mb-3">
                 Set your preferred units for each category so prices are normalized for easy comparison:
               </p>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span><strong>Meat:</strong> Choose pound or ounce</span>
@@ -432,14 +432,14 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Sales Tax Rate:</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-300 mb-3">
+              <p className="text-sm text-gray-900 dark:text-gray-300 mb-3">
                 Set your local sales tax rate (e.g., 8.5 for 8.5%). This is used by the Active Shopping Trip feature 
                 to calculate accurate cart totals including tax. You can override it per-trip if shopping in a different area.
               </p>
             </div>
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
-              <p className="text-sm text-gray-800 dark:text-gray-300">
+              <p className="text-sm text-gray-900 dark:text-gray-300">
                 <strong>Example:</strong> If you set meat to "pound", a $3.99 steak sold in 8 oz will show as 
                 <strong> $7.98/lb</strong> for easy comparison with a 2 lb steak at $12.99 (<strong>$6.50/lb</strong>).
               </p>
@@ -454,7 +454,7 @@ const Help: React.FC = () => {
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold mb-2">Best Workflow (With Shopping Trip):</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Use <strong>Price Checker</strong> to build target prices for items you buy regularly</li>
                 <li>Create a <strong>Shopping List</strong> with those target prices</li>
                 <li>Share list with family so everyone can add forgotten items</li>
@@ -469,7 +469,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Alternative Workflow (Without Shopping Trip):</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-900 dark:text-gray-300 ml-4">
                 <li>Use <strong>Price Checker</strong> to build target prices for items you buy</li>
                 <li>Create a <strong>Shopping List</strong> with those target prices</li>
                 <li>At the store, compare shelf prices to targets shown on the list</li>
@@ -480,7 +480,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Smart Filtering:</h3>
-              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-900 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Use "Below Target Only" to find the best deals in Search Database</span>
@@ -498,10 +498,10 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Security Note:</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-300">
+              <p className="text-sm text-gray-900 dark:text-gray-300">
                 <strong>Price Database:</strong> Public - everyone can see and add prices (crowdsourced)
               </p>
-              <p className="text-sm text-gray-800 dark:text-gray-300 mt-2">
+              <p className="text-sm text-gray-900 dark:text-gray-300 mt-2">
                 <strong>Shopping Lists:</strong> Private - only people with the share code can see them
               </p>
             </div>
@@ -515,7 +515,7 @@ const Help: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
               <h3 className="font-semibold mb-2 text-sm">Navigation</h3>
-              <ul className="space-y-1 text-xs text-gray-800 dark:text-gray-300">
+              <ul className="space-y-1 text-xs text-gray-900 dark:text-gray-300">
                 <li><strong>Home:</strong> Quick access to all features</li>
                 <li><strong>Price Checker:</strong> Check if prices are good deals</li>
                 <li><strong>Shopping Lists:</strong> Your shared lists</li>
@@ -527,7 +527,7 @@ const Help: React.FC = () => {
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
               <h3 className="font-semibold mb-2 text-sm">Color Codes</h3>
-              <ul className="space-y-1 text-xs text-gray-800 dark:text-gray-300">
+              <ul className="space-y-1 text-xs text-gray-900 dark:text-gray-300">
                 <li><span className="text-red-600">🔴</span> Red = Above target price</li>
                 <li><span className="text-cyan-600">🔵</span> Cyan = Below target price</li>
                 <li><span className="text-green-600">🟢</span> Green = Best price ever</li>
@@ -541,7 +541,7 @@ const Help: React.FC = () => {
         {/* Call to Action */}
         <div className={`p-6 rounded-xl shadow-lg text-center ${darkMode ? 'bg-gradient-to-r from-purple-900 to-pink-900' : 'bg-gradient-to-r from-purple-100 to-pink-100'}`}>
           <h2 className="text-2xl font-bold mb-4">Ready to Illuminate the Best Deals?</h2>
-          <p className="text-gray-700 dark:text-gray-200 mb-6">
+          <p className="text-gray-900 dark:text-gray-200 mb-6">
             Start using LunaCart to never overpay again!
           </p>
           <div className="flex flex-wrap justify-center gap-4">

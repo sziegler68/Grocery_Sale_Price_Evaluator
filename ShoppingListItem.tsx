@@ -138,12 +138,12 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
               )}
             </div>
             {item.target_price && item.unit_type && (
-              <div className="text-sm text-gray-700 dark:text-gray-400 mt-1">
+              <div className="text-sm text-gray-900 dark:text-gray-400 mt-1">
                 Target: ${item.target_price.toFixed(2)}/{item.unit_type}
               </div>
             )}
             {item.notes && (
-              <div className="text-sm text-gray-700 dark:text-gray-400 italic mt-1">
+              <div className="text-sm text-gray-900 dark:text-gray-400 italic mt-1">
                 {item.notes}
               </div>
             )}

@@ -161,7 +161,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
                 autoFocus
               />
             </div>
-            <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
               Whole dollars only (e.g., type 250 for $250)
             </p>
           </div>
@@ -186,7 +186,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-700">%</span>
             </div>
-            <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
               Default: {salesTaxRate.toFixed(2)}% (from settings). Type {(salesTaxRate * 100).toFixed(0)} for calculator entry.
             </p>
           </div>

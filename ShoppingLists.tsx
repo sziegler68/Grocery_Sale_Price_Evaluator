@@ -69,7 +69,7 @@ const ShoppingLists: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Shopping Lists</h1>
-          <p className="text-gray-800 dark:text-gray-300">
+          <p className="text-gray-900 dark:text-gray-300">
             Create and share grocery lists with family and friends
           </p>
         </div>
@@ -97,7 +97,7 @@ const ShoppingLists: React.FC = () => {
           <div
             className={`rounded-xl border border-dashed ${
               darkMode ? 'border-zinc-700' : 'border-gray-300'
-            } p-6 text-center text-sm text-gray-700 dark:text-gray-400`}
+            } p-6 text-center text-sm text-gray-900 dark:text-gray-400`}
           >
             Loading lists...
           </div>
@@ -109,7 +109,7 @@ const ShoppingLists: React.FC = () => {
           >
             <ShoppingCart className="h-16 w-16 text-gray-700 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Shopping Lists Yet</h3>
-            <p className="text-gray-700 dark:text-gray-400 mb-6">
+            <p className="text-gray-900 dark:text-gray-400 mb-6">
               Create your first shopping list or join one shared with you
             </p>
             <div className="flex justify-center gap-4">

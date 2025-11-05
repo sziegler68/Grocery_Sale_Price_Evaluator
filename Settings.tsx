@@ -139,7 +139,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Unit Preferences</h2>
           </div>
 
-          <p className="text-gray-800 dark:text-gray-300 mb-6">
+          <p className="text-gray-900 dark:text-gray-300 mb-6">
             Set your preferred units for comparing prices. Items will be normalized to these units when displaying price comparisons.
           </p>
 
@@ -158,7 +158,7 @@ const Settings: React.FC = () => {
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
               </select>
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                 Prices will be normalized to price per {preferences.meat}
               </p>
             </div>
@@ -177,7 +177,7 @@ const Settings: React.FC = () => {
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
               </select>
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                 Prices will be normalized to price per {preferences.fruit}
               </p>
             </div>
@@ -196,7 +196,7 @@ const Settings: React.FC = () => {
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
               </select>
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                 Prices will be normalized to price per {preferences.veggies}
               </p>
             </div>
@@ -218,7 +218,7 @@ const Settings: React.FC = () => {
                 <option value="liter">Liter</option>
                 <option value="ml">Milliliter (ml)</option>
               </select>
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                 Prices will be normalized to price per {preferences.milk}
               </p>
             </div>
@@ -242,7 +242,7 @@ const Settings: React.FC = () => {
                 <option value="can">Can</option>
                 <option value="each">Each</option>
               </select>
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                 Prices will be normalized to price per {preferences.soda}
               </p>
             </div>
@@ -264,7 +264,7 @@ const Settings: React.FC = () => {
                 <option value="liter">Liter</option>
                 <option value="ml">Milliliter (ml)</option>
               </select>
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                 Prices will be normalized to price per {preferences.drinks}
               </p>
             </div>
@@ -288,7 +288,7 @@ const Settings: React.FC = () => {
                 <option value="liter">Liter</option>
                 <option value="ml">Milliliter (ml)</option>
               </select>
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                 Prices will be normalized to price per {preferences.dairy}
               </p>
             </div>
@@ -296,11 +296,11 @@ const Settings: React.FC = () => {
 
           <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'} border border-purple-200`}>
             <h3 className="font-medium text-sm mb-2">Example:</h3>
-            <p className="text-sm text-gray-800 dark:text-gray-300">
+            <p className="text-sm text-gray-900 dark:text-gray-300">
               If you set meat to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>, 
               and a $3.99 steak weighing 8 oz will show as <strong>$7.98/lb</strong> for easy comparison.
             </p>
-            <p className="text-sm text-gray-800 dark:text-gray-300 mt-2">
+            <p className="text-sm text-gray-900 dark:text-gray-300 mt-2">
               If you set milk to "gallon", then a $1.50 quart will show as <strong>$6.00/gallon</strong> 
               alongside a $4.99 gallon for easy price comparison.
             </p>
@@ -317,7 +317,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Sales Tax</h2>
           </div>
 
-          <p className="text-gray-800 dark:text-gray-300 mb-6">
+          <p className="text-gray-900 dark:text-gray-300 mb-6">
             Set your local sales tax rate. This will be used when calculating cart totals during shopping trips.
           </p>
 
@@ -338,13 +338,13 @@ const Settings: React.FC = () => {
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
             </div>
-            <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
               Type 850 for 8.50% sales tax (calculator style)
             </p>
           </div>
 
           <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
-            <p className="text-sm text-gray-800 dark:text-gray-300">
+            <p className="text-sm text-gray-900 dark:text-gray-300">
               <strong>Example:</strong> With 8.5% sales tax, a $10.00 item will cost <strong>$10.85</strong> total.
             </p>
           </div>
@@ -359,7 +359,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-bold">Notification Settings</h2>
           </div>
 
-          <p className="text-gray-800 dark:text-gray-300 mb-6">
+          <p className="text-gray-900 dark:text-gray-300 mb-6">
             Get notified when others update shared shopping lists. Notifications are throttled to prevent spam.
           </p>
 
@@ -381,7 +381,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm font-medium">Push Notifications</div>
-                        <div className="text-xs text-gray-700 dark:text-gray-400">
+                        <div className="text-xs text-gray-900 dark:text-gray-400">
                           Get notified even when app is closed
                         </div>
                       </div>
@@ -431,7 +431,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm">Items are added</div>
-                        <div className="text-xs text-gray-700 dark:text-gray-400">
+                        <div className="text-xs text-gray-900 dark:text-gray-400">
                           Max 1 notification per hour
                         </div>
                       </div>
@@ -449,7 +449,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm">Items are checked off</div>
-                        <div className="text-xs text-gray-700 dark:text-gray-400">
+                        <div className="text-xs text-gray-900 dark:text-gray-400">
                           Max 1 notification per hour
                         </div>
                       </div>
@@ -467,7 +467,7 @@ const Settings: React.FC = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="text-sm">Shopping is complete</div>
-                        <div className="text-xs text-gray-700 dark:text-gray-400">
+                        <div className="text-xs text-gray-900 dark:text-gray-400">
                           Not throttled (manual trigger)
                         </div>
                       </div>

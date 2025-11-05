@@ -84,13 +84,13 @@ const JoinListModal: React.FC<JoinListModalProps> = ({ darkMode, onClose, onJoin
                 disabled={isJoining}
                 maxLength={11}
               />
-              <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">
+              <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
                 Enter the share code you received from someone
               </p>
             </div>
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
-              <p className="text-sm text-gray-800 dark:text-gray-300">
+              <p className="text-sm text-gray-900 dark:text-gray-300">
                 <strong>Tip:</strong> Share codes look like "SHOP-ABC123". 
                 Get one from someone who created a list!
               </p>

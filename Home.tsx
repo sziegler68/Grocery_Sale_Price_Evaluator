@@ -30,14 +30,14 @@ const Home: React.FC = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-400 bg-clip-text text-transparent">
               LunaCart
             </h1>
-            <p className="text-lg text-gray-800 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-900 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
               Illuminate the Best Deals
             </p>
             
             {/* Connection Status */}
             <div className="flex items-center justify-center space-x-2 text-sm">
               <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-              <span className="text-gray-800 dark:text-gray-400">
+              <span className="text-gray-900 dark:text-gray-400">
                 {isOnline ? 'Online' : 'Offline'}
               </span>
             </div>
@@ -54,7 +54,7 @@ const Home: React.FC = () => {
             >
               <Calculator className="h-10 w-10 text-purple-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Price Checker</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-400">
+              <p className="text-sm text-gray-900 dark:text-gray-400">
                 Check if an item is a good deal
               </p>
             </Link>
@@ -68,7 +68,7 @@ const Home: React.FC = () => {
             >
               <ShoppingCart className="h-10 w-10 text-green-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Shopping Lists</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-400">
+              <p className="text-sm text-gray-900 dark:text-gray-400">
                 Create and share grocery lists
               </p>
             </Link>
@@ -82,7 +82,7 @@ const Home: React.FC = () => {
             >
               <Search className="h-10 w-10 text-cyan-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Search Database</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-400">
+              <p className="text-sm text-gray-900 dark:text-gray-400">
                 Browse all tracked prices
               </p>
             </Link>
@@ -96,7 +96,7 @@ const Home: React.FC = () => {
             >
               <Settings className="h-10 w-10 text-orange-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Settings</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-400">
+              <p className="text-sm text-gray-900 dark:text-gray-400">
                 Preferences and configuration
               </p>
             </Link>
@@ -110,7 +110,7 @@ const Home: React.FC = () => {
             >
               <HelpCircle className="h-10 w-10 text-blue-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Help</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-400">
+              <p className="text-sm text-gray-900 dark:text-gray-400">
                 How to use this app
               </p>
             </Link>

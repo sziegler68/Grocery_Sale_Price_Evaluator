@@ -31,7 +31,7 @@ const ShoppingListCard: React.FC<ShoppingListCardProps> = ({ list, itemCount, da
             <ShoppingCart className="h-6 w-6 text-purple-600 flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-semibold text-lg">{list.name}</h3>
-              <div className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-400 mt-1">
+              <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-gray-400 mt-1">
                 <span>{itemCount} item{itemCount !== 1 ? 's' : ''}</span>
               </div>
             </div>
@@ -40,8 +40,8 @@ const ShoppingListCard: React.FC<ShoppingListCardProps> = ({ list, itemCount, da
 
         <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-zinc-700">
           <div className="flex items-center space-x-2 text-sm">
-            <Users className="h-4 w-4 text-gray-700 dark:text-gray-400" />
-            <span className="text-gray-700 dark:text-gray-400">Shared List</span>
+            <Users className="h-4 w-4 text-gray-900 dark:text-gray-400" />
+            <span className="text-gray-900 dark:text-gray-400">Shared List</span>
           </div>
           
           <button

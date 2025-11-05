@@ -284,7 +284,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 <span className="text-sm font-medium">
                   {trip.store_name}
                 </span>
-                <span className="text-xs text-gray-700 dark:text-gray-400 ml-2">
+                <span className="text-xs text-gray-900 dark:text-gray-400 ml-2">
                   (Tax: {(trip.sales_tax_rate || getSalesTaxRate()).toFixed(2)}%)
                 </span>
               </div>
@@ -317,7 +317,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
               <span className="text-2xl font-bold">
                 ${trip.total_spent.toFixed(2)}
               </span>
-              <span className="text-sm text-gray-800 dark:text-gray-400">
+              <span className="text-sm text-gray-900 dark:text-gray-400">
                 / ${Math.round(trip.budget)}
               </span>
             </div>
@@ -337,7 +337,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 </span>
               </div>
             ) : (
-              <span className="text-sm text-gray-800 dark:text-gray-400 mt-2 block">
+              <span className="text-sm text-gray-900 dark:text-gray-400 mt-2 block">
                 ${budgetStatus.remaining.toFixed(2)} remaining
               </span>
             )}
@@ -380,12 +380,12 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                             <div className="flex-1">
                               <div className="font-medium">{item.item_name}</div>
                               {item.quantity && (
-                                <div className="text-xs text-gray-700 dark:text-gray-400">
+                                <div className="text-xs text-gray-900 dark:text-gray-400">
                                   {item.quantity} {item.unit_type || 'units'}
                                 </div>
                               )}
                               {item.target_price && (
-                                <div className="text-xs text-gray-800 dark:text-gray-400 mt-1">
+                                <div className="text-xs text-gray-900 dark:text-gray-400 mt-1">
                                   Target: ${item.target_price.toFixed(2)}
                                 </div>
                               )}
@@ -424,13 +424,13 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                           <div className="flex-1">
                             <div className="font-medium">{item.item_name}</div>
                             {item.quantity > 1 && (
-                              <div className="text-xs text-gray-700 dark:text-gray-400">
+                              <div className="text-xs text-gray-900 dark:text-gray-400">
                                 Qty: {item.quantity} {item.unit_type}
                               </div>
                             )}
                             {item.target_price && item.quantity > 0 && (
                               <div className="text-xs mt-1 space-y-0.5">
-                                <div className="text-gray-700 dark:text-gray-400">
+                                <div className="text-gray-900 dark:text-gray-400">
                                   Target: ${item.target_price.toFixed(2)}/{item.unit_type || 'unit'}
                                 </div>
                                 <div className={`font-medium ${
@@ -452,7 +452,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                                 e.stopPropagation(); // Don't trigger edit modal
                                 handleRemoveFromCart(item);
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-gray-400 rounded-lg transition-colors"
+                              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-gray-400 rounded-lg transition-colors"
                             >
                               <X className="h-5 w-5" />
                             </button>
@@ -466,7 +466,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             )}
 
             {availableItems.length === 0 && cartItems.length > 0 && (
-              <div className="p-8 text-center text-gray-700 dark:text-gray-400">
+              <div className="p-8 text-center text-gray-900 dark:text-gray-400">
                 <ShoppingCartIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>All list items added to cart!</p>
                 <p className="text-sm mt-1">Tap the checkmark above to complete your trip</p>

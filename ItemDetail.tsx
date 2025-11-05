@@ -66,7 +66,7 @@ const ItemDetail: React.FC = () => {
       <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className={`mx-auto max-w-md rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-700 dark:text-gray-400`}>
+          <div className={`mx-auto max-w-md rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-900 dark:text-gray-400`}>
             Loading item details?
           </div>
         </main>
@@ -81,7 +81,7 @@ const ItemDetail: React.FC = () => {
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-gray-700 dark:text-gray-400">Item not found.</p>
+            <p className="text-gray-900 dark:text-gray-400">Item not found.</p>
           </div>
         </main>
         <Footer />
@@ -217,7 +217,7 @@ const ItemDetail: React.FC = () => {
               <div className="text-2xl font-bold text-purple-600">
                 ${formatPrice(lastPrice)}
               </div>
-              <div className="text-sm text-gray-700 dark:text-gray-400">Last Price</div>
+              <div className="text-sm text-gray-900 dark:text-gray-400">Last Price</div>
               <div className="text-xs text-gray-400 mt-1">
                 {format(lastPurchaseDate, 'MMM dd, yyyy')}
               </div>
@@ -227,7 +227,7 @@ const ItemDetail: React.FC = () => {
               <div className={`text-2xl font-bold ${isBelowTarget ? 'text-cyan-600' : 'text-gray-600'}`}>
                 {targetPrice ? `$${formatPrice(targetPrice)}` : 'Not Set'}
               </div>
-              <div className="text-sm text-gray-700 dark:text-gray-400">Target Price</div>
+              <div className="text-sm text-gray-900 dark:text-gray-400">Target Price</div>
               <button
                 onClick={() => setIsEditingTarget(true)}
                 className="text-xs text-purple-600 hover:text-purple-700 mt-1 flex items-center space-x-1 mx-auto"
@@ -241,7 +241,7 @@ const ItemDetail: React.FC = () => {
               <div className="text-2xl font-bold text-green-600">
                 ${formatPrice(bestPrice)}
               </div>
-              <div className="text-sm text-gray-700 dark:text-gray-400">Best Price</div>
+              <div className="text-sm text-gray-900 dark:text-gray-400">Best Price</div>
               <div className="text-xs text-gray-400 mt-1">
                 All-time low
               </div>
@@ -362,7 +362,7 @@ const ItemDetail: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between text-sm text-gray-800 dark:text-gray-300">
+                <div className="flex items-center justify-between text-sm text-gray-900 dark:text-gray-300">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1">
                       <Store className="h-4 w-4" />
@@ -379,7 +379,7 @@ const ItemDetail: React.FC = () => {
                 </div>
                 
                 {entry.notes && (
-                  <div className="mt-2 text-sm text-gray-800 dark:text-gray-300">
+                  <div className="mt-2 text-sm text-gray-900 dark:text-gray-300">
                     <strong>Notes:</strong> {entry.notes}
                   </div>
                 )}

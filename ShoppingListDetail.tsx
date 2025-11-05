@@ -736,7 +736,7 @@ const ShoppingListDetail: React.FC = () => {
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold mb-2">{list.name}</h1>
-              <div className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-400">
+              <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-gray-400">
                 <span>{items.length} item{items.length !== 1 ? 's' : ''}</span>
                 <span>?</span>
                 <span>{checkedItems.length} purchased</span>
@@ -747,7 +747,7 @@ const ShoppingListDetail: React.FC = () => {
           {/* Share Code */}
           <div className="flex items-center space-x-2">
             <div className={`flex-1 px-4 py-2 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
-              <div className="text-xs text-gray-700 dark:text-gray-400 mb-1">Share Code:</div>
+              <div className="text-xs text-gray-900 dark:text-gray-400 mb-1">Share Code:</div>
               <div className="font-mono font-bold text-purple-600">{list.share_code}</div>
             </div>
             <button
@@ -835,7 +835,7 @@ const ShoppingListDetail: React.FC = () => {
             >
               <ShoppingCart className="h-16 w-16 text-gray-700 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Items Yet</h3>
-              <p className="text-gray-700 dark:text-gray-400 mb-4">
+              <p className="text-gray-900 dark:text-gray-400 mb-4">
                 Start adding items to your shopping list
               </p>
               <button
@@ -875,7 +875,7 @@ const ShoppingListDetail: React.FC = () => {
                 <div>
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="flex-1 border-t border-gray-300 dark:border-zinc-700" />
-                    <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">
+                    <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-400 uppercase tracking-wide">
                       Purchased
                     </h2>
                     <div className="flex-1 border-t border-gray-300 dark:border-zinc-700" />

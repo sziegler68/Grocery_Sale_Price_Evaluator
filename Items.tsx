@@ -134,7 +134,7 @@ const Items: React.FC = () => {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">My Grocery Items</h1>
-          <p className="text-gray-800 dark:text-gray-300">
+          <p className="text-gray-900 dark:text-gray-300">
             Track and compare prices across different stores
           </p>
         </div>
@@ -158,11 +158,11 @@ const Items: React.FC = () => {
         />
 
         {isLoading ? (
-          <div className={`rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-700 dark:text-gray-400`}>
+          <div className={`rounded-xl border border-dashed ${darkMode ? 'border-zinc-700' : 'border-gray-300'} p-6 text-center text-sm text-gray-900 dark:text-gray-400`}>
             Loading items?
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="text-center py-12 text-gray-700 dark:text-gray-400 text-lg">
+          <div className="text-center py-12 text-gray-900 dark:text-gray-400 text-lg">
             No items found matching your criteria.
           </div>
         ) : (
