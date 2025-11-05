@@ -1,19 +1,19 @@
 {
-  "name": "Grocery Price Tracker",
-  "short_name": "PriceTracker",
-  "start_url": ".",
+  "name": "LunaCart",
+  "short_name": "LunaCart",
+  "start_url": "/Grocery_Sale_Price_Evaluator/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#7c3aed",
-  "description": "Track grocery prices, compare unit costs, and stay synced with your family online or offline.",
+  "description": "Illuminate the Best Deals - Check if prices are good deals, create shopping lists, and track prices across stores.",
   "icons": [
     {
-      "src": "icons/192x192.png",
+      "src": "/Grocery_Sale_Price_Evaluator/icons/192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/512x512.png",
+      "src": "/Grocery_Sale_Price_Evaluator/icons/512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
