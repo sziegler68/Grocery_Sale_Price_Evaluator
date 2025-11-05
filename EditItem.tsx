@@ -57,7 +57,7 @@ const EditItem: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">Loading...</div>
@@ -69,10 +69,10 @@ const EditItem: React.FC = () => {
 
   if (!currentItem) {
     return (
-      <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
         <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-red-500">Item not found</div>
+          <div className="text-center text-error">Item not found</div>
         </main>
         <Footer />
       </div>
@@ -80,7 +80,7 @@ const EditItem: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
