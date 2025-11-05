@@ -19,13 +19,13 @@ const Help: React.FC = () => {
             <h1 className="text-3xl font-bold">Help & Guide</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-300">
-            Learn how to use Grocery Price Tracker to save money and organize your shopping
+            Learn how to use LunaCart to illuminate the best deals and organize your shopping
           </p>
         </div>
 
         {/* What is this app */}
         <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
-          <h2 className="text-2xl font-bold mb-4">?? What is this app?</h2>
+          <h2 className="text-2xl font-bold mb-4">🌙 What is LunaCart?</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-4">
             This app has <strong>two main features</strong> that work together:
           </p>
@@ -33,11 +33,11 @@ const Help: React.FC = () => {
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
               <div className="flex items-center space-x-2 mb-2">
                 <DollarSign className="h-5 w-5 text-purple-600" />
-                <h3 className="font-semibold">Price Tracker</h3>
+                <h3 className="font-semibold">Price Checker</h3>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Track grocery prices over time to identify good deals. Everyone who uses the app contributes 
-                to a shared database of prices, so the more people use it, the better it gets!
+                Check if the current price of an item is a good deal by comparing it to your target price. 
+                Build a database of target prices for items you buy regularly.
               </p>
             </div>
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-green-50'}`}>
@@ -57,22 +57,22 @@ const Help: React.FC = () => {
         <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
           <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
             <DollarSign className="h-6 w-6 text-purple-600" />
-            <span>Price Tracker</span>
+            <span>Price Checker</span>
           </h2>
 
           <div className="space-y-6">
             <div>
-              <h3 className="font-semibold mb-2">How to Add Prices:</h3>
+              <h3 className="font-semibold mb-2">How to Check Prices:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300 ml-4">
-                <li>After shopping, click <strong>"Add Item"</strong></li>
-                <li>Enter item name (e.g., "Bananas")</li>
+                <li>At the store, click <strong>"Price Checker"</strong></li>
+                <li>Start typing item name - it auto-suggests from database</li>
                 <li>Select category (Beef, Chicken, Produce, etc.)</li>
                 <li>Select quality if applicable (e.g., Organic, Choice)</li>
                 <li>Choose store from dropdown</li>
                 <li>Enter price - just type numbers, it auto-formats (type "1234" ? "$12.34")</li>
                 <li>Enter quantity and unit type</li>
-                <li>Set target price (optional) - this auto-fills for future entries</li>
-                <li>Click "Add Item"</li>
+                <li>Set target price (optional) - this auto-fills for future checks</li>
+                <li>See if it's above/below/at target - decide if it's a good deal!</li>
               </ol>
             </div>
 
@@ -85,19 +85,19 @@ const Help: React.FC = () => {
                 </li>
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Red border = Above target price ??</span>
+                  <span>Red border = Above target price 🔴</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Cyan border = Below target price ??</span>
+                  <span>Cyan border = Below target price 🔵</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Green border = Best price ever! ??</span>
+                  <span>Green border = Best price ever! 🟢</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Amber flag ?? = Price converted using estimated weight</span>
+                  <span>Amber flag 🚩 = Price converted using estimated weight</span>
                 </li>
               </ul>
             </div>
@@ -303,19 +303,19 @@ const Help: React.FC = () => {
 
         {/* Tips & Tricks */}
         <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
-          <h2 className="text-2xl font-bold mb-4">?? Tips & Tricks</h2>
+          <h2 className="text-2xl font-bold mb-4">💡 Tips & Tricks</h2>
 
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold mb-2">Best Workflow:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300 ml-4">
-                <li>Check <strong>Price Tracker</strong> to see average prices for items</li>
-                <li>Create a <strong>Shopping List</strong> with target prices from the tracker</li>
+                <li>Use <strong>Price Checker</strong> to build target prices for items you buy</li>
+                <li>Create a <strong>Shopping List</strong> with those target prices</li>
                 <li>Share list with family so everyone can add forgotten items</li>
                 <li>At the store, compare shelf prices to your targets</li>
                 <li>Check off items as you buy them</li>
                 <li>Click "Mark as Complete" when done</li>
-                <li>(Optional) Add actual prices to Price Tracker for future reference</li>
+                <li>(Optional) Update target prices in Price Checker if you find better deals</li>
                 <li>Clear the list and reuse it next week!</li>
               </ol>
             </div>
@@ -325,7 +325,7 @@ const Help: React.FC = () => {
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Use "Below Target Only" to find the best deals in your price tracker</span>
+                  <span>Use "Below Target Only" to find the best deals in Search Database</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
@@ -352,29 +352,29 @@ const Help: React.FC = () => {
 
         {/* Quick Reference */}
         <div className={`p-6 rounded-xl shadow-lg ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
-          <h2 className="text-2xl font-bold mb-4">?? Quick Reference</h2>
+          <h2 className="text-2xl font-bold mb-4">📚 Quick Reference</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
               <h3 className="font-semibold mb-2 text-sm">Navigation</h3>
               <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-300">
-                <li><strong>Home:</strong> Dashboard overview</li>
+                <li><strong>Home:</strong> Quick access to all features</li>
+                <li><strong>Price Checker:</strong> Check if prices are good deals</li>
                 <li><strong>Shopping Lists:</strong> Your shared lists</li>
-                <li><strong>Price Tracker:</strong> Historical prices</li>
-                <li><strong>Add Item:</strong> Log a price</li>
-                <li><strong>Analytics:</strong> Coming soon</li>
+                <li><strong>Search Database:</strong> Browse all tracked prices</li>
                 <li><strong>Settings:</strong> Preferences & notifications</li>
+                <li><strong>Help:</strong> This guide</li>
               </ul>
             </div>
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
               <h3 className="font-semibold mb-2 text-sm">Color Codes</h3>
               <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-300">
-                <li><span className="text-red-600">?</span> Red = Above target price</li>
-                <li><span className="text-cyan-600">?</span> Cyan = Below target price</li>
-                <li><span className="text-green-600">?</span> Green = Best price ever</li>
-                <li><span className="text-purple-600">?</span> Purple = Normal</li>
-                <li><span className="text-amber-500">??</span> Flag = Estimated weight used</li>
+                <li><span className="text-red-600">🔴</span> Red = Above target price</li>
+                <li><span className="text-cyan-600">🔵</span> Cyan = Below target price</li>
+                <li><span className="text-green-600">🟢</span> Green = Best price ever</li>
+                <li><span className="text-purple-600">🟣</span> Purple = Normal</li>
+                <li><span className="text-amber-500">🚩</span> Flag = Estimated weight used</li>
               </ul>
             </div>
           </div>
@@ -382,16 +382,16 @@ const Help: React.FC = () => {
 
         {/* Call to Action */}
         <div className={`p-6 rounded-xl shadow-lg text-center ${darkMode ? 'bg-gradient-to-r from-purple-900 to-pink-900' : 'bg-gradient-to-r from-purple-100 to-pink-100'}`}>
-          <h2 className="text-2xl font-bold mb-4">Ready to Save Money?</h2>
+          <h2 className="text-2xl font-bold mb-4">Ready to Illuminate the Best Deals?</h2>
           <p className="text-gray-700 dark:text-gray-200 mb-6">
-            Start tracking prices and creating shopping lists to never overpay again!
+            Start using LunaCart to never overpay again!
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/add-item"
               className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
             >
-              Add Your First Price
+              Check Your First Price
             </Link>
             <Link
               to="/shopping-lists"
