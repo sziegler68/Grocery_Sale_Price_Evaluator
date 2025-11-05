@@ -189,8 +189,12 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       await removeCartItem(cartItem.id);
       toast.success(`Removed ${cartItem.item_name}`);
       
-      // Immediately reload trip data to update budget meter
-      const updatedTrip = await getTripById(trip.id);
+      // Immediately reload BOTH cart items AND trip data
+      const [updatedItems, updatedTrip] = await Promise.all([
+        getCartItems(trip.id),
+        getTripById(trip.id)
+      ]);
+      setCartItems(updatedItems);
       if (updatedTrip) {
         setTrip(updatedTrip);
       }
