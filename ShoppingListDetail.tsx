@@ -729,9 +729,7 @@ const ShoppingListDetail: React.FC = () => {
 
         {/* List Header */}
         <div
-          className={`p-6 rounded-xl shadow-lg mb-6 ${
-            bg-card
-          }`}
+          className="p-6 rounded-xl shadow-lg mb-6 bg-card"
         >
           <div className="flex items-start justify-between mb-4">
             <div>
@@ -829,9 +827,7 @@ const ShoppingListDetail: React.FC = () => {
         <div className="space-y-6">
           {uncheckedItems.length === 0 && checkedItems.length === 0 ? (
             <div
-              className={`rounded-xl border border-dashed ${
-                border-primary
-              } p-12 text-center`}
+              className="rounded-xl border border-dashed border-primary p-12 text-center"
             >
               <ShoppingCart className="h-16 w-16 text-gray-700 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Items Yet</h3>

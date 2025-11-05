@@ -29,14 +29,13 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 interface AddItemFormProps {
-  darkMode: boolean;
   onSubmit: (data: FormData & { unitPrice: number; datePurchased: Date }) => void;
   existingItems?: Array<{ itemName: string; targetPrice?: number }>;
   initialData?: any;
   isEditMode?: boolean;
 }
 
-const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingItems = [], initialData, isEditMode = false }) => {
+const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [], initialData, isEditMode = false }) => {
   const [calculatedUnitPrice, setCalculatedUnitPrice] = useState<number | null>(initialData?.unitPrice || null);
   const [priceDisplay, setPriceDisplay] = useState<string>(initialData?.price ? initialData.price.toFixed(2) : '');
   const [targetPriceDisplay, setTargetPriceDisplay] = useState<string>(initialData?.targetPrice ? initialData.targetPrice.toFixed(2) : '');
