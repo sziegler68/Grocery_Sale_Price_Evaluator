@@ -33,7 +33,7 @@ const SetNameModal: React.FC<SetNameModalProps> = ({ darkMode, listName, onSave 
             <User className="h-6 w-6 text-purple-600" />
             <h2 className="text-xl font-bold">Welcome!</h2>
           </div>
-          <p className="text-gray-600 dark:text-gray-300 text-sm">
+          <p className="text-gray-800 dark:text-gray-300 text-sm">
             You're joining <strong>{listName}</strong>
           </p>
         </div>
@@ -52,13 +52,13 @@ const SetNameModal: React.FC<SetNameModalProps> = ({ darkMode, listName, onSave 
               }`}
               autoFocus
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">
               This helps others know who added or purchased items
             </p>
           </div>
 
           <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-gray-800 dark:text-gray-300">
               Your name will be saved for this list only. If you join other lists, 
               you can use a different name.
             </p>

@@ -19,7 +19,7 @@ const Analytics: React.FC = () => {
           <div className={`max-w-md mx-auto p-6 rounded-xl shadow-lg ${
             darkMode ? 'bg-zinc-800' : 'bg-white'
           }`}>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-700 dark:text-gray-400">
               This page will include:
             </p>
             <ul className="text-left mt-4 space-y-2 text-sm">

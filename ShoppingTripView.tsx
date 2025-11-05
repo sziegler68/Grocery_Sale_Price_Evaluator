@@ -452,7 +452,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                                 e.stopPropagation(); // Don't trigger edit modal
                                 handleRemoveFromCart(item);
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-600 dark:text-gray-400 rounded-lg transition-colors"
+                              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-800 dark:text-gray-400 rounded-lg transition-colors"
                             >
                               <X className="h-5 w-5" />
                             </button>

@@ -212,7 +212,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                     className={`w-full text-left px-4 py-3 hover:bg-purple-50 dark:hover:bg-zinc-600 border-b border-gray-100 dark:border-zinc-600 last:border-0`}
                   >
                     <div className="font-medium">{item.itemName}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-gray-700 dark:text-gray-400">
                       {item.category}
                       {item.targetPrice && ` ? Target: $${item.targetPrice.toFixed(2)}/${item.unitType}`}
                     </div>

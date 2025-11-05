@@ -833,7 +833,7 @@ const ShoppingListDetail: React.FC = () => {
                 darkMode ? 'border-zinc-700' : 'border-gray-300'
               } p-12 text-center`}
             >
-              <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <ShoppingCart className="h-16 w-16 text-gray-700 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Items Yet</h3>
               <p className="text-gray-700 dark:text-gray-400 mb-4">
                 Start adding items to your shopping list
@@ -875,7 +875,7 @@ const ShoppingListDetail: React.FC = () => {
                 <div>
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="flex-1 border-t border-gray-300 dark:border-zinc-700" />
-                    <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">
                       Purchased
                     </h2>
                     <div className="flex-1 border-t border-gray-300 dark:border-zinc-700" />

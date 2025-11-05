@@ -73,7 +73,7 @@ const Help: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold mb-2">How to Check Prices:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
                 <li>At the store, click <strong>"Price Checker"</strong></li>
                 <li>Start typing item name - it auto-suggests from database</li>
                 <li>Select category (Beef, Chicken, Produce, etc.)</li>
@@ -88,7 +88,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Comparing Prices:</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Items are automatically normalized to your preferred units (set in Settings)</span>
@@ -114,7 +114,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Smart Features:</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span><strong>Target Price Memory:</strong> Set it once for "Milk", it auto-fills next time</span>
@@ -142,7 +142,7 @@ const Help: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold mb-2">Creating a List:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
                 <li>Click <strong>"Shopping Lists"</strong> in navigation</li>
                 <li>Click <strong>"Create New List"</strong></li>
                 <li>Enter a name (e.g., "Smith Family Groceries")</li>
@@ -153,7 +153,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Joining a List:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
                 <li>Get a share code from someone</li>
                 <li>Click <strong>"Join Existing List"</strong></li>
                 <li>Enter the code</li>
@@ -163,7 +163,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Adding Items to List:</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
                   <span>Click <strong>"Add Item to List"</strong></span>
@@ -185,7 +185,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">While Shopping:</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
                   <span>Items are grouped by category (Meats, Dairy, Produce, etc.)</span>
@@ -207,7 +207,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">After Shopping:</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
                   <span><strong>"Mark as Complete"</strong> - Notify others you're done</span>
@@ -365,13 +365,13 @@ const Help: React.FC = () => {
           </h2>
 
           <div className="space-y-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-gray-800 dark:text-gray-300">
               Get notified when others update shared shopping lists. Notifications are smart and throttled to prevent spam.
             </p>
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
               <h3 className="font-semibold text-sm mb-3">How Throttling Works:</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Someone adds 10 items in 30 minutes ? You get <strong>1 notification</strong> ("Added 10 items")</span>
@@ -389,7 +389,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">To Enable Notifications:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300 ml-4">
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
                 <li>Go to <Link to="/settings" className="text-purple-600 hover:underline">Settings</Link></li>
                 <li>Scroll to "Notification Settings"</li>
                 <li>Toggle "Enable Notifications" ON</li>
@@ -439,7 +439,7 @@ const Help: React.FC = () => {
             </div>
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-gray-800 dark:text-gray-300">
                 <strong>Example:</strong> If you set meat to "pound", a $3.99 steak sold in 8 oz will show as 
                 <strong> $7.98/lb</strong> for easy comparison with a 2 lb steak at $12.99 (<strong>$6.50/lb</strong>).
               </p>
@@ -480,7 +480,7 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Smart Filtering:</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span>Use "Below Target Only" to find the best deals in Search Database</span>
@@ -498,10 +498,10 @@ const Help: React.FC = () => {
 
             <div>
               <h3 className="font-semibold mb-2">Security Note:</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-gray-800 dark:text-gray-300">
                 <strong>Price Database:</strong> Public - everyone can see and add prices (crowdsourced)
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+              <p className="text-sm text-gray-800 dark:text-gray-300 mt-2">
                 <strong>Shopping Lists:</strong> Private - only people with the share code can see them
               </p>
             </div>
@@ -515,7 +515,7 @@ const Help: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
               <h3 className="font-semibold mb-2 text-sm">Navigation</h3>
-              <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-300">
+              <ul className="space-y-1 text-xs text-gray-800 dark:text-gray-300">
                 <li><strong>Home:</strong> Quick access to all features</li>
                 <li><strong>Price Checker:</strong> Check if prices are good deals</li>
                 <li><strong>Shopping Lists:</strong> Your shared lists</li>
@@ -527,7 +527,7 @@ const Help: React.FC = () => {
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
               <h3 className="font-semibold mb-2 text-sm">Color Codes</h3>
-              <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-300">
+              <ul className="space-y-1 text-xs text-gray-800 dark:text-gray-300">
                 <li><span className="text-red-600">🔴</span> Red = Above target price</li>
                 <li><span className="text-cyan-600">🔵</span> Cyan = Below target price</li>
                 <li><span className="text-green-600">🟢</span> Green = Best price ever</li>

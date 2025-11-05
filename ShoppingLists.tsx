@@ -97,7 +97,7 @@ const ShoppingLists: React.FC = () => {
           <div
             className={`rounded-xl border border-dashed ${
               darkMode ? 'border-zinc-700' : 'border-gray-300'
-            } p-6 text-center text-sm text-gray-500 dark:text-gray-400`}
+            } p-6 text-center text-sm text-gray-700 dark:text-gray-400`}
           >
             Loading lists...
           </div>
@@ -107,9 +107,9 @@ const ShoppingLists: React.FC = () => {
               darkMode ? 'border-zinc-700' : 'border-gray-300'
             } p-12 text-center`}
           >
-            <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <ShoppingCart className="h-16 w-16 text-gray-700 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Shopping Lists Yet</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">
+            <p className="text-gray-700 dark:text-gray-400 mb-6">
               Create your first shopping list or join one shared with you
             </p>
             <div className="flex justify-center gap-4">
