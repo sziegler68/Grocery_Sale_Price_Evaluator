@@ -555,7 +555,7 @@ const ShoppingListDetail: React.FC = () => {
       
       // Send notification that shopping trip started
       if (userName && shareCode) {
-        const message = `${userName} started a shopping trip at ${storeName} (Budget: $${budget.toFixed(2)})`;
+        const message = `${userName} started a shopping trip at ${storeName} (Budget: $${Math.round(budget)})`;
         sendLiveNotification(list.id, message, 'trip_started', userName).catch(() => {
           // Silently fail
         });

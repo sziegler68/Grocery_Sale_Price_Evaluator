@@ -213,7 +213,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 ${trip.total_spent.toFixed(2)}
               </span>
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                / ${trip.budget.toFixed(2)}
+                / ${Math.round(trip.budget)}
               </span>
             </div>
 

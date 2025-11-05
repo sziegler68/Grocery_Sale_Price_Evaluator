@@ -27,7 +27,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Handle budget input - whole dollars only, calculator style
+  // Handle budget input - whole dollars only
   const handleBudgetInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
     if (input === '') {
@@ -39,13 +39,6 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
     const numValue = parseInt(input, 10);
     setBudgetDisplay(numValue.toString());
     setBudget(numValue.toString());
-  };
-
-  const adjustBudget = (amount: number) => {
-    const current = parseInt(budget) || 0;
-    const newBudget = Math.max(0, current + amount);
-    setBudget(newBudget.toString());
-    setBudgetDisplay(newBudget.toString());
   };
 
   const handleStart = () => {
@@ -133,58 +126,25 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
             <label className="block text-sm font-medium mb-2">
               Trip Budget <span className="text-red-500">*</span>
             </label>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => adjustBudget(-10)}
-                className="px-4 py-3 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 rounded-lg font-medium transition-colors"
-              >
-                -$10
-              </button>
-              <div className="flex-1 relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={budgetDisplay}
-                  onChange={handleBudgetInput}
-                  className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-                    darkMode
-                      ? 'bg-zinc-700 border-zinc-600 text-white'
-                      : 'bg-white border-gray-300 text-gray-900'
-                  } focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg font-semibold text-center`}
-                  placeholder="150"
-                />
-              </div>
-              <button
-                onClick={() => adjustBudget(10)}
-                className="px-4 py-3 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 rounded-lg font-medium transition-colors"
-              >
-                +$10
-              </button>
+            <div className="relative">
+              <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                inputMode="numeric"
+                value={budgetDisplay}
+                onChange={handleBudgetInput}
+                className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
+                  darkMode
+                    ? 'bg-zinc-700 border-zinc-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg font-semibold`}
+                placeholder="250"
+                autoFocus
+              />
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Whole dollars only (e.g., type 150 for $150)
+              Whole dollars only (e.g., type 250 for $250)
             </p>
-          </div>
-
-          {/* Quick Budget Presets */}
-          <div className="grid grid-cols-4 gap-2">
-            {[50, 100, 150, 200].map(amount => (
-              <button
-                key={amount}
-                onClick={() => {
-                  setBudget(amount.toString());
-                  setBudgetDisplay(amount.toString());
-                }}
-                className={`py-2 rounded-lg text-sm font-medium transition-colors ${
-                  darkMode
-                    ? 'bg-zinc-700 hover:bg-zinc-600'
-                    : 'bg-gray-100 hover:bg-gray-200'
-                }`}
-              >
-                ${amount}
-              </button>
-            ))}
           </div>
 
           {/* Sales Tax */}
