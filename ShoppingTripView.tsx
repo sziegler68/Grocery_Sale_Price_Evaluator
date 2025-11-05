@@ -484,7 +484,6 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           unitType={selectedItem.unit_type || undefined}
           targetPrice={selectedItem.target_price || undefined}
           salesTaxRate={trip.sales_tax_rate || getSalesTaxRate()}
-          darkMode={darkMode}
           initialPrice={editingCartItem?.price_paid}
           initialQuantity={editingCartItem?.quantity}
           initialCrv={editingCartItem?.crv_amount}

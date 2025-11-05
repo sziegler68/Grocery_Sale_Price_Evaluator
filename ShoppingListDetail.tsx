@@ -953,7 +953,6 @@ const ShoppingListDetail: React.FC = () => {
           listId={list.id}
           shareCode={shareCode}
           listName={list.name}
-          darkMode={darkMode}
           onClose={() => setShowAddItemModal(false)}
           onAdded={handleItemUpdate}
         />
@@ -967,7 +966,6 @@ const ShoppingListDetail: React.FC = () => {
           listName={list.name}
           defaultStore=""
           salesTaxRate={getSalesTaxRate()}
-          darkMode={darkMode}
         />
       )}
 

@@ -53,7 +53,7 @@ const AddItem: React.FC = () => {
             Check if the current price of an item is a good deal compared to your target price.
           </p>
         </div>
-        <AddItemForm darkMode={darkMode} onSubmit={handleSubmit} existingItems={existingItems} />
+        <AddItemForm onSubmit={handleSubmit} existingItems={existingItems} />
       </main>
 
       <Footer />

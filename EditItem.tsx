@@ -88,7 +88,6 @@ const EditItem: React.FC = () => {
           <h1 className="text-2xl font-bold">Edit Item</h1>
         </div>
         <AddItemForm 
-          darkMode={darkMode} 
           onSubmit={handleSubmit} 
           existingItems={existingItems}
           initialData={currentItem}
