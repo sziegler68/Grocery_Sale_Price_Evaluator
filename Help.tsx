@@ -9,13 +9,13 @@ const Help: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <div className="flex items-center space-x-2 mb-2">
-            <HelpCircle className="h-8 w-8 text-purple-600" />
+            <HelpCircle className="h-8 w-8 text-brand" />
             <h1 className="text-3xl font-bold">Help & Guide</h1>
           </div>
           <p className="text-primary">
@@ -24,13 +24,13 @@ const Help: React.FC = () => {
         </div>
 
         {/* What is this app */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className="p-6 rounded-xl shadow-lg mb-6 bg-card">
           <h2 className="text-2xl font-bold mb-4">🌙 What is LunaCart?</h2>
           <p className="text-primary mb-4">
             This app has <strong>three main features</strong> that work together:
           </p>
           <div className="space-y-4">
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
+            <div className={`p-4 rounded-lg bg-brand-light`}>
               <div className="flex items-center space-x-2 mb-2">
                 <DollarSign className="h-5 w-5 text-purple-600" />
                 <h3 className="font-semibold">1. Price Checker</h3>
@@ -40,7 +40,7 @@ const Help: React.FC = () => {
                 Build a database of target prices for items you buy regularly.
               </p>
             </div>
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-green-50'}`}>
+            <div className={`p-4 rounded-lg bg-secondary`}>
               <div className="flex items-center space-x-2 mb-2">
                 <ShoppingCart className="h-5 w-5 text-green-600" />
                 <h3 className="font-semibold">2. Shopping Lists</h3>
@@ -50,7 +50,7 @@ const Help: React.FC = () => {
                 to quickly determine if something is a good deal.
               </p>
             </div>
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-blue-50'}`}>
+            <div className={`p-4 rounded-lg bg-secondary`}>
               <div className="flex items-center space-x-2 mb-2">
                 <ShoppingCart className="h-5 w-5 text-blue-600" />
                 <h3 className="font-semibold">3. Active Shopping Trip</h3>
@@ -64,7 +64,7 @@ const Help: React.FC = () => {
         </div>
 
         {/* Price Tracker Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
           <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
             <DollarSign className="h-6 w-6 text-purple-600" />
             <span>Price Checker</span>
@@ -133,7 +133,7 @@ const Help: React.FC = () => {
         </div>
 
         {/* Shopping Lists Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
           <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
             <ShoppingCart className="h-6 w-6 text-green-600" />
             <span>Shopping Lists</span>
@@ -230,7 +230,7 @@ const Help: React.FC = () => {
         </div>
 
         {/* Active Shopping Trip Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
           <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
             <ShoppingCart className="h-6 w-6 text-blue-600" />
             <span>Active Shopping Trip (Budget Tracking)</span>
@@ -333,7 +333,7 @@ const Help: React.FC = () => {
               </ol>
             </div>
 
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
+            <div className={`p-4 rounded-lg bg-secondary`}>
               <h3 className="font-semibold text-sm mb-3">Pro Tips:</h3>
               <ul className="space-y-2 text-sm text-primary">
                 <li className="flex items-start space-x-2">
@@ -358,7 +358,7 @@ const Help: React.FC = () => {
         </div>
 
         {/* Notifications Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
           <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
             <Bell className="h-6 w-6 text-purple-600" />
             <span>Notifications</span>
@@ -369,7 +369,7 @@ const Help: React.FC = () => {
               Get notified when others update shared shopping lists. Notifications are smart and throttled to prevent spam.
             </p>
 
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
+            <div className={`p-4 rounded-lg bg-secondary`}>
               <h3 className="font-semibold text-sm mb-3">How Throttling Works:</h3>
               <ul className="space-y-2 text-sm text-primary">
                 <li className="flex items-start space-x-2">
@@ -402,7 +402,7 @@ const Help: React.FC = () => {
         </div>
 
         {/* Settings Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
           <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
             <SettingsIcon className="h-6 w-6 text-purple-600" />
             <span>Settings</span>
@@ -438,7 +438,7 @@ const Help: React.FC = () => {
               </p>
             </div>
 
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
+            <div className={`p-4 rounded-lg bg-brand-light`}>
               <p className="text-sm text-primary">
                 <strong>Example:</strong> If you set meat to "pound", a $3.99 steak sold in 8 oz will show as 
                 <strong> $7.98/lb</strong> for easy comparison with a 2 lb steak at $12.99 (<strong>$6.50/lb</strong>).
@@ -448,7 +448,7 @@ const Help: React.FC = () => {
         </div>
 
         {/* Tips & Tricks */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
           <h2 className="text-2xl font-bold mb-4">💡 Tips & Tricks</h2>
 
           <div className="space-y-4">
@@ -509,11 +509,11 @@ const Help: React.FC = () => {
         </div>
 
         {/* Quick Reference */}
-        <div className={`p-6 rounded-xl shadow-lg ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+        <div className={`p-6 rounded-xl shadow-lg bg-card`}>
           <h2 className="text-2xl font-bold mb-4">📚 Quick Reference</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
+            <div className={`p-4 rounded-lg bg-secondary`}>
               <h3 className="font-semibold mb-2 text-sm">Navigation</h3>
               <ul className="space-y-1 text-xs text-primary">
                 <li><strong>Home:</strong> Quick access to all features</li>
@@ -525,7 +525,7 @@ const Help: React.FC = () => {
               </ul>
             </div>
 
-            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
+            <div className={`p-4 rounded-lg bg-secondary`}>
               <h3 className="font-semibold mb-2 text-sm">Color Codes</h3>
               <ul className="space-y-1 text-xs text-primary">
                 <li><span className="text-red-600">🔴</span> Red = Above target price</li>
