@@ -296,6 +296,9 @@ export const updateGroceryItem = async (update: GroceryItemsUpdate): Promise<Gro
 
   if (error || !data) {
     console.error('[Supabase] Failed to update grocery item:', error?.message);
+    if (error?.code === 'PGRST116') {
+      throw new Error('No rows updated. You may need to enable UPDATE policy in Supabase. Run: supabase/enable_item_updates.sql');
+    }
     throw new Error(error?.message ?? 'Failed to update grocery item.');
   }
 
