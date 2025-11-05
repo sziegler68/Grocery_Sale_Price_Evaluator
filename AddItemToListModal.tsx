@@ -244,9 +244,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 onChange={(e) => setQuantity(e.target.value)}
                 min="0.01"
                 step="0.01"
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 disabled={isAdding}
               />
             </div>
@@ -257,9 +255,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 value={unitType}
                 onChange={(e) => setUnitType(e.target.value)}
                 placeholder="lb, gal, each"
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 disabled={isAdding}
               />
             </div>

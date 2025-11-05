@@ -315,9 +315,7 @@ const Settings: React.FC = () => {
                 inputMode="numeric"
                 value={salesTaxDisplay}
                 onChange={handleSalesTaxInput}
-                className={`w-full pl-4 pr-8 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full pl-4 pr-8 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 placeholder="8.50"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
