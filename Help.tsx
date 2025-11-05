@@ -27,15 +27,15 @@ const Help: React.FC = () => {
         <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
           <h2 className="text-2xl font-bold mb-4">🌙 What is LunaCart?</h2>
           <p className="text-gray-800 dark:text-gray-300 mb-4">
-            This app has <strong>two main features</strong> that work together:
+            This app has <strong>three main features</strong> that work together:
           </p>
           <div className="space-y-4">
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
               <div className="flex items-center space-x-2 mb-2">
                 <DollarSign className="h-5 w-5 text-purple-600" />
-                <h3 className="font-semibold">Price Checker</h3>
+                <h3 className="font-semibold">1. Price Checker</h3>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-gray-800 dark:text-gray-300">
                 Check if the current price of an item is a good deal by comparing it to your target price. 
                 Build a database of target prices for items you buy regularly.
               </p>
@@ -43,11 +43,21 @@ const Help: React.FC = () => {
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-green-50'}`}>
               <div className="flex items-center space-x-2 mb-2">
                 <ShoppingCart className="h-5 w-5 text-green-600" />
-                <h3 className="font-semibold">Shopping Lists</h3>
+                <h3 className="font-semibold">2. Shopping Lists</h3>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-gray-800 dark:text-gray-300">
                 Create and share shopping lists with family and friends. See target prices while shopping 
                 to quickly determine if something is a good deal.
+              </p>
+            </div>
+            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-blue-50'}`}>
+              <div className="flex items-center space-x-2 mb-2">
+                <ShoppingCart className="h-5 w-5 text-blue-600" />
+                <h3 className="font-semibold">3. Active Shopping Trip</h3>
+              </div>
+              <p className="text-sm text-gray-800 dark:text-gray-300">
+                Track your spending in real-time with a budget meter. Add items to your cart, compare actual prices to targets, 
+                and stay on budget. Automatically checks off items when you complete the trip.
               </p>
             </div>
           </div>
@@ -219,6 +229,134 @@ const Help: React.FC = () => {
           </div>
         </div>
 
+        {/* Active Shopping Trip Section */}
+        <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
+          <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
+            <ShoppingCart className="h-6 w-6 text-blue-600" />
+            <span>Active Shopping Trip (Budget Tracking)</span>
+          </h2>
+
+          <div className="space-y-6">
+            <div className={`p-4 rounded-lg ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+              <p className="text-sm text-gray-800 dark:text-gray-300">
+                <strong>NEW!</strong> Track your spending in real-time while shopping. Set a budget, add items to your cart, 
+                and watch the budget meter update instantly. Compare actual prices to target prices and stay on budget!
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Starting a Shopping Trip:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+                <li>Open a shopping list</li>
+                <li>Click <strong>"Start Shopping Trip"</strong> button</li>
+                <li>Set your budget in whole dollars (e.g., type "150" for $150)</li>
+                <li>Select the store you're shopping at</li>
+                <li>Set sales tax rate (defaults from Settings, can override)</li>
+                <li>Click <strong>"Start Shopping"</strong></li>
+              </ol>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Adding Items to Cart:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+                <li>Click any item from "On the List" section</li>
+                <li>Enter the <strong>total price</strong> you see on the shelf (type numbers like 699 → $6.99)</li>
+                <li>Enter the <strong>quantity</strong> (how many units)</li>
+                <li>See <strong>unit price comparison</strong>:</li>
+              </ol>
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-8 mt-2">
+                <li className="flex items-start space-x-2">
+                  <span className="text-green-600">✓</span>
+                  <span><strong className="text-green-600">Green</strong> = At or below target price (Good deal!)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-red-600">✗</span>
+                  <span><strong className="text-red-600">Red</strong> = Above target price (Expensive!)</span>
+                </li>
+              </ul>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4 mt-2" start={5}>
+                <li>(Optional) Check "Item has CRV" and enter CRV amount (e.g., $0.05 per bottle)</li>
+                <li>(Optional) Check "Update target price" if you want to save this as your new target</li>
+                <li>Click <strong>"Add to Cart"</strong></li>
+              </ol>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Budget Meter:</h3>
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <span><strong className="text-green-600">Green (0-89%)</strong> - Under budget, you're good!</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <span><strong className="text-yellow-600">Yellow (90-99%)</strong> - Approaching limit, slow down</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <span><strong className="text-red-600">Red (100%+)</strong> - Over budget! Remove items or increase budget</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <span>Updates instantly after every add/remove</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Managing Cart Items:</h3>
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <span><strong>Edit:</strong> Click any item in cart to change price/quantity</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <span><strong>Remove:</strong> Click the X button to take item out of cart (goes back to list)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                  <span>Items in cart show Target vs Actual price for easy comparison</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Completing the Trip:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+                <li>Click the <strong>checkmark</strong> button (top right)</li>
+                <li>Confirm "Complete this shopping trip?"</li>
+                <li>Choose whether to save prices to Price Tracker database</li>
+                <li>All cart items automatically check off in the shopping list</li>
+                <li>See trip summary (total spent, over/under budget)</li>
+                <li>Return to shopping list view</li>
+              </ol>
+            </div>
+
+            <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-100'}`}>
+              <h3 className="font-semibold text-sm mb-3">Pro Tips:</h3>
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
+                <li className="flex items-start space-x-2">
+                  <span>💡</span>
+                  <span>Cart total includes item prices + sales tax + CRV (just like at checkout!)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span>💡</span>
+                  <span>CRV is NOT taxed - it's added after sales tax calculation</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span>💡</span>
+                  <span>If you go over budget, remove items by clicking the X to get back under</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span>💡</span>
+                  <span>Saving prices to database helps build better target prices over time</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Notifications Section */}
         <div className={`p-6 rounded-xl shadow-lg mb-6 ${darkMode ? 'bg-zinc-800' : 'bg-white'}`}>
           <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
@@ -273,10 +411,10 @@ const Help: React.FC = () => {
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold mb-2">Unit Preferences:</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+              <p className="text-sm text-gray-800 dark:text-gray-300 mb-3">
                 Set your preferred units for each category so prices are normalized for easy comparison:
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              <ul className="space-y-2 text-sm text-gray-800 dark:text-gray-300">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
                   <span><strong>Meat:</strong> Choose pound or ounce</span>
@@ -290,6 +428,14 @@ const Help: React.FC = () => {
                   <span><strong>Milk, Dairy, Drinks, Soda:</strong> Choose gallon, quart, pint, liter, or ml</span>
                 </li>
               </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Sales Tax Rate:</h3>
+              <p className="text-sm text-gray-800 dark:text-gray-300 mb-3">
+                Set your local sales tax rate (e.g., 8.5 for 8.5%). This is used by the Active Shopping Trip feature 
+                to calculate accurate cart totals including tax. You can override it per-trip if shopping in a different area.
+              </p>
             </div>
 
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
@@ -307,16 +453,28 @@ const Help: React.FC = () => {
 
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold mb-2">Best Workflow:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600 dark:text-gray-300 ml-4">
-                <li>Use <strong>Price Checker</strong> to build target prices for items you buy</li>
+              <h3 className="font-semibold mb-2">Best Workflow (With Shopping Trip):</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+                <li>Use <strong>Price Checker</strong> to build target prices for items you buy regularly</li>
                 <li>Create a <strong>Shopping List</strong> with those target prices</li>
                 <li>Share list with family so everyone can add forgotten items</li>
-                <li>At the store, compare shelf prices to your targets</li>
+                <li>At the store, tap <strong>"Start Shopping Trip"</strong> and set your budget</li>
+                <li>Add items to cart - see instant unit price comparison (green = good deal!)</li>
+                <li>Watch the budget meter - remove items if you go over</li>
+                <li>Tap checkmark when done - items auto-check off the list</li>
+                <li>Choose to save prices to database for better target prices next time</li>
+                <li>Clear the list and reuse it next week!</li>
+              </ol>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Alternative Workflow (Without Shopping Trip):</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-800 dark:text-gray-300 ml-4">
+                <li>Use <strong>Price Checker</strong> to build target prices for items you buy</li>
+                <li>Create a <strong>Shopping List</strong> with those target prices</li>
+                <li>At the store, compare shelf prices to targets shown on the list</li>
                 <li>Check off items as you buy them</li>
                 <li>Click "Mark as Complete" when done</li>
-                <li>(Optional) Update target prices in Price Checker if you find better deals</li>
-                <li>Clear the list and reuse it next week!</li>
               </ol>
             </div>
 
