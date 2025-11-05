@@ -38,7 +38,6 @@ const AddItem: React.FC = () => {
       });
 
       toast.success('Item added successfully!');
-      navigate('/items');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to save item. Check your Supabase configuration and try again.';
       toast.error(message);
