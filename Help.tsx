@@ -146,7 +146,7 @@ const Help: React.FC = () => {
                 <li>Click <strong>"Shopping Lists"</strong> in navigation</li>
                 <li>Click <strong>"Create New List"</strong></li>
                 <li>Enter a name (e.g., "Smith Family Groceries")</li>
-                <li>You'll get a share code like <code className="bg-gray-200 dark:bg-zinc-700 px-2 py-1 rounded">SHOP-K7P2M9</code></li>
+                <li>You'll get a share code like <code className="bg-purple-100 dark:bg-zinc-700 px-2 py-1 rounded text-purple-900 dark:text-purple-300 font-semibold">SHOP-K7P2M9</code></li>
                 <li>Copy and share the code with family/friends</li>
               </ol>
             </div>

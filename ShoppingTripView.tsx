@@ -370,11 +370,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                         <button
                           key={item.id}
                           onClick={() => handleItemClick(item)}
-                          className={`w-full p-3 rounded-lg border text-left transition-all active:scale-95 ${
-                            darkMode
-                              ? 'bg-zinc-800 border-zinc-700 hover:bg-zinc-700'
-                              : 'bg-white border-gray-200 hover:bg-gray-50'
-                          }`}
+                          className="w-full p-3 rounded-lg border text-left transition-all active:scale-95 bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
@@ -416,9 +412,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                       <div
                         key={item.id}
                         onClick={() => handleCartItemClick(item)}
-                        className={`p-3 rounded-lg border cursor-pointer hover:border-purple-500 transition-colors ${
-                          darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-gray-200'
-                        }`}
+                      className="p-3 rounded-lg border cursor-pointer hover:border-purple-500 transition-colors bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
