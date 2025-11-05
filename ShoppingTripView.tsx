@@ -96,11 +96,15 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
 
     try {
       // Add to cart with CRV
+      // IMPORTANT: price_paid should be per unit, not total
+      // Database trigger will multiply by quantity
+      const pricePerUnit = data.quantity > 0 ? data.price / data.quantity : data.price;
+      
       await addItemToCart({
         trip_id: trip.id,
         list_item_id: selectedItem.id,
         item_name: selectedItem.item_name,
-        price_paid: data.price,
+        price_paid: pricePerUnit, // Store price per unit, NOT total
         quantity: data.quantity,
         unit_type: selectedItem.unit_type || undefined,
         category: selectedItem.category || undefined,
