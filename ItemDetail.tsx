@@ -22,6 +22,7 @@ const ItemDetail: React.FC = () => {
   const [item, setItem] = useState<GroceryItem | null>(null);
   const [priceHistory, setPriceHistory] = useState<GroceryItem[]>([]);
   const [targetPrice, setTargetPrice] = useState<number | undefined>();
+  const [targetPriceDisplay, setTargetPriceDisplay] = useState<string>('');
   const [isEditingTarget, setIsEditingTarget] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>('mock');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -45,6 +46,7 @@ const ItemDetail: React.FC = () => {
       setItem(result.item);
       setPriceHistory(result.priceHistory);
       setTargetPrice(result.item?.targetPrice);
+      setTargetPriceDisplay(result.item?.targetPrice ? result.item.targetPrice.toFixed(2) : '');
       setDataSource(result.source);
       setErrorMessage(result.error ?? null);
       setIsLoading(false);
@@ -92,6 +94,24 @@ const ItemDetail: React.FC = () => {
   const isBelowTarget = typeof targetPrice === 'number' && lastPrice <= targetPrice;
   const lastPurchaseDate = lastEntry.datePurchased;
 
+  // Handle target price input with auto-formatting (fills from right to left)
+  const handleTargetPriceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (input === '') {
+      setTargetPriceDisplay('');
+      setTargetPrice(undefined);
+      return;
+    }
+    
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    const formatted = `${dollars}.${cents.toString().padStart(2, '0')}`;
+    
+    setTargetPriceDisplay(formatted);
+    setTargetPrice(parseFloat(formatted));
+  };
+
   const handleTargetPriceUpdate = async () => {
     if (!item) return;
 
@@ -99,6 +119,7 @@ const ItemDetail: React.FC = () => {
       const updated = await updateTargetPrice(item.id, targetPrice);
       setItem(updated);
       setTargetPrice(updated.targetPrice);
+      setTargetPriceDisplay(updated.targetPrice ? updated.targetPrice.toFixed(2) : '');
       setPriceHistory((prev) => {
         if (prev.length === 0) {
           return [updated];
@@ -233,16 +254,20 @@ const ItemDetail: React.FC = () => {
                 <label className="block text-sm font-medium mb-2">
                   Target Price (per {item.unitType})
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={targetPrice || ''}
-                  onChange={(e) => setTargetPrice(parseFloat(e.target.value) || undefined)}
-                  className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
-                  }`}
-                  placeholder="0.00"
-                />
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={targetPriceDisplay}
+                    onChange={handleTargetPriceInput}
+                    className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                    }`}
+                    placeholder="0.00"
+                    autoFocus
+                  />
+                </div>
               </div>
               <div className="flex space-x-3">
                 <button

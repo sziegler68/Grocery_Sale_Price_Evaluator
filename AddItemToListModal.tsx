@@ -29,7 +29,8 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
   const [category, setCategory] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [unitType, setUnitType] = useState('');
-  const [targetPrice, setTargetPrice] = useState('');
+  const [targetPrice, setTargetPrice] = useState<number | undefined>();
+  const [targetPriceDisplay, setTargetPriceDisplay] = useState('');
   const [notes, setNotes] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   
@@ -74,12 +75,31 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
     setSuggestions(Array.from(uniqueItems.values()).slice(0, 5));
   }, [itemName, priceDbItems]);
 
+  // Handle target price input with auto-formatting (fills from right to left)
+  const handleTargetPriceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (input === '') {
+      setTargetPriceDisplay('');
+      setTargetPrice(undefined);
+      return;
+    }
+    
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    const formatted = `${dollars}.${cents.toString().padStart(2, '0')}`;
+    
+    setTargetPriceDisplay(formatted);
+    setTargetPrice(parseFloat(formatted));
+  };
+
   const handleSelectSuggestion = (item: GroceryItem) => {
     setItemName(item.itemName);
     setCategory(mapToShoppingListCategory(item.category));
     setUnitType(item.unitType);
     if (item.targetPrice) {
-      setTargetPrice(item.targetPrice.toString());
+      setTargetPrice(item.targetPrice);
+      setTargetPriceDisplay(item.targetPrice.toFixed(2));
     }
     setSuggestions([]);
     setShowSuggestions(false);
@@ -108,7 +128,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
         category,
         quantity: parseFloat(quantity) || 1,
         unit_type: unitType || undefined,
-        target_price: targetPrice ? parseFloat(targetPrice) : undefined,
+        target_price: targetPrice,
         notes: notes.trim() || undefined,
         added_by: userName || undefined,
       });
@@ -259,11 +279,10 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
               <input
-                type="number"
-                value={targetPrice}
-                onChange={(e) => setTargetPrice(e.target.value)}
-                min="0"
-                step="0.01"
+                type="text"
+                inputMode="numeric"
+                value={targetPriceDisplay}
+                onChange={handleTargetPriceInput}
                 placeholder="0.00"
                 className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                   darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
