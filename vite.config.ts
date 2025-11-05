@@ -1,9 +1,27 @@
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
+import { execSync } from 'child_process';
+
+// Get git commit hash and build timestamp
+const getGitHash = () => {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    return 'unknown';
+  }
+};
+
+const getBuildTime = () => {
+  return new Date().toISOString();
+};
 
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/Grocery_Sale_Price_Evaluator/' : '/',
+  define: {
+    '__APP_VERSION__': JSON.stringify(getGitHash()),
+    '__BUILD_TIME__': JSON.stringify(getBuildTime()),
+  },
   plugins: [
     react(),
     VitePWA({
