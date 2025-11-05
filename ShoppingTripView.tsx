@@ -4,6 +4,8 @@ import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
 import type { ShoppingListItem } from './shoppingListTypes';
 import { calculateBudgetStatus } from './shoppingTripTypes';
 import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from './shoppingTripApi';
+import { getSupabaseClient } from './supabaseClient';
+import { updateItem as updateListItem } from './shoppingListApi';
 import QuickPriceInput from './QuickPriceInput';
 import { toast } from 'react-toastify';
 import { getSalesTaxRate } from './Settings';
@@ -49,29 +51,41 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     loadCart();
   }, [trip.id]);
 
-  // Subscribe to real-time updates
+  // Subscribe to real-time updates for BOTH cart items AND trip total
   useEffect(() => {
-    const channel = subscribeToCartUpdates(trip.id, async (payload) => {
-      console.log('Cart update:', payload);
-      
-      // Reload both cart items and trip data
-      try {
-        const [items, updatedTrip] = await Promise.all([
-          getCartItems(trip.id),
-          getTripById(trip.id)
-        ]);
-        
-        setCartItems(items);
-        if (updatedTrip) {
-          setTrip(updatedTrip);
-        }
-      } catch (error) {
-        console.error('Failed to reload cart data:', error);
-      }
+    const supabase = getSupabaseClient();
+    
+    // Subscribe to cart_items changes
+    const cartChannel = subscribeToCartUpdates(trip.id, async () => {
+      console.log('Cart items changed');
+      const items = await getCartItems(trip.id);
+      setCartItems(items);
     });
+    
+    // Subscribe to shopping_trips changes (for budget meter)
+    const tripChannel = supabase
+      .channel(`trip-${trip.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'shopping_trips',
+          filter: `id=eq.${trip.id}`
+        },
+        async (payload) => {
+          console.log('Trip total updated:', payload);
+          const updatedTrip = await getTripById(trip.id);
+          if (updatedTrip) {
+            setTrip(updatedTrip);
+          }
+        }
+      )
+      .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      cartChannel.unsubscribe();
+      tripChannel.unsubscribe();
     };
   }, [trip.id]);
 
@@ -139,10 +153,15 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       }
 
       // Update target price if requested
-      if (data.updateTargetPrice && data.quantity > 0) {
+      if (data.updateTargetPrice && data.quantity > 0 && selectedItem.id) {
         const newTargetPrice = data.price / data.quantity;
-        // TODO: Update target price in shopping_list_items table
-        console.log('Update target price to:', newTargetPrice);
+        try {
+          await updateListItem(selectedItem.id, { target_price: newTargetPrice });
+          toast.success(`Updated target price to $${newTargetPrice.toFixed(2)}/${selectedItem.unit_type || 'unit'}`);
+        } catch (error) {
+          console.error('Failed to update target price:', error);
+          toast.error('Failed to update target price');
+        }
       }
 
       setSelectedItem(null);
@@ -307,14 +326,21 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                               Qty: {item.quantity} {item.unit_type}
                             </div>
                           )}
-                          {item.target_price && (
-                            <div className={`text-xs mt-1 ${
-                              item.price_paid > item.target_price
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-green-600 dark:text-green-400'
-                            }`}>
-                              Target: ${item.target_price.toFixed(2)} ({item.price_paid > item.target_price ? '+' : ''}${(item.price_paid - item.target_price).toFixed(2)})
-                            </div>
+                          {item.target_price && item.quantity > 0 && (
+                            (() => {
+                              const pricePerUnit = item.price_paid / item.quantity;
+                              const isOverTarget = pricePerUnit > item.target_price;
+                              const diff = pricePerUnit - item.target_price;
+                              return (
+                                <div className={`text-xs mt-1 ${
+                                  isOverTarget
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : 'text-green-600 dark:text-green-400'
+                                }`}>
+                                  ${pricePerUnit.toFixed(4)}/{item.unit_type || 'unit'} (Target: ${item.target_price.toFixed(2)} {isOverTarget ? '+' : ''}${Math.abs(diff).toFixed(4)})
+                                </div>
+                              );
+                            })()
                           )}
                         </div>
                         <div className="flex items-center space-x-3">
