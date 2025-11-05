@@ -241,7 +241,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   // Cart items: keep in order added (no sorting)
 
   return (
-    <div className="h-full flex flex-col relative bg-gray-50 dark:bg-zinc-900">
+    <div className="h-full flex flex-col relative bg-white dark:bg-zinc-900">
       {/* Subtle moon and stars background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-8 right-12 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-200/20 to-yellow-300/10 dark:from-blue-200/10 dark:to-purple-200/5 blur-sm" />
