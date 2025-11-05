@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { toast } from 'react-toastify';
@@ -10,7 +9,6 @@ import { useDarkMode } from './useDarkMode';
 const AddItem: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [existingItems, setExistingItems] = useState<GroceryItem[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadItems = async () => {
