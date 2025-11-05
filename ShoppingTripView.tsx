@@ -3,7 +3,7 @@ import { ArrowLeft, Plus, Check, Trash2, ShoppingCart as ShoppingCartIcon, Alert
 import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
 import type { ShoppingListItem } from './shoppingListTypes';
 import { calculateBudgetStatus } from './shoppingTripTypes';
-import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById } from './shoppingTripApi';
+import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from './shoppingTripApi';
 import QuickPriceInput from './QuickPriceInput';
 import { toast } from 'react-toastify';
 import { getSalesTaxRate } from './Settings';
@@ -27,6 +27,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ShoppingListItem | null>(null);
+  const [editingCartItem, setEditingCartItem] = useState<CartItem | null>(null);
   const [showPriceInput, setShowPriceInput] = useState(false);
 
   const budgetStatus = calculateBudgetStatus(trip.total_spent, trip.budget);
@@ -78,11 +79,27 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     // Check if already in cart
     const inCart = cartItems.some(ci => ci.list_item_id === item.id);
     if (inCart) {
-      toast.info('Item already in cart');
+      toast.info('Item already in cart. Click on the cart item to edit it.');
       return;
     }
 
     setSelectedItem(item);
+    setEditingCartItem(null);
+    setShowPriceInput(true);
+  };
+
+  const handleCartItemClick = (cartItem: CartItem) => {
+    // Find the corresponding list item for metadata
+    const listItem = listItems.find(li => li.id === cartItem.list_item_id);
+    
+    setEditingCartItem(cartItem);
+    setSelectedItem(listItem || {
+      id: cartItem.list_item_id || '',
+      item_name: cartItem.item_name,
+      unit_type: cartItem.unit_type,
+      category: cartItem.category,
+      target_price: cartItem.target_price
+    } as ShoppingListItem);
     setShowPriceInput(true);
   };
 
@@ -95,37 +112,47 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     if (!selectedItem) return;
 
     try {
-      // Add to cart with CRV
       // IMPORTANT: price_paid should be per unit, not total
       // Database trigger will multiply by quantity
       const pricePerUnit = data.quantity > 0 ? data.price / data.quantity : data.price;
       
-      await addItemToCart({
-        trip_id: trip.id,
-        list_item_id: selectedItem.id,
-        item_name: selectedItem.item_name,
-        price_paid: pricePerUnit, // Store price per unit, NOT total
-        quantity: data.quantity,
-        unit_type: selectedItem.unit_type || undefined,
-        category: selectedItem.category || undefined,
-        target_price: selectedItem.target_price || undefined,
-        crv_amount: data.crvAmount
-      });
+      if (editingCartItem) {
+        // Update existing cart item
+        await updateCartItem(editingCartItem.id, {
+          price_paid: pricePerUnit, // Store price per unit, NOT total
+          quantity: data.quantity,
+          crv_amount: data.crvAmount
+        });
+        toast.success(`Updated ${selectedItem.item_name}`);
+      } else {
+        // Add new item to cart
+        await addItemToCart({
+          trip_id: trip.id,
+          list_item_id: selectedItem.id,
+          item_name: selectedItem.item_name,
+          price_paid: pricePerUnit, // Store price per unit, NOT total
+          quantity: data.quantity,
+          unit_type: selectedItem.unit_type || undefined,
+          category: selectedItem.category || undefined,
+          target_price: selectedItem.target_price || undefined,
+          crv_amount: data.crvAmount
+        });
+        toast.success(`Added ${selectedItem.item_name} to cart`);
+      }
 
       // Update target price if requested
       if (data.updateTargetPrice && data.quantity > 0) {
         const newTargetPrice = data.price / data.quantity;
         // TODO: Update target price in shopping_list_items table
-        // This would require a new API function
         console.log('Update target price to:', newTargetPrice);
       }
 
-      toast.success(`Added ${selectedItem.item_name} to cart`);
       setSelectedItem(null);
+      setEditingCartItem(null);
       setShowPriceInput(false);
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast.error('Failed to add item');
+      console.error('Error saving cart item:', error);
+      toast.error('Failed to save item');
     }
   };
 
@@ -269,7 +296,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                   {cartItems.map(item => (
                     <div
                       key={item.id}
-                      className={`p-3 rounded-lg border ${
+                      onClick={() => handleCartItemClick(item)}
+                      className={`p-3 rounded-lg border cursor-pointer hover:border-purple-500 transition-colors ${
                         darkMode ? 'bg-zinc-800 border-zinc-700' : 'bg-white border-gray-200'
                       }`}
                     >
@@ -367,6 +395,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           onClose={() => {
             setShowPriceInput(false);
             setSelectedItem(null);
+            setEditingCartItem(null);
           }}
           onConfirm={handleAddPrice}
           itemName={selectedItem.item_name}
@@ -374,6 +403,9 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           targetPrice={selectedItem.target_price || undefined}
           salesTaxRate={trip.sales_tax_rate || getSalesTaxRate()}
           darkMode={darkMode}
+          initialPrice={editingCartItem ? editingCartItem.price_paid * editingCartItem.quantity : undefined}
+          initialQuantity={editingCartItem?.quantity}
+          initialCrv={editingCartItem?.crv_amount}
         />
       )}
     </div>

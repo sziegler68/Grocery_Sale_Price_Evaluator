@@ -16,6 +16,10 @@ interface QuickPriceInputProps {
   targetPrice?: number; // Target price PER UNIT
   salesTaxRate: number;
   darkMode: boolean;
+  // For editing existing cart items
+  initialPrice?: number; // Total price
+  initialQuantity?: number;
+  initialCrv?: number; // Total CRV
 }
 
 const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
@@ -26,12 +30,21 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   unitType = '',
   targetPrice,
   salesTaxRate,
-  darkMode
+  darkMode,
+  initialPrice,
+  initialQuantity,
+  initialCrv
 }) => {
-  const [priceDisplay, setPriceDisplay] = useState<string>('');
-  const [quantity, setQuantity] = useState<string>('1');
-  const [crvEnabled, setCrvEnabled] = useState<boolean>(false);
-  const [crvDisplay, setCrvDisplay] = useState<string>('');
+  const [priceDisplay, setPriceDisplay] = useState<string>(
+    initialPrice ? initialPrice.toFixed(2) : ''
+  );
+  const [quantity, setQuantity] = useState<string>(
+    initialQuantity ? initialQuantity.toString() : '1'
+  );
+  const [crvEnabled, setCrvEnabled] = useState<boolean>(!!initialCrv && initialCrv > 0);
+  const [crvDisplay, setCrvDisplay] = useState<string>(
+    initialCrv && initialCrv > 0 ? (initialCrv / (initialQuantity || 1)).toFixed(2) : ''
+  );
   const [updateTarget, setUpdateTarget] = useState<boolean>(false);
 
   if (!isOpen) return null;
