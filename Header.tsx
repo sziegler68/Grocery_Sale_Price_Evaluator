@@ -23,9 +23,9 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
 
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="hover:text-purple-600 transition-colors">Home</Link>
+            <Link to="/add-item" className="hover:text-purple-600 transition-colors">Price Checker</Link>
             <Link to="/shopping-lists" className="hover:text-purple-600 transition-colors">Shopping Lists</Link>
-            <Link to="/items" className="hover:text-purple-600 transition-colors">Price Tracker</Link>
-            <Link to="/add-item" className="hover:text-purple-600 transition-colors">Add Item</Link>
+            <Link to="/items" className="hover:text-purple-600 transition-colors">Search Database</Link>
             <Link to="/settings" className="hover:text-purple-600 transition-colors">Settings</Link>
             <Link to="/help" className="hover:text-purple-600 transition-colors">Help</Link>
             <button
@@ -59,9 +59,9 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
           <div className="md:hidden py-4 border-t border-gray-200 dark:border-zinc-700">
             <nav className="flex flex-col space-y-4">
               <Link to="/" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Home</Link>
+              <Link to="/add-item" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Price Checker</Link>
               <Link to="/shopping-lists" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Shopping Lists</Link>
-              <Link to="/items" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Price Tracker</Link>
-              <Link to="/add-item" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Add Item</Link>
+              <Link to="/items" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Search Database</Link>
               <Link to="/settings" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Settings</Link>
               <Link to="/help" className="hover:text-purple-600 transition-colors" onClick={toggleMenu}>Help</Link>
             </nav>

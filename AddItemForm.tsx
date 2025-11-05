@@ -178,7 +178,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ darkMode, onSubmit, existingI
     }`}>
       <div className="flex items-center space-x-2 mb-6">
         <Plus className="h-6 w-6 text-purple-600" />
-        <h2 className="text-2xl font-bold">{isEditMode ? 'Edit Item' : 'Add New Item'}</h2>
+        <h2 className="text-2xl font-bold">{isEditMode ? 'Edit Item' : 'Check Price'}</h2>
       </div>
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
