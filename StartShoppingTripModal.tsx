@@ -8,7 +8,6 @@ interface StartShoppingTripModalProps {
   listName: string;
   defaultStore?: string;
   salesTaxRate: number;
-  darkMode: boolean;
 }
 
 const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
@@ -17,8 +16,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
   onStart,
   listName,
   defaultStore = '',
-  salesTaxRate,
-  darkMode
+  salesTaxRate
 }) => {
   const [budget, setBudget] = useState<string>('');
   const [budgetDisplay, setBudgetDisplay] = useState<string>('');

@@ -12,7 +12,6 @@ interface AddItemToListModalProps {
   listId: string;
   shareCode: string;
   listName: string;
-  darkMode: boolean;
   onClose: () => void;
   onAdded: () => void;
 }
@@ -21,7 +20,6 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
   listId,
   shareCode,
   listName,
-  darkMode,
   onClose,
   onAdded,
 }) => {

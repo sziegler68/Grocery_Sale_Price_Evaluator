@@ -15,7 +15,6 @@ interface QuickPriceInputProps {
   unitType?: string;
   targetPrice?: number; // Target price PER UNIT
   salesTaxRate: number;
-  darkMode: boolean;
   // For editing existing cart items
   initialPrice?: number; // Total price
   initialQuantity?: number;
@@ -30,7 +29,6 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   unitType = '',
   targetPrice,
   salesTaxRate,
-  darkMode,
   initialPrice,
   initialQuantity,
   initialCrv
