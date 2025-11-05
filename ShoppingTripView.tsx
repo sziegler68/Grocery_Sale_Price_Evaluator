@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Plus, Check, Trash2, ShoppingCart as ShoppingCartIcon, AlertCircle } from 'lucide-react';
 import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
 import type { ShoppingListItem } from './shoppingListTypes';
@@ -6,6 +6,7 @@ import { calculateBudgetStatus } from './shoppingTripTypes';
 import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from './shoppingTripApi';
 import { getSupabaseClient } from './supabaseClient';
 import { updateItem as updateListItem } from './shoppingListApi';
+import { SHOPPING_LIST_CATEGORIES } from './shoppingListTypes';
 import QuickPriceInput from './QuickPriceInput';
 import { toast } from 'react-toastify';
 import { getSalesTaxRate } from './Settings';
@@ -164,6 +165,10 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
         }
       }
 
+      // Immediately reload cart items to show the update
+      const updatedItems = await getCartItems(trip.id);
+      setCartItems(updatedItems);
+      
       setSelectedItem(null);
       setEditingCartItem(null);
       setShowPriceInput(false);
@@ -197,7 +202,36 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   };
 
   const itemsInCart = new Set(cartItems.map(ci => ci.list_item_id));
-  const itemsNotInCart = listItems.filter(item => !itemsInCart.has(item.id) && !item.is_checked);
+  const availableItems = listItems.filter(item => !itemsInCart.has(item.id) && !item.is_checked);
+
+  // Group available items by category (same sorting as shopping list)
+  const groupedAvailableItems = useMemo(() => {
+    const groups = availableItems.reduce((acc, item) => {
+      const category = item.category || 'Other';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {} as Record<string, ShoppingListItem[]>);
+
+    // Return in category order
+    return SHOPPING_LIST_CATEGORIES.map(category => ({
+      category,
+      items: groups[category] || [],
+    })).filter(group => group.items.length > 0);
+  }, [availableItems]);
+
+  // Sort cart items by category (for consistency)
+  const sortedCartItems = useMemo(() => {
+    return [...cartItems].sort((a, b) => {
+      const catA = a.category || 'Other';
+      const catB = b.category || 'Other';
+      const indexA = SHOPPING_LIST_CATEGORIES.indexOf(catA as any);
+      const indexB = SHOPPING_LIST_CATEGORIES.indexOf(catB as any);
+      return indexA - indexB;
+    });
+  }, [cartItems]);
 
   return (
     <div className="h-full flex flex-col">
@@ -303,14 +337,14 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
         ) : (
           <>
             {/* Cart Items */}
-            {cartItems.length > 0 && (
+            {sortedCartItems.length > 0 && (
               <div className="p-4">
                 <h3 className="font-semibold mb-3 flex items-center space-x-2">
                   <ShoppingCartIcon className="h-5 w-5 text-purple-600" />
-                  <span>In Cart ({cartItems.length})</span>
+                  <span>In Cart ({sortedCartItems.length})</span>
                 </h3>
                 <div className="space-y-2">
-                  {cartItems.map(item => (
+                  {sortedCartItems.map(item => (
                     <div
                       key={item.id}
                       onClick={() => handleCartItemClick(item)}
@@ -364,47 +398,50 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
               </div>
             )}
 
-            {/* Available Items */}
-            {itemsNotInCart.length > 0 && (
-              <div className="p-4">
-                <h3 className="font-semibold mb-3 flex items-center space-x-2">
-                  <Plus className="h-5 w-5 text-purple-600" />
-                  <span>Add Items ({itemsNotInCart.length})</span>
-                </h3>
-                <div className="space-y-2">
-                  {itemsNotInCart.map(item => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleItemClick(item)}
-                      className={`w-full p-3 rounded-lg border text-left transition-all active:scale-95 ${
-                        darkMode
-                          ? 'bg-zinc-800 border-zinc-700 hover:bg-zinc-700'
-                          : 'bg-white border-gray-200 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="font-medium">{item.item_name}</div>
-                          {item.quantity && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {item.quantity} {item.unit_type || 'units'}
+            {/* Available Items (grouped by category) */}
+            {groupedAvailableItems.length > 0 && (
+              <div className="p-4 space-y-6">
+                {groupedAvailableItems.map(({ category, items: categoryItems }) => (
+                  <div key={category}>
+                    <h3 className="text-sm font-bold text-purple-600 mb-2 uppercase tracking-wide">
+                      {category}
+                    </h3>
+                    <div className="space-y-2">
+                      {categoryItems.map(item => (
+                        <button
+                          key={item.id}
+                          onClick={() => handleItemClick(item)}
+                          className={`w-full p-3 rounded-lg border text-left transition-all active:scale-95 ${
+                            darkMode
+                              ? 'bg-zinc-800 border-zinc-700 hover:bg-zinc-700'
+                              : 'bg-white border-gray-200 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="font-medium">{item.item_name}</div>
+                              {item.quantity && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {item.quantity} {item.unit_type || 'units'}
+                                </div>
+                              )}
+                              {item.target_price && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  Target: ${item.target_price.toFixed(2)}
+                                </div>
+                              )}
                             </div>
-                          )}
-                          {item.target_price && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              Target: ${item.target_price.toFixed(2)}
-                            </div>
-                          )}
-                        </div>
-                        <Plus className="h-5 w-5 text-purple-600" />
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                            <Plus className="h-5 w-5 text-purple-600" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
-            {itemsNotInCart.length === 0 && cartItems.length > 0 && (
+            {availableItems.length === 0 && cartItems.length > 0 && (
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 <ShoppingCartIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>All list items added to cart!</p>
