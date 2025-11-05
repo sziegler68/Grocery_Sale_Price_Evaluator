@@ -4,9 +4,10 @@ import { X, ShoppingCart, DollarSign } from 'lucide-react';
 interface StartShoppingTripModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onStart: (budget: number, storeName: string) => void;
+  onStart: (budget: number, storeName: string, salesTaxRate: number) => void;
   listName: string;
   defaultStore?: string;
+  salesTaxRate: number;
   darkMode: boolean;
 }
 
@@ -16,26 +17,39 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
   onStart,
   listName,
   defaultStore = '',
+  salesTaxRate,
   darkMode
 }) => {
-  const [budget, setBudget] = useState<string>('150.00');
+  const [budget, setBudget] = useState<string>('');
+  const [budgetDisplay, setBudgetDisplay] = useState<string>('');
   const [storeName, setStoreName] = useState<string>(defaultStore);
+  const [customSalesTax, setCustomSalesTax] = useState<number>(salesTaxRate);
 
   if (!isOpen) return null;
 
-  const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, '');
-    setBudget(value);
+  // Handle budget input - whole dollars only, calculator style
+  const handleBudgetInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (input === '') {
+      setBudgetDisplay('');
+      setBudget('');
+      return;
+    }
+    
+    const numValue = parseInt(input, 10);
+    setBudgetDisplay(numValue.toString());
+    setBudget(numValue.toString());
   };
 
   const adjustBudget = (amount: number) => {
-    const current = parseFloat(budget) || 0;
+    const current = parseInt(budget) || 0;
     const newBudget = Math.max(0, current + amount);
-    setBudget(newBudget.toFixed(2));
+    setBudget(newBudget.toString());
+    setBudgetDisplay(newBudget.toString());
   };
 
   const handleStart = () => {
-    const budgetValue = parseFloat(budget);
+    const budgetValue = parseInt(budget) || 0;
     if (budgetValue <= 0) {
       alert('Please enter a valid budget');
       return;
@@ -44,7 +58,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
       alert('Please select a store');
       return;
     }
-    onStart(budgetValue, storeName);
+    onStart(budgetValue, storeName, customSalesTax);
   };
 
   const stores = [
@@ -130,15 +144,15 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
                 <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  inputMode="decimal"
-                  value={budget}
-                  onChange={handleBudgetChange}
+                  inputMode="numeric"
+                  value={budgetDisplay}
+                  onChange={handleBudgetInput}
                   className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
                     darkMode
                       ? 'bg-zinc-700 border-zinc-600 text-white'
                       : 'bg-white border-gray-300 text-gray-900'
                   } focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg font-semibold text-center`}
-                  placeholder="0.00"
+                  placeholder="150"
                 />
               </div>
               <button
@@ -149,7 +163,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
               </button>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Set your target budget for this shopping trip
+              Whole dollars only (e.g., type 150 for $150)
             </p>
           </div>
 
@@ -158,7 +172,10 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
             {[50, 100, 150, 200].map(amount => (
               <button
                 key={amount}
-                onClick={() => setBudget(amount.toFixed(2))}
+                onClick={() => {
+                  setBudget(amount.toString());
+                  setBudgetDisplay(amount.toString());
+                }}
                 className={`py-2 rounded-lg text-sm font-medium transition-colors ${
                   darkMode
                     ? 'bg-zinc-700 hover:bg-zinc-600'
@@ -168,6 +185,33 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
                 ${amount}
               </button>
             ))}
+          </div>
+
+          {/* Sales Tax */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Sales Tax Rate
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={customSalesTax}
+                onChange={(e) => setCustomSalesTax(parseFloat(e.target.value) || 0)}
+                className={`flex-1 px-4 py-3 rounded-lg border ${
+                  darkMode
+                    ? 'bg-zinc-700 border-zinc-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                } focus:ring-2 focus:ring-purple-500 focus:border-transparent`}
+                placeholder="0.00"
+              />
+              <span className="text-gray-600 dark:text-gray-300">%</span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Default: {salesTaxRate}% (from settings). You can override for this trip.
+            </p>
           </div>
         </div>
 

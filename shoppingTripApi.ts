@@ -10,7 +10,8 @@ export const createShoppingTrip = async (input: CreateTripInput): Promise<Shoppi
     .insert({
       list_id: input.list_id,
       budget: input.budget,
-      store_name: input.store_name
+      store_name: input.store_name,
+      sales_tax_rate: input.sales_tax_rate || 0
     })
     .select()
     .single();
@@ -90,7 +91,8 @@ export const addItemToCart = async (input: AddCartItemInput): Promise<CartItem> 
       quantity: input.quantity || 1,
       unit_type: input.unit_type,
       category: input.category,
-      target_price: input.target_price
+      target_price: input.target_price,
+      crv_amount: input.crv_amount || 0
     })
     .select()
     .single();

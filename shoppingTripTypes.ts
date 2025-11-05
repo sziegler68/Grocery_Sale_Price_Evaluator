@@ -9,6 +9,7 @@ export interface ShoppingTrip {
   completed_at?: string;
   total_spent: number;
   items_purchased: number;
+  sales_tax_rate: number; // Percentage (e.g., 8.5 for 8.5%)
   created_at: string;
   updated_at: string;
 }
@@ -23,6 +24,7 @@ export interface CartItem {
   unit_type?: string;
   category?: string;
   target_price?: number;
+  crv_amount: number; // California Redemption Value
   added_at: string;
 }
 
@@ -30,6 +32,7 @@ export interface CreateTripInput {
   list_id: string;
   budget: number;
   store_name: string;
+  sales_tax_rate?: number; // Optional, defaults to user's settings
 }
 
 export interface AddCartItemInput {
@@ -41,6 +44,7 @@ export interface AddCartItemInput {
   unit_type?: string;
   category?: string;
   target_price?: number;
+  crv_amount?: number; // CRV fee for this item
 }
 
 export interface BudgetStatus {

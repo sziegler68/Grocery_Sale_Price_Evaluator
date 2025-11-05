@@ -55,14 +55,38 @@ export const saveUnitPreferences = (preferences: UnitPreferences): void => {
   }
 };
 
+const SALES_TAX_KEY = 'grocery-sales-tax';
+
+export const getSalesTaxRate = (): number => {
+  try {
+    const stored = localStorage.getItem(SALES_TAX_KEY);
+    if (stored) {
+      return parseFloat(stored);
+    }
+  } catch (error) {
+    console.error('Failed to load sales tax:', error);
+  }
+  return 0; // Default: 0%
+};
+
+export const saveSalesTaxRate = (rate: number): void => {
+  try {
+    localStorage.setItem(SALES_TAX_KEY, rate.toString());
+  } catch (error) {
+    console.error('Failed to save sales tax:', error);
+  }
+};
+
 const Settings: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [preferences, setPreferences] = useState<UnitPreferences>(getUnitPreferences());
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(getNotificationSettings());
+  const [salesTax, setSalesTax] = useState<number>(getSalesTaxRate());
 
   const handleSave = () => {
     saveUnitPreferences(preferences);
     saveNotificationSettings(notifSettings);
+    saveSalesTaxRate(salesTax);
     toast.success('Settings saved successfully!');
   };
 
@@ -263,13 +287,50 @@ const Settings: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={handleSave}
-            className="w-full mt-6 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
-          >
-            <Save className="h-5 w-5" />
-            <span>Save Unit Preferences</span>
-          </button>
+        </div>
+
+        {/* Sales Tax Setting */}
+        <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 ${
+          darkMode ? 'bg-zinc-800' : 'bg-white'
+        }`}>
+          <div className="flex items-center space-x-2 mb-6">
+            <SettingsIcon className="h-6 w-6 text-purple-600" />
+            <h2 className="text-2xl font-bold">Sales Tax</h2>
+          </div>
+
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Set your local sales tax rate. This will be used when calculating cart totals during shopping trips.
+          </p>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Sales Tax Rate (%)
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={salesTax}
+                onChange={(e) => setSalesTax(parseFloat(e.target.value) || 0)}
+                className={`flex-1 px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+                }`}
+                placeholder="0.00"
+              />
+              <span className="text-gray-600 dark:text-gray-300">%</span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Example: Enter 8.5 for 8.5% sales tax
+            </p>
+          </div>
+
+          <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              <strong>Example:</strong> With 8.5% sales tax, a $10.00 item will cost <strong>$10.85</strong> total.
+            </p>
+          </div>
         </div>
 
         {/* Notification Settings */}

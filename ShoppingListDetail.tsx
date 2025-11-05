@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt } from 'lucide-react';
+import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt, CheckSquare, Square } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import ShoppingListItem from './ShoppingListItem';
@@ -11,6 +11,7 @@ import ShoppingTripView from './ShoppingTripView';
 import { useDarkMode } from './useDarkMode';
 import { getUserNameForList, setUserNameForList, removeUserNameForList } from './listUserNames';
 import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from './notificationService';
+import { getSalesTaxRate } from './Settings';
 import { 
   getShoppingListByCode, 
   getItemsForList, 
@@ -466,6 +467,44 @@ const ShoppingListDetail: React.FC = () => {
     }
   };
 
+  const handleCheckAll = async () => {
+    if (!list || items.length === 0) return;
+
+    const unchecked = items.filter(item => !item.is_checked);
+    if (unchecked.length === 0) {
+      toast.info('All items already checked');
+      return;
+    }
+
+    try {
+      // Check all unchecked items in parallel
+      await Promise.all(unchecked.map(item => handleOptimisticCheck(item.id, true)));
+      toast.success(`Checked ${unchecked.length} items`);
+    } catch (error) {
+      toast.error('Failed to check all items');
+      console.error(error);
+    }
+  };
+
+  const handleUncheckAll = async () => {
+    if (!list || items.length === 0) return;
+
+    const checked = items.filter(item => item.is_checked);
+    if (checked.length === 0) {
+      toast.info('No items to uncheck');
+      return;
+    }
+
+    try {
+      // Uncheck all checked items in parallel
+      await Promise.all(checked.map(item => handleOptimisticCheck(item.id, false)));
+      toast.success(`Unchecked ${checked.length} items`);
+    } catch (error) {
+      toast.error('Failed to uncheck all items');
+      console.error(error);
+    }
+  };
+
   const handleMarkComplete = async () => {
     if (!list || !userName) return;
 
@@ -729,36 +768,60 @@ const ShoppingListDetail: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button
-            onClick={() => setShowAddItemModal(true)}
-            className="flex items-center justify-center space-x-2 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors shadow-lg"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Add Item to List</span>
-          </button>
-          
-          {activeTrip ? (
+        <div className="mb-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
-              onClick={() => setViewingTrip(true)}
-              className="flex items-center justify-center space-x-2 px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+              onClick={() => setShowAddItemModal(true)}
+              className="flex items-center justify-center space-x-2 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors shadow-lg"
             >
-              <Receipt className="h-5 w-5" />
-              <span>View Active Trip</span>
+              <Plus className="h-5 w-5" />
+              <span>Add Item to List</span>
             </button>
-          ) : (
-            <button
-              onClick={() => setShowStartTripModal(true)}
-              disabled={items.length === 0}
-              className={`flex items-center justify-center space-x-2 px-6 py-4 rounded-xl font-medium transition-colors shadow-lg ${
-                items.length === 0
-                  ? 'bg-gray-400 cursor-not-allowed text-white'
-                  : 'bg-green-600 hover:bg-green-700 text-white'
-              }`}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              <span>Start Shopping Trip</span>
-            </button>
+            
+            {activeTrip ? (
+              <button
+                onClick={() => setViewingTrip(true)}
+                className="flex items-center justify-center space-x-2 px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+              >
+                <Receipt className="h-5 w-5" />
+                <span>View Active Trip</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowStartTripModal(true)}
+                disabled={items.length === 0}
+                className={`flex items-center justify-center space-x-2 px-6 py-4 rounded-xl font-medium transition-colors shadow-lg ${
+                  items.length === 0
+                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                    : 'bg-green-600 hover:bg-green-700 text-white'
+                }`}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                <span>Start Shopping Trip</span>
+              </button>
+            )}
+          </div>
+
+          {/* Check All / Uncheck All */}
+          {items.length > 0 && (
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={handleCheckAll}
+                disabled={items.every(item => item.is_checked)}
+                className="flex items-center justify-center space-x-2 px-4 py-2 border border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CheckSquare className="h-4 w-4" />
+                <span>Check All</span>
+              </button>
+              <button
+                onClick={handleUncheckAll}
+                disabled={items.every(item => !item.is_checked)}
+                className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-600 text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Square className="h-4 w-4" />
+                <span>Uncheck All</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -907,6 +970,7 @@ const ShoppingListDetail: React.FC = () => {
           onStart={handleStartTrip}
           listName={list.name}
           defaultStore=""
+          salesTaxRate={getSalesTaxRate()}
           darkMode={darkMode}
         />
       )}
