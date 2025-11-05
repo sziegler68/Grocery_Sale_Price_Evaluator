@@ -12,18 +12,23 @@ BEGIN
   FROM shopping_trips
   WHERE id = COALESCE(NEW.trip_id, OLD.trip_id);
   
-  -- Calculate subtotal (items + CRV)
+  -- Calculate subtotal (items only, CRV NOT taxed)
   SELECT COALESCE(
-    SUM((price_paid * quantity) + COALESCE(crv_amount, 0)),
+    SUM(price_paid * quantity),
     0
   ) INTO subtotal
   FROM cart_items
   WHERE trip_id = COALESCE(NEW.trip_id, OLD.trip_id);
   
-  -- Update the trip with subtotal + tax
+  -- Update the trip with (subtotal + tax) + CRV
+  -- IMPORTANT: CRV is added AFTER tax, not included in taxable amount
   UPDATE shopping_trips
   SET 
-    total_spent = subtotal * (1 + (COALESCE(trip_tax_rate, 0) / 100)),
+    total_spent = (subtotal * (1 + (COALESCE(trip_tax_rate, 0) / 100))) + (
+      SELECT COALESCE(SUM(crv_amount), 0)
+      FROM cart_items
+      WHERE trip_id = COALESCE(NEW.trip_id, OLD.trip_id)
+    ),
     items_purchased = (
       SELECT COUNT(*)
       FROM cart_items

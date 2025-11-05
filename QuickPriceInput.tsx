@@ -70,11 +70,11 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   // Calculate unit price (price per item, NOT including CRV)
   const unitPrice = totalPrice > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0;
   
-  // Calculate cart addition (total price + total CRV + tax)
+  // Calculate cart addition
+  // IMPORTANT: CRV is NOT taxed! It's added AFTER sales tax
   const totalCrv = crvPerItem * quantityNum; // CRV is per-item, so multiply by quantity
-  const itemTotal = totalPrice + totalCrv;
-  const taxAmount = itemTotal * (salesTaxRate / 100);
-  const cartAddition = itemTotal + taxAmount;
+  const taxAmount = totalPrice * (salesTaxRate / 100); // Tax ONLY on item price, NOT CRV
+  const cartAddition = totalPrice + taxAmount + totalCrv; // Item + Tax + CRV
 
   // Compare to target
   const priceDifference = targetPrice && unitPrice > 0 ? unitPrice - targetPrice : null;
