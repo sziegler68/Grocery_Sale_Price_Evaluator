@@ -37,7 +37,7 @@ const Home: React.FC = () => {
             {/* Connection Status */}
             <div className="flex items-center justify-center space-x-2 text-sm">
               <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-orange-500'}`}></div>
-              <span className="text-gray-900 dark:text-gray-400">
+              <span className="text-secondary">
                 {isOnline ? 'Online' : 'Offline'}
               </span>
             </div>
@@ -52,9 +52,9 @@ const Home: React.FC = () => {
                 darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
               }`}
             >
-              <Calculator className="h-10 w-10 text-purple-600 mx-auto mb-3" />
+              <Calculator className="h-10 w-10 text-brand mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Price Checker</h3>
-              <p className="text-sm text-gray-900 dark:text-gray-400">
+              <p className="text-sm text-secondary">
                 Check if an item is a good deal
               </p>
             </Link>
@@ -68,7 +68,7 @@ const Home: React.FC = () => {
             >
               <ShoppingCart className="h-10 w-10 text-green-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Shopping Lists</h3>
-              <p className="text-sm text-gray-900 dark:text-gray-400">
+              <p className="text-sm text-secondary">
                 Create and share grocery lists
               </p>
             </Link>
@@ -82,7 +82,7 @@ const Home: React.FC = () => {
             >
               <Search className="h-10 w-10 text-cyan-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Search Database</h3>
-              <p className="text-sm text-gray-900 dark:text-gray-400">
+              <p className="text-sm text-secondary">
                 Browse all tracked prices
               </p>
             </Link>
@@ -96,7 +96,7 @@ const Home: React.FC = () => {
             >
               <Settings className="h-10 w-10 text-orange-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Settings</h3>
-              <p className="text-sm text-gray-900 dark:text-gray-400">
+              <p className="text-sm text-secondary">
                 Preferences and configuration
               </p>
             </Link>
@@ -110,7 +110,7 @@ const Home: React.FC = () => {
             >
               <HelpCircle className="h-10 w-10 text-blue-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Help</h3>
-              <p className="text-sm text-gray-900 dark:text-gray-400">
+              <p className="text-sm text-secondary">
                 How to use this app
               </p>
             </Link>

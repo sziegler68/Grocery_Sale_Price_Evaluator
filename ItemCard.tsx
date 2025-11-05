@@ -26,12 +26,12 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
       <div className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
         darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
       } border-l-4 ${
-        isBestPrice ? 'border-green-500' : isAboveTarget ? 'border-red-500' : isBelowTarget ? 'border-cyan-500' : 'border-purple-600'
+        isBestPrice ? 'border-green-500' : isAboveTarget ? 'border-red-500' : isBelowTarget ? 'border-cyan-500' : 'border-brand'
       }`}>
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-semibold text-lg">{item.itemName}</h3>
-            <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-gray-400">
+            <div className="flex items-center space-x-2 text-sm text-secondary">
               <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-xs">
                 {item.category}
               </span>
@@ -44,7 +44,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
           </div>
           <div className="text-right">
             <div className="flex items-center justify-end space-x-1">
-              <div className="text-xl font-bold text-purple-600">
+              <div className="text-xl font-bold text-brand">
                 ${normalized.price.toFixed(2)}
               </div>
               {normalized.usedEstimate && (
@@ -70,10 +70,10 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
                           <p className="text-primary mb-1">
                             This item was priced "per each" and converted using an estimated weight of <strong>{normalized.estimate?.weight} lb</strong> per item.
                           </p>
-                          <p className="text-gray-900 dark:text-gray-400 italic">
+                          <p className="text-secondary italic">
                             {normalized.estimate?.notes}
                           </p>
-                          <p className="text-gray-900 dark:text-gray-400 mt-1 text-[10px]">
+                          <p className="text-secondary mt-1 text-[10px]">
                             Confidence: {normalized.estimate?.confidence}
                           </p>
                         </div>
@@ -83,7 +83,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
                 </div>
               )}
             </div>
-            <div className="text-xs text-gray-900 dark:text-gray-400">
+            <div className="text-xs text-secondary">
               per {normalized.unit}
             </div>
             {normalized.isNormalized && normalized.originalPrice && normalized.originalUnit && (
@@ -105,7 +105,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary">
           <div className="flex items-center space-x-4">
             {isBestPrice && (
               <div className="flex items-center space-x-1 text-green-600">
@@ -126,7 +126,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
               </div>
             )}
           </div>
-          <div className="text-xs text-gray-900 dark:text-gray-400">
+          <div className="text-xs text-secondary">
             ${item.price.toFixed(2)} total
           </div>
         </div>

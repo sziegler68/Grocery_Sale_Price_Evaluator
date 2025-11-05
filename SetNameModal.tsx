@@ -28,9 +28,9 @@ const SetNameModal: React.FC<SetNameModalProps> = ({ darkMode, listName, onSave 
         }`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-zinc-700">
+        <div className="p-6 border-b border-primary">
           <div className="flex items-center space-x-2 mb-2">
-            <User className="h-6 w-6 text-purple-600" />
+            <User className="h-6 w-6 text-brand" />
             <h2 className="text-xl font-bold">Welcome!</h2>
           </div>
           <p className="text-primary text-sm">
@@ -52,7 +52,7 @@ const SetNameModal: React.FC<SetNameModalProps> = ({ darkMode, listName, onSave 
               }`}
               autoFocus
             />
-            <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
+            <p className="text-xs text-secondary mt-2">
               This helps others know who added or purchased items
             </p>
           </div>
@@ -67,7 +67,7 @@ const SetNameModal: React.FC<SetNameModalProps> = ({ darkMode, listName, onSave 
           <button
             type="submit"
             disabled={userName.trim() === ''}
-            className="w-full px-4 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-3 rounded-lg bg-brand hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save & Continue
           </button>

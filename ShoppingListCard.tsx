@@ -24,24 +24,24 @@ const ShoppingListCard: React.FC<ShoppingListCardProps> = ({ list, itemCount, da
       <div
         className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
           darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
-        } border-l-4 border-purple-600`}
+        } border-l-4 border-brand`}
       >
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start space-x-3">
-            <ShoppingCart className="h-6 w-6 text-purple-600 flex-shrink-0 mt-1" />
+            <ShoppingCart className="h-6 w-6 text-brand flex-shrink-0 mt-1" />
             <div>
               <h3 className="font-semibold text-lg">{list.name}</h3>
-              <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-gray-400 mt-1">
+              <div className="flex items-center space-x-2 text-sm text-secondary mt-1">
                 <span>{itemCount} item{itemCount !== 1 ? 's' : ''}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center justify-between pt-3 border-t border-primary">
           <div className="flex items-center space-x-2 text-sm">
-            <Users className="h-4 w-4 text-gray-900 dark:text-gray-400" />
-            <span className="text-gray-900 dark:text-gray-400">Shared List</span>
+            <Users className="h-4 w-4 text-secondary" />
+            <span className="text-secondary">Shared List</span>
           </div>
           
           <button

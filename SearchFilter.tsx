@@ -41,7 +41,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
       darkMode ? 'bg-zinc-800' : 'bg-white'
     }`}>
       <div className="flex items-center space-x-2 mb-4">
-        <Filter className="h-5 w-5 text-purple-600" />
+        <Filter className="h-5 w-5 text-brand" />
         <h3 className="font-semibold">Search & Filter</h3>
       </div>
 
@@ -93,7 +93,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
               type="checkbox"
               checked={showBelowTarget}
               onChange={(e) => onBelowTargetChange(e.target.checked)}
-              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              className="rounded border-gray-300 text-brand focus:ring-purple-500"
             />
             <span className="text-sm">Below Target Only</span>
           </label>
@@ -113,7 +113,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
               type="checkbox"
               checked={showBestPrices}
               onChange={(e) => onBestPricesChange(e.target.checked)}
-              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              className="rounded border-gray-300 text-brand focus:ring-purple-500"
             />
             <span className="text-sm">Best Prices Only</span>
           </label>

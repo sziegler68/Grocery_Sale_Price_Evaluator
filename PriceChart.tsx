@@ -28,14 +28,12 @@ const PriceChart: React.FC<PriceChartProps> = ({ data, darkMode }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className={`p-3 rounded-lg shadow-lg border ${
-          darkMode ? 'bg-zinc-800 border-zinc-600' : 'bg-white border-gray-200'
-        }`}>
+        <div className="p-3 rounded-lg shadow-lg border bg-card border-primary">
           <p className="font-medium">{label}</p>
-          <p className="text-purple-600">
+          <p className="text-brand">
             Unit Price: ${formatPrice(payload[0].value)}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-tertiary">
             Total: ${data.price.toFixed(2)} at {data.store}
           </p>
         </div>

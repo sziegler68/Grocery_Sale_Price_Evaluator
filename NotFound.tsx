@@ -118,14 +118,14 @@ const NotFound: React.FC = () => {
         </p>
         <a
           href={typeof window !== 'undefined' ? window.location.origin : '/'}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
+          className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-colors hover-bg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black"
         >
           Back to homepage
         </a>
 
         {/* Footer */}
         <div className="mt-16">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-tertiary">
             © {new Date().getFullYear()} - Meku.dev
           </p>
         </div>

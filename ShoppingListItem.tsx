@@ -138,12 +138,12 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
               )}
             </div>
             {item.target_price && item.unit_type && (
-              <div className="text-sm text-gray-900 dark:text-gray-400 mt-1">
+              <div className="text-sm text-secondary mt-1">
                 Target: ${item.target_price.toFixed(2)}/{item.unit_type}
               </div>
             )}
             {item.notes && (
-              <div className="text-sm text-gray-900 dark:text-gray-400 italic mt-1">
+              <div className="text-sm text-secondary italic mt-1">
                 {item.notes}
               </div>
             )}
@@ -162,7 +162,7 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
           <button
             onClick={() => setIsEditing(true)}
             disabled={isLoading}
-            className="p-1 text-gray-500 hover:text-purple-600"
+            className="p-1 text-gray-500 hover:text-brand"
             title="Edit item"
           >
             <Edit2 className="h-4 w-4" />

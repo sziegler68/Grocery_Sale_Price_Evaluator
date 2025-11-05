@@ -65,14 +65,14 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center justify-between p-6 border-b border-primary">
           <div className="flex items-center space-x-2">
-            <Plus className="h-6 w-6 text-purple-600" />
+            <Plus className="h-6 w-6 text-brand" />
             <h2 className="text-xl font-bold">Create Shopping List</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700"
+            className="p-1 rounded-lg hover-bg"
           >
             <X className="h-5 w-5" />
           </button>
@@ -109,14 +109,14 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
                   type="button"
                   onClick={onClose}
                   disabled={isCreating}
-                  className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+                  className="flex-1 px-4 py-3 rounded-lg border border-input hover-bg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating || listName.trim() === ''}
-                  className="flex-1 px-4 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 rounded-lg bg-brand hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isCreating ? 'Creating...' : 'Create List'}
                 </button>
@@ -142,7 +142,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
                         ? 'bg-green-600 text-white'
                         : darkMode
                         ? 'bg-zinc-600 hover:bg-zinc-500 text-purple-400'
-                        : 'bg-white hover:bg-gray-50 text-purple-600'
+                        : 'bg-white hover:bg-gray-50 text-brand'
                     }`}
                   >
                     {copied ? (
@@ -158,17 +158,17 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ darkMode, onClose, on
                     )}
                   </button>
                 </div>
-                <div className="text-2xl font-bold text-center text-purple-600 py-2">
+                <div className="text-2xl font-bold text-center text-brand py-2">
                   {createdList.shareCode}
                 </div>
-                <p className="text-xs text-gray-900 dark:text-gray-400 text-center mt-2">
+                <p className="text-xs text-secondary text-center mt-2">
                   Share this code with others so they can view and edit this list
                 </p>
               </div>
 
               <button
                 onClick={handleDone}
-                className="w-full px-4 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors"
+                className="w-full px-4 py-3 rounded-lg bg-brand hover:bg-purple-700 text-white font-medium transition-colors"
               >
                 Open List
               </button>

@@ -54,14 +54,14 @@ const JoinListModal: React.FC<JoinListModalProps> = ({ darkMode, onClose, onJoin
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center justify-between p-6 border-b border-primary">
           <div className="flex items-center space-x-2">
-            <UserPlus className="h-6 w-6 text-purple-600" />
+            <UserPlus className="h-6 w-6 text-brand" />
             <h2 className="text-xl font-bold">Join Shopping List</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700"
+            className="p-1 rounded-lg hover-bg"
           >
             <X className="h-5 w-5" />
           </button>
@@ -84,7 +84,7 @@ const JoinListModal: React.FC<JoinListModalProps> = ({ darkMode, onClose, onJoin
                 disabled={isJoining}
                 maxLength={11}
               />
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
+              <p className="text-xs text-secondary mt-2">
                 Enter the share code you received from someone
               </p>
             </div>
@@ -101,14 +101,14 @@ const JoinListModal: React.FC<JoinListModalProps> = ({ darkMode, onClose, onJoin
                 type="button"
                 onClick={onClose}
                 disabled={isJoining}
-                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+                className="flex-1 px-4 py-3 rounded-lg border border-input hover-bg transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isJoining || shareCode.trim() === ''}
-                className="flex-1 px-4 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 rounded-lg bg-brand hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isJoining ? 'Joining...' : 'Join List'}
               </button>
