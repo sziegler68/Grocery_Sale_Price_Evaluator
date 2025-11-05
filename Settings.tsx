@@ -293,9 +293,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* Sales Tax Setting */}
-        <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 ${
-          bg-card
-        }`}>
+        <div className="max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 bg-card">
           <div className="flex items-center space-x-2 mb-6">
             <SettingsIcon className="h-6 w-6 text-purple-600" />
             <h2 className="text-2xl font-bold">Sales Tax</h2>
@@ -333,9 +331,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* Notification Settings */}
-        <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 ${
-          bg-card
-        }`}>
+        <div className="max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 bg-card">
           <div className="flex items-center space-x-2 mb-6">
             <Bell className="h-6 w-6 text-purple-600" />
             <h2 className="text-2xl font-bold">Notification Settings</h2>
