@@ -64,14 +64,15 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
 
   // Display values
   const totalPrice = priceDisplay ? parseFloat(priceDisplay) : 0;
-  const crvAmount = crvEnabled && crvDisplay ? parseFloat(crvDisplay) : 0;
+  const crvPerItem = crvEnabled && crvDisplay ? parseFloat(crvDisplay) : 0;
   const quantityNum = parseFloat(quantity) || 1;
   
-  // Calculate unit price
+  // Calculate unit price (price per item, NOT including CRV)
   const unitPrice = totalPrice > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0;
   
-  // Calculate cart addition (total price + CRV + tax)
-  const itemTotal = totalPrice + crvAmount;
+  // Calculate cart addition (total price + total CRV + tax)
+  const totalCrv = crvPerItem * quantityNum; // CRV is per-item, so multiply by quantity
+  const itemTotal = totalPrice + totalCrv;
   const taxAmount = itemTotal * (salesTaxRate / 100);
   const cartAddition = itemTotal + taxAmount;
 
@@ -85,7 +86,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       onConfirm({
         price: totalPrice,
         quantity: quantityNum,
-        crvAmount,
+        crvAmount: totalCrv, // Pass total CRV (already multiplied by quantity)
         updateTargetPrice: updateTarget
       });
       setPriceDisplay('');
@@ -247,7 +248,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                 />
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Common: $0.05 or $0.10 per container
+                CRV per item: ${crvPerItem.toFixed(2)} × {quantityNum} = ${totalCrv.toFixed(2)} total
               </p>
             </div>
           )}
@@ -280,14 +281,14 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                 <span>Item Total:</span>
                 <span className="font-semibold">${totalPrice.toFixed(2)}</span>
               </div>
-              {crvAmount > 0 && (
+              {totalCrv > 0 && (
                 <div className="flex justify-between">
-                  <span>CRV:</span>
-                  <span className="font-semibold">${crvAmount.toFixed(2)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">CRV ({quantityNum} × ${crvPerItem.toFixed(2)}):</span>
+                  <span className="font-semibold">${totalCrv.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span>Tax ({salesTaxRate}%):</span>
+                <span>Tax ({salesTaxRate.toFixed(2)}%):</span>
                 <span className="font-semibold">${taxAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-gray-300 dark:border-zinc-600 font-bold text-base">
