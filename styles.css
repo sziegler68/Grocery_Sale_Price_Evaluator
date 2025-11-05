@@ -10,17 +10,65 @@
 */
 @layer base {
   :root {
-    /* Light Mode Colors */
+    /* === TEXT COLORS === */
     --color-text-primary: 0 0 0;           /* Pure black for main text */
     --color-text-secondary: 31 41 55;      /* Dark gray (gray-800) for secondary text */
     --color-text-tertiary: 75 85 99;       /* Medium gray (gray-600) for hints/placeholders */
+    
+    /* === BACKGROUND COLORS === */
+    --color-bg-primary: 255 255 255;       /* Main page background (white) */
+    --color-bg-secondary: 249 250 251;     /* Subtle background (gray-50) */
+    --color-bg-card: 255 255 255;          /* Cards, modals, popups (white) */
+    --color-bg-input: 255 255 255;         /* Form inputs (white) */
+    
+    /* === BORDER COLORS === */
+    --color-border-primary: 229 231 235;   /* Main borders (gray-200) */
+    --color-border-secondary: 209 213 219; /* Subtle borders (gray-300) */
+    --color-border-input: 209 213 219;     /* Input borders (gray-300) */
+    
+    /* === BRAND COLORS === */
+    --color-brand: 147 51 234;             /* Purple-600 */
+    --color-brand-light: 243 232 255;      /* Purple-100 */
+    
+    /* === STATUS COLORS === */
+    --color-success: 22 163 74;            /* Green-600 */
+    --color-error: 220 38 38;              /* Red-600 */
+    --color-warning: 234 179 8;            /* Yellow-500 */
+    
+    /* === INTERACTIVE STATES === */
+    --color-hover: 243 244 246;            /* Hover background (gray-100) */
+    --color-hover-brand: 243 232 255;      /* Brand hover (purple-100) */
   }
   
   .dark {
-    /* Dark Mode Colors */
+    /* === TEXT COLORS === */
     --color-text-primary: 255 255 255;     /* Pure white for main text */
     --color-text-secondary: 209 213 219;   /* Light gray (gray-300) for secondary text */
     --color-text-tertiary: 156 163 175;    /* Medium gray (gray-400) for hints/placeholders */
+    
+    /* === BACKGROUND COLORS === */
+    --color-bg-primary: 24 24 27;          /* Main page background (zinc-900) */
+    --color-bg-secondary: 39 39 42;        /* Subtle background (zinc-800) */
+    --color-bg-card: 39 39 42;             /* Cards, modals, popups (zinc-800) */
+    --color-bg-input: 39 39 42;            /* Form inputs (zinc-800) */
+    
+    /* === BORDER COLORS === */
+    --color-border-primary: 63 63 70;      /* Main borders (zinc-700) */
+    --color-border-secondary: 82 82 91;    /* Subtle borders (zinc-600) */
+    --color-border-input: 82 82 91;        /* Input borders (zinc-600) */
+    
+    /* === BRAND COLORS === */
+    --color-brand: 147 51 234;             /* Purple-600 (same in dark) */
+    --color-brand-light: 88 28 135;        /* Purple-900 for dark mode */
+    
+    /* === STATUS COLORS === */
+    --color-success: 34 197 94;            /* Green-500 (brighter in dark) */
+    --color-error: 239 68 68;              /* Red-500 (brighter in dark) */
+    --color-warning: 234 179 8;            /* Yellow-500 (same) */
+    
+    /* === INTERACTIVE STATES === */
+    --color-hover: 63 63 70;               /* Hover background (zinc-700) */
+    --color-hover-brand: 88 28 135;        /* Brand hover (purple-900) */
   }
   
   /* Set default body text color */
@@ -30,13 +78,11 @@
 }
 
 /* 
-  READABLE TEXT CLASSES
-  Use these for consistent, high-contrast text throughout the app:
-  - text-primary: Main headings, body text (BLACK in light, WHITE in dark)
-  - text-secondary: Subtext, descriptions (DARK GRAY in light, LIGHT GRAY in dark)  
-  - text-tertiary: Hints, placeholders (MEDIUM GRAY in both)
+  THEME UTILITY CLASSES
+  Use these throughout the app for consistent, theme-aware styling
 */
 @layer utilities {
+  /* === TEXT === */
   .text-primary {
     color: rgb(var(--color-text-primary));
   }
@@ -47,5 +93,82 @@
   
   .text-tertiary {
     color: rgb(var(--color-text-tertiary));
+  }
+  
+  /* === BACKGROUNDS === */
+  .bg-primary {
+    background-color: rgb(var(--color-bg-primary));
+  }
+  
+  .bg-secondary {
+    background-color: rgb(var(--color-bg-secondary));
+  }
+  
+  .bg-card {
+    background-color: rgb(var(--color-bg-card));
+  }
+  
+  .bg-input {
+    background-color: rgb(var(--color-bg-input));
+  }
+  
+  /* === BORDERS === */
+  .border-primary {
+    border-color: rgb(var(--color-border-primary));
+  }
+  
+  .border-secondary {
+    border-color: rgb(var(--color-border-secondary));
+  }
+  
+  .border-input {
+    border-color: rgb(var(--color-border-input));
+  }
+  
+  /* === BRAND === */
+  .bg-brand {
+    background-color: rgb(var(--color-brand));
+  }
+  
+  .text-brand {
+    color: rgb(var(--color-brand));
+  }
+  
+  .border-brand {
+    border-color: rgb(var(--color-brand));
+  }
+  
+  .bg-brand-light {
+    background-color: rgb(var(--color-brand-light));
+  }
+  
+  /* === STATUS === */
+  .text-success {
+    color: rgb(var(--color-success));
+  }
+  
+  .text-error {
+    color: rgb(var(--color-error));
+  }
+  
+  .text-warning {
+    color: rgb(var(--color-warning));
+  }
+  
+  .bg-success {
+    background-color: rgb(var(--color-success));
+  }
+  
+  .bg-error {
+    background-color: rgb(var(--color-error));
+  }
+  
+  /* === INTERACTIVE === */
+  .hover-bg:hover {
+    background-color: rgb(var(--color-hover));
+  }
+  
+  .hover-bg-brand:hover {
+    background-color: rgb(var(--color-hover-brand));
   }
 }

@@ -241,30 +241,30 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   // Cart items: keep in order added (no sorting)
 
   return (
-    <div className="h-full flex flex-col relative bg-white dark:bg-zinc-900">
+    <div className="h-full flex flex-col relative bg-primary">
       {/* Subtle moon and stars background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-8 right-12 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-200/20 to-yellow-300/10 dark:from-blue-200/10 dark:to-purple-200/5 blur-sm" />
         <div className="absolute top-24 left-8 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
         <div className="absolute top-32 right-24 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
-        <div className="absolute top-48 left-20 w-1.5 h-1.5 rounded-full bg-yellow-400/40 dark:bg-purple-300/20" />
+        <div className="absolute top-48 left-20 w-1.5 h-1.5 rounded-full bg-yellow-400/40 dark:from-purple-300/20" />
         <div className="absolute top-64 right-16 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
         <div className="absolute bottom-32 left-12 w-1 h-1 rounded-full bg-yellow-400/30 dark:bg-blue-300/20" />
         <div className="absolute bottom-48 right-20 w-1.5 h-1.5 rounded-full bg-yellow-400/40 dark:bg-purple-300/20" />
       </div>
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 shadow-sm relative">
+      <div className="sticky top-0 z-10 bg-card border-b border-primary shadow-sm relative">
         <div className="flex items-center justify-between p-4">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+            className="p-2 hover-bg rounded-lg transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h2 className="font-semibold">Shopping Trip</h2>
           <button
             onClick={handleCompleteTrip}
-            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-green-600 rounded-lg transition-colors"
+            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-success rounded-lg transition-colors"
           >
             <Check className="h-5 w-5" />
           </button>
@@ -284,23 +284,23 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 <span className="text-sm font-medium">
                   {trip.store_name}
                 </span>
-                <span className="text-xs text-gray-900 dark:text-gray-400 ml-2">
+                <span className="text-xs text-secondary ml-2">
                   (Tax: {(trip.sales_tax_rate || getSalesTaxRate()).toFixed(2)}%)
                 </span>
               </div>
               <span className={`text-xs font-medium ${
                 budgetStatus.color === 'green'
-                  ? 'text-green-700 dark:text-green-400'
+                  ? 'text-success'
                   : budgetStatus.color === 'yellow'
-                  ? 'text-yellow-700 dark:text-yellow-400'
-                  : 'text-red-700 dark:text-red-400'
+                  ? 'text-warning'
+                  : 'text-error'
               }`}>
                 {budgetStatus.percentage.toFixed(0)}% of budget
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full h-3 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden mb-2">
+            <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-2">
               <div
                 className={`h-full transition-all duration-500 ${
                   budgetStatus.color === 'green'
@@ -317,27 +317,27 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
               <span className="text-2xl font-bold">
                 ${trip.total_spent.toFixed(2)}
               </span>
-              <span className="text-sm text-gray-900 dark:text-gray-400">
+              <span className="text-sm text-secondary">
                 / ${Math.round(trip.budget)}
               </span>
             </div>
 
             {budgetStatus.remaining < 0 ? (
-              <div className="flex items-center space-x-2 mt-2 text-red-700 dark:text-red-400">
+              <div className="flex items-center space-x-2 mt-2 text-error">
                 <AlertCircle className="h-4 w-4" />
                 <span className="text-sm font-medium">
                   ${Math.abs(budgetStatus.remaining).toFixed(2)} over budget!
                 </span>
               </div>
             ) : budgetStatus.status === 'approaching' ? (
-              <div className="flex items-center space-x-2 mt-2 text-yellow-700 dark:text-yellow-400">
+              <div className="flex items-center space-x-2 mt-2 text-warning">
                 <AlertCircle className="h-4 w-4" />
                 <span className="text-sm font-medium">
                   ${budgetStatus.remaining.toFixed(2)} remaining - Almost there!
                 </span>
               </div>
             ) : (
-              <span className="text-sm text-gray-900 dark:text-gray-400 mt-2 block">
+              <span className="text-sm text-secondary mt-2 block">
                 ${budgetStatus.remaining.toFixed(2)} remaining
               </span>
             )}
@@ -349,7 +349,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
           </div>
         ) : (
           <>
@@ -357,12 +357,12 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             {groupedAvailableItems.length > 0 && (
               <div className="p-4 space-y-6">
                 <h3 className="font-semibold mb-3 flex items-center space-x-2">
-                  <ShoppingCartIcon className="h-5 w-5 text-purple-600" />
+                  <ShoppingCartIcon className="h-5 w-5 text-brand" />
                   <span>On the List ({availableItems.length})</span>
                 </h3>
                 {groupedAvailableItems.map(({ category, items: categoryItems }) => (
                   <div key={category}>
-                    <h3 className="text-sm font-bold text-purple-600 mb-2 uppercase tracking-wide">
+                    <h3 className="text-sm font-bold text-brand mb-2 uppercase tracking-wide">
                       {category}
                     </h3>
                     <div className="space-y-2">
@@ -370,23 +370,23 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                         <button
                           key={item.id}
                           onClick={() => handleItemClick(item)}
-                          className="w-full p-3 rounded-lg border text-left transition-all active:scale-95 bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700"
+                          className="w-full p-3 rounded-lg border text-left transition-all active:scale-95 bg-card border-primary hover-bg"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="font-medium">{item.item_name}</div>
                               {item.quantity && (
-                                <div className="text-xs text-gray-900 dark:text-gray-400">
+                                <div className="text-xs text-secondary">
                                   {item.quantity} {item.unit_type || 'units'}
                                 </div>
                               )}
                               {item.target_price && (
-                                <div className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+                                <div className="text-xs text-secondary mt-1">
                                   Target: ${item.target_price.toFixed(2)}
                                 </div>
                               )}
                             </div>
-                            <Plus className="h-5 w-5 text-purple-600" />
+                            <Plus className="h-5 w-5 text-brand" />
                           </div>
                         </button>
                       ))}
@@ -400,7 +400,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             {cartItems.length > 0 && (
               <div className="p-4">
                 <h3 className="font-semibold mb-3 flex items-center space-x-2">
-                  <ShoppingCartIcon className="h-5 w-5 text-purple-600" />
+                  <ShoppingCartIcon className="h-5 w-5 text-brand" />
                   <span>In Cart ({cartItems.length})</span>
                 </h3>
                 <div className="space-y-2">
@@ -412,25 +412,25 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                       <div
                         key={item.id}
                         onClick={() => handleCartItemClick(item)}
-                      className="p-3 rounded-lg border cursor-pointer hover:border-purple-500 transition-colors bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700"
+                      className="p-3 rounded-lg border cursor-pointer hover:border-brand transition-colors bg-card border-primary"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="font-medium">{item.item_name}</div>
                             {item.quantity > 1 && (
-                              <div className="text-xs text-gray-900 dark:text-gray-400">
+                              <div className="text-xs text-secondary">
                                 Qty: {item.quantity} {item.unit_type}
                               </div>
                             )}
                             {item.target_price && item.quantity > 0 && (
                               <div className="text-xs mt-1 space-y-0.5">
-                                <div className="text-gray-900 dark:text-gray-400">
+                                <div className="text-secondary">
                                   Target: ${item.target_price.toFixed(2)}/{item.unit_type || 'unit'}
                                 </div>
                                 <div className={`font-medium ${
                                   isAtOrUnderTarget
-                                    ? 'text-green-600 dark:text-green-400'
-                                    : 'text-red-600 dark:text-red-400'
+                                    ? 'text-success'
+                                    : 'text-error'
                                 }`}>
                                   Actual: ${pricePerUnit.toFixed(2)}/{item.unit_type || 'unit'}
                                 </div>
@@ -446,7 +446,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                                 e.stopPropagation(); // Don't trigger edit modal
                                 handleRemoveFromCart(item);
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-gray-400 rounded-lg transition-colors"
+                              className="p-2 hover-bg text-secondary rounded-lg transition-colors"
                             >
                               <X className="h-5 w-5" />
                             </button>
@@ -460,7 +460,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             )}
 
             {availableItems.length === 0 && cartItems.length > 0 && (
-              <div className="p-8 text-center text-gray-900 dark:text-gray-400">
+              <div className="p-8 text-center text-secondary">
                 <ShoppingCartIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>All list items added to cart!</p>
                 <p className="text-sm mt-1">Tap the checkmark above to complete your trip</p>

@@ -113,22 +113,20 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className={`w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl shadow-2xl ${
-        darkMode ? 'bg-zinc-800 text-white' : 'bg-white text-gray-900'
-      }`}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl shadow-2xl bg-card text-primary">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center justify-between p-4 border-b border-primary">
           <div className="flex-1">
             <h3 className="font-bold truncate">{itemName}</h3>
             {targetPrice && unitType && (
-              <p className="text-xs text-gray-900 dark:text-gray-400">
+              <p className="text-xs text-secondary">
                 Target: ${formatPrice(targetPrice)}/{unitType}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+            className="p-2 hover-bg rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -137,21 +135,17 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
         <div className="p-4 space-y-4">
           {/* Total Price Input */}
           <div>
-            <label className="block text-xs font-medium mb-2 text-gray-900 dark:text-gray-400">
+            <label className="block text-xs font-medium mb-2 text-secondary">
               Total Price
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">$</span>
               <input
                 type="text"
                 inputMode="numeric"
                 value={priceDisplay}
                 onChange={handlePriceInput}
-                className={`w-full pl-10 pr-4 py-3 rounded-lg border text-xl font-semibold ${
-                  darkMode
-                    ? 'bg-zinc-700 border-zinc-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                }                   focus:ring-2 focus:ring-purple-500`}
+                className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input text-xl font-semibold focus:ring-2 focus:ring-brand"
                 placeholder="0.00"
               />
             </div>
@@ -159,7 +153,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
 
           {/* Quantity Input */}
           <div>
-            <label className="block text-xs font-medium mb-2 text-gray-900 dark:text-gray-400">
+            <label className="block text-xs font-medium mb-2 text-secondary">
               Quantity{unitType ? ` (${unitType})` : ''}
             </label>
             <input
@@ -168,11 +162,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               step="0.01"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className={`w-full px-4 py-3 rounded-lg border text-center text-lg font-semibold ${
-                darkMode
-                  ? 'bg-zinc-700 border-zinc-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              } focus:ring-2 focus:ring-purple-500`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input text-center text-lg font-semibold focus:ring-2 focus:ring-brand"
             />
           </div>
 
@@ -183,16 +173,16 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                 ? 'bg-green-100 dark:bg-green-900/30'
                 : isBadDeal
                 ? 'bg-red-100 dark:bg-red-900/30'
-                : 'bg-gray-100 dark:bg-zinc-700'
+                : 'bg-secondary'
             }`}>
               <div className="text-center">
-                <div className="text-xs text-gray-900 dark:text-gray-400 mb-1">Unit Price</div>
+                <div className="text-xs text-secondary mb-1">Unit Price</div>
                 <div className={`text-2xl font-bold ${
                   isGoodDeal
-                    ? 'text-green-700 dark:text-green-400'
+                    ? 'text-success'
                     : isBadDeal
-                    ? 'text-red-700 dark:text-red-400'
-                    : 'text-gray-900 dark:text-white'
+                    ? 'text-error'
+                    : 'text-primary'
                 }`}>
                   ${formatPrice(unitPrice)}/{unitType}
                 </div>
@@ -200,15 +190,15 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                   <div className="flex items-center justify-center space-x-1 mt-1 text-sm">
                     {isGoodDeal ? (
                       <>
-                        <TrendingDown className="h-4 w-4 text-green-600" />
-                        <span className="text-green-700 dark:text-green-400">
+                        <TrendingDown className="h-4 w-4 text-success" />
+                        <span className="text-success">
                           ${formatPrice(Math.abs(priceDifference))} under target
                         </span>
                       </>
                     ) : isBadDeal ? (
                       <>
-                        <TrendingUp className="h-4 w-4 text-red-600" />
-                        <span className="text-red-700 dark:text-red-400">
+                        <TrendingUp className="h-4 w-4 text-error" />
+                        <span className="text-error">
                           ${formatPrice(priceDifference)} over target
                         </span>
                       </>
@@ -231,7 +221,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                 setCrvEnabled(e.target.checked);
                 if (!e.target.checked) setCrvDisplay('');
               }}
-              className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+              className="w-5 h-5 rounded border-input text-brand focus:ring-2 focus:ring-brand"
             />
             <label htmlFor="crv-checkbox" className="text-sm font-medium cursor-pointer flex-1">
               Item has CRV (California Redemption Value)
@@ -241,25 +231,21 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
           {/* CRV Amount Input */}
           {crvEnabled && (
             <div>
-              <label className="block text-xs font-medium mb-2 text-gray-900 dark:text-gray-400">
+              <label className="block text-xs font-medium mb-2 text-secondary">
                 CRV Amount
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700">$</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">$</span>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={crvDisplay}
                   onChange={handleCrvInput}
-                  className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-                    darkMode
-                      ? 'bg-zinc-700 border-zinc-600 text-white'
-                      : 'bg-white border-gray-300 text-gray-900'
-                  } focus:ring-2 focus:ring-purple-500`}
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand"
                   placeholder="0.10"
                 />
               </div>
-              <p className="text-xs text-gray-900 dark:text-gray-400 mt-1">
+              <p className="text-xs text-secondary mt-1">
                 CRV per item: ${crvPerItem.toFixed(2)} × {quantityNum} = ${totalCrv.toFixed(2)} total
               </p>
             </div>
@@ -273,7 +259,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                 id="update-target-checkbox"
                 checked={updateTarget}
                 onChange={(e) => setUpdateTarget(e.target.checked)}
-                className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
+                className="w-5 h-5 rounded border-input text-brand focus:ring-2 focus:ring-brand"
               />
               <label htmlFor="update-target-checkbox" className="text-sm font-medium cursor-pointer flex-1">
                 Update target price to ${formatPrice(unitPrice)}/{unitType}
@@ -282,10 +268,8 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
           )}
 
           {/* Cart Addition Summary */}
-          <div className={`p-3 rounded-lg border-2 ${
-            darkMode ? 'bg-zinc-900 border-purple-600' : 'bg-purple-50 border-purple-300'
-          }`}>
-            <div className="text-xs font-medium text-gray-900 dark:text-gray-400 mb-2">
+          <div className="p-3 rounded-lg border-2 bg-brand-light border-brand">
+            <div className="text-xs font-medium text-secondary mb-2">
               Adding to Cart:
             </div>
             <div className="space-y-1 text-sm">
@@ -295,7 +279,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               </div>
               {totalCrv > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-900 dark:text-gray-400">CRV ({quantityNum} × ${crvPerItem.toFixed(2)}):</span>
+                  <span className="text-secondary">CRV ({quantityNum} × ${crvPerItem.toFixed(2)}):</span>
                   <span className="font-semibold">${totalCrv.toFixed(2)}</span>
                 </div>
               )}
@@ -303,9 +287,9 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                 <span>Tax ({salesTaxRate.toFixed(2)}%):</span>
                 <span className="font-semibold">${taxAmount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-gray-300 dark:border-zinc-600 font-bold text-base">
+              <div className="flex justify-between pt-2 border-t border-primary font-bold text-base">
                 <span>Cart Addition:</span>
-                <span className="text-purple-600">${cartAddition.toFixed(2)}</span>
+                <span className="text-brand">${cartAddition.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -314,11 +298,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
           <div className="flex space-x-3 pt-2 pb-4">
             <button
               onClick={onClose}
-              className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
-                darkMode
-                  ? 'bg-zinc-700 hover:bg-zinc-600'
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
+              className="flex-1 py-3 rounded-xl font-medium transition-colors bg-secondary hover-bg"
             >
               Cancel
             </button>
@@ -327,8 +307,8 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               disabled={totalPrice === 0 || quantityNum === 0}
               className={`flex-1 py-3 rounded-xl font-medium transition-all flex items-center justify-center space-x-2 ${
                 totalPrice > 0 && quantityNum > 0
-                  ? 'bg-purple-600 hover:bg-purple-700 text-white active:scale-95'
-                  : 'bg-gray-300 dark:bg-zinc-700 text-gray-600 cursor-not-allowed'
+                  ? 'bg-brand hover-bg-brand text-white active:scale-95'
+                  : 'bg-secondary text-tertiary cursor-not-allowed'
               }`}
             >
               <Check className="h-5 w-5" />

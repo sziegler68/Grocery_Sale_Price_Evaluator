@@ -17,19 +17,19 @@ const Footer: React.FC = () => {
     : 'development';
 
   return (
-    <footer className="bg-zinc-800 text-white py-8 mt-16">
+    <footer className="bg-card text-primary py-8 mt-16 border-t border-primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-secondary">
             © 2025 LunaCart. All rights reserved.
           </p>
-          <p className="text-sm text-zinc-400 mt-2">
+          <p className="text-sm text-secondary mt-2">
             Built with 💚 by Greenie App Builder
           </p>
-          <p className="text-xs text-zinc-500 mt-3">
-            Version: <span className="font-mono text-purple-400">{version}</span>
+          <p className="text-xs text-tertiary mt-3">
+            Version: <span className="font-mono text-brand">{version}</span>
             {' • '}
-            <span className="text-zinc-600">{buildTime}</span>
+            <span className="text-tertiary">{buildTime}</span>
           </p>
         </div>
       </div>

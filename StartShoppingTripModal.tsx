@@ -90,18 +90,16 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className={`w-full max-w-md rounded-xl shadow-2xl ${
-        darkMode ? 'bg-zinc-800 text-white' : 'bg-white text-gray-900'
-      }`}>
+      <div className="w-full max-w-md rounded-xl shadow-2xl bg-card text-primary">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-zinc-700">
+        <div className="flex items-center justify-between p-6 border-b border-primary">
           <div className="flex items-center space-x-3">
-            <ShoppingCart className="h-6 w-6 text-purple-600" />
+            <ShoppingCart className="h-6 w-6 text-brand" />
             <h2 className="text-xl font-bold">Start Shopping Trip</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+            className="p-2 hover-bg rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -112,9 +110,7 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
           {/* List Name */}
           <div>
             <label className="block text-sm font-medium mb-2">Shopping List</label>
-            <div className={`px-4 py-3 rounded-lg ${
-              darkMode ? 'bg-zinc-700' : 'bg-gray-100'
-            }`}>
+            <div className="px-4 py-3 rounded-lg bg-secondary">
               {listName}
             </div>
           </div>
@@ -122,16 +118,12 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
           {/* Store Selection */}
           <div>
             <label className="block text-sm font-medium mb-2">
-              Store <span className="text-red-500">*</span>
+              Store <span className="text-error">*</span>
             </label>
             <select
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                darkMode
-                  ? 'bg-zinc-700 border-zinc-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              } focus:ring-2 focus:ring-purple-500 focus:border-transparent`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
             >
               <option value="">Select a store</option>
               {stores.map(store => (
@@ -143,25 +135,21 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
           {/* Budget */}
           <div>
             <label className="block text-sm font-medium mb-2">
-              Trip Budget <span className="text-red-500">*</span>
+              Trip Budget <span className="text-error">*</span>
             </label>
             <div className="relative">
-              <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
+              <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary" />
               <input
                 type="text"
                 inputMode="numeric"
                 value={budgetDisplay}
                 onChange={handleBudgetInput}
-                className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-                  darkMode
-                    ? 'bg-zinc-700 border-zinc-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                } focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg font-semibold`}
+                className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-lg font-semibold"
                 placeholder="250"
                 autoFocus
               />
             </div>
-            <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
+            <p className="text-xs text-secondary mt-2">
               Whole dollars only (e.g., type 250 for $250)
             </p>
           </div>
@@ -177,36 +165,28 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
                 inputMode="numeric"
                 value={salesTaxDisplay}
                 onChange={handleSalesTaxInput}
-                className={`w-full pl-4 pr-8 py-3 rounded-lg border ${
-                  darkMode
-                    ? 'bg-zinc-700 border-zinc-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                } focus:ring-2 focus:ring-purple-500 focus:border-transparent`}
+                className="w-full pl-4 pr-8 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 placeholder="10.25"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-700">%</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary">%</span>
             </div>
-            <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
+            <p className="text-xs text-secondary mt-2">
               Default: {salesTaxRate.toFixed(2)}% (from settings). Type {(salesTaxRate * 100).toFixed(0)} for calculator entry.
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex space-x-3 p-6 border-t border-gray-200 dark:border-zinc-700">
+        <div className="flex space-x-3 p-6 border-t border-primary">
           <button
             onClick={onClose}
-            className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
-              darkMode
-                ? 'bg-zinc-700 hover:bg-zinc-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-            }`}
+            className="flex-1 py-3 rounded-lg font-medium transition-colors bg-secondary hover-bg"
           >
             Cancel
           </button>
           <button
             onClick={handleStart}
-            className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+            className="flex-1 py-3 bg-brand hover-bg-brand text-white rounded-lg font-medium transition-colors"
           >
             Start Shopping
           </button>
