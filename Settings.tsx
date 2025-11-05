@@ -131,9 +131,7 @@ const Settings: React.FC = () => {
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className={`max-w-2xl mx-auto p-6 rounded-xl shadow-lg ${
-          bg-card
-        }`}>
+        <div className="max-w-2xl mx-auto p-6 rounded-xl shadow-lg bg-card">
           <div className="flex items-center space-x-2 mb-6">
             <SettingsIcon className="h-6 w-6 text-purple-600" />
             <h2 className="text-2xl font-bold">Unit Preferences</h2>
@@ -151,9 +149,7 @@ const Settings: React.FC = () => {
               <select
                 value={preferences.meat}
                 onChange={(e) => handleChange('meat', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
@@ -170,9 +166,7 @@ const Settings: React.FC = () => {
               <select
                 value={preferences.fruit}
                 onChange={(e) => handleChange('fruit', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
@@ -189,9 +183,7 @@ const Settings: React.FC = () => {
               <select
                 value={preferences.veggies}
                 onChange={(e) => handleChange('veggies', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>
@@ -208,9 +200,7 @@ const Settings: React.FC = () => {
               <select
                 value={preferences.milk}
                 onChange={(e) => handleChange('milk', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="gallon">Gallon</option>
                 <option value="quart">Quart</option>
@@ -230,9 +220,7 @@ const Settings: React.FC = () => {
               <select
                 value={preferences.soda}
                 onChange={(e) => handleChange('soda', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="gallon">Gallon</option>
                 <option value="quart">Quart</option>
@@ -254,9 +242,7 @@ const Settings: React.FC = () => {
               <select
                 value={preferences.drinks}
                 onChange={(e) => handleChange('drinks', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="gallon">Gallon</option>
                 <option value="quart">Quart</option>
@@ -276,9 +262,7 @@ const Settings: React.FC = () => {
               <select
                 value={preferences.dairy}
                 onChange={(e) => handleChange('dairy', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               >
                 <option value="pound">Pound (lb)</option>
                 <option value="ounce">Ounce (oz)</option>

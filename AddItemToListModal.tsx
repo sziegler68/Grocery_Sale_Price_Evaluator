@@ -155,9 +155,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div
-        className={`w-full max-w-md rounded-xl shadow-xl max-h-[90vh] overflow-y-auto ${
-          bg-card
-        }`}
+        className="w-full max-w-md rounded-xl shadow-xl max-h-[90vh] overflow-y-auto bg-card"
       >
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-primary bg-inherit">
@@ -188,9 +186,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 }}
                 onFocus={() => setShowSuggestions(true)}
                 placeholder="Start typing..."
-                className={`w-full px-4 py-3 pr-10 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full px-4 py-3 pr-10 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 autoFocus
                 disabled={isAdding}
               />
@@ -200,9 +196,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
               <div
-                className={`absolute z-20 w-full mt-1 rounded-lg shadow-lg border max-h-60 overflow-y-auto ${
-                  bg-input border-primary
-                }`}
+                className="absolute z-20 w-full mt-1 rounded-lg shadow-lg border bg-input border-primary max-h-60 overflow-y-auto"
               >
                 {suggestions.map((item) => (
                   <button
@@ -228,9 +222,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                bg-input border-input
-              }`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               disabled={isAdding}
             >
               <option value="">Select category</option>
@@ -284,9 +276,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 value={targetPriceDisplay}
                 onChange={handleTargetPriceInput}
                 placeholder="0.00"
-                className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                  bg-input border-input
-                }`}
+                className="w-full pl-8 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 disabled={isAdding}
               />
             </div>
@@ -300,9 +290,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder="e.g., Get the organic one"
-              className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                bg-input border-input
-              }`}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
               disabled={isAdding}
             />
           </div>

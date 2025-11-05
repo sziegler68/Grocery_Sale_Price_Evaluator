@@ -283,9 +283,7 @@ const ItemDetail: React.FC = () => {
                     inputMode="numeric"
                     value={targetPriceDisplay}
                     onChange={handleTargetPriceInput}
-                    className={`w-full pl-8 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                      bg-input border-input
-                    }`}
+                    className="w-full pl-8 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                     placeholder="0.00"
                     autoFocus
                   />
@@ -331,9 +329,7 @@ const ItemDetail: React.FC = () => {
             {historyEntries.map((entry, index) => (
               <div
                 key={entry.id}
-                className={`p-4 rounded-lg border ${
-                  border-primary bg-secondary
-                } ${entry.unitPrice === bestPrice ? 'ring-2 ring-green-500' : ''}`}
+                className={`p-4 rounded-lg border border-primary bg-secondary ${entry.unitPrice === bestPrice ? 'ring-2 ring-green-500' : ''}`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-3">
