@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import type { ManifestOptions } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
@@ -86,7 +87,7 @@ const getIcons = () => {
   ];
 };
 
-const getManifest = () => ({
+const getManifest = (): Partial<ManifestOptions> => ({
   id: getManifestId(),
   name: getAppName(),
   short_name: getAppShortName(),
