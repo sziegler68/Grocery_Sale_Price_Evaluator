@@ -1,7 +1,7 @@
 {
   "name": "grocery-price-tracker-web-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0-refactor",
   "type": "module",
   "scripts": {
     "dev": "vite",
