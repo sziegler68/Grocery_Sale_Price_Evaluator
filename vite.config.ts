@@ -27,8 +27,19 @@ const getBuildTime = () => {
   return new Date().toISOString();
 };
 
+const repoBasePath = '/Grocery_Sale_Price_Evaluator/';
+
+const getBranchBasePath = () => {
+  const raw = process.env.BRANCH_BASE_PATH ?? '';
+  const trimmed = raw.trim().replace(/^\/+|\/+$/g, '');
+  if (!trimmed) {
+    return repoBasePath;
+  }
+  return `${repoBasePath}${trimmed}/`;
+};
+
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/Grocery_Sale_Price_Evaluator/' : '/',
+  base: command === 'build' ? getBranchBasePath() : '/',
   define: {
     '__APP_VERSION__': JSON.stringify(`${getVersion()} (${getGitHash()})`),
     '__BUILD_TIME__': JSON.stringify(getBuildTime()),

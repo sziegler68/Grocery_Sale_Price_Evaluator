@@ -1,4 +1,4 @@
-name: Deploy Refactor Branch to GitHub Pages
+name: Deploy Refactor Preview
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: "pages-refactor"
   cancel-in-progress: true
 
 jobs:
@@ -21,6 +21,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Checkout existing GitHub Pages content
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+        continue-on-error: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -31,21 +39,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build preview site
         run: npm run build
+        env:
+          BRANCH_BASE_PATH: refactor
 
-      - name: Upload production build
+      - name: Prepare deployment bundle
+        run: |
+          mkdir deploy
+          if [ -d gh-pages ]; then
+            cp -R gh-pages/. deploy/
+          fi
+          rm -rf deploy/.git
+          rm -rf deploy/refactor
+          mkdir -p deploy/refactor
+          cp -R dist/. deploy/refactor/
+
+      - name: Upload preview build
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: deploy
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}refactor/
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy refactor preview to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

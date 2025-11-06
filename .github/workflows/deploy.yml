@@ -22,6 +22,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Checkout existing GitHub Pages content
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+        continue-on-error: true
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -34,10 +42,22 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Prepare deployment bundle
+        run: |
+          mkdir deploy
+          if [ -d gh-pages ]; then
+            cp -R gh-pages/. deploy/
+          fi
+          rm -rf deploy/.git
+          if [ -d deploy ]; then
+            find deploy -mindepth 1 -maxdepth 1 ! -name 'refactor' -exec rm -rf {} +
+          fi
+          cp -R dist/. deploy/
+
       - name: Upload production build
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: deploy
 
   deploy:
     needs: build
