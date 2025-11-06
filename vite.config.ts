@@ -38,11 +38,17 @@ const getBranchBasePath = () => {
   return `${repoBasePath}${trimmed}/`;
 };
 
+const getAppName = () => {
+  const raw = process.env.APP_NAME_OVERRIDE;
+  return raw && raw.trim().length > 0 ? raw.trim() : 'LunaCart';
+};
+
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? getBranchBasePath() : '/',
   define: {
     '__APP_VERSION__': JSON.stringify(`${getVersion()} (${getGitHash()})`),
     '__BUILD_TIME__': JSON.stringify(getBuildTime()),
+    '__APP_NAME__': JSON.stringify(getAppName()),
   },
   plugins: [
     react(),

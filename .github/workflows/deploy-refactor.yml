@@ -43,6 +43,7 @@ jobs:
         run: npm run build
         env:
           BRANCH_BASE_PATH: refactor
+          APP_NAME_OVERRIDE: "Development App"
 
       - name: Prepare deployment bundle
         run: |

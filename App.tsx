@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '@radix-ui/themes/styles.css';
 import { Theme } from '@radix-ui/themes';
 import { ToastContainer } from 'react-toastify';
@@ -17,11 +17,19 @@ import ShoppingListDetail from './ShoppingListDetail';
 import Help from './Help';
 import NotFound from './NotFound';
 
+declare const __APP_NAME__: string;
+
 const App: React.FC = () => {
   console.log('🚀 Grocery App Started - Version 1.0');
   console.log('📝 Debug Mode: ENABLED');
   console.log('🔍 Check console for [NOTIF] and [CHECKBOX] logs');
   
+  useEffect(() => {
+    if (__APP_NAME__) {
+      document.title = `${__APP_NAME__} - LunaCart Preview`;
+    }
+  }, []);
+
   return (
     <Theme appearance="inherit" radius="large" scaling="100%">
       <Router>
