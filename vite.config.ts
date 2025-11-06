@@ -43,18 +43,76 @@ const getAppName = () => {
   return raw && raw.trim().length > 0 ? raw.trim() : 'LunaCart';
 };
 
+const getAppShortName = () => {
+  const raw = process.env.APP_SHORT_NAME_OVERRIDE;
+  return raw && raw.trim().length > 0 ? raw.trim() : 'LunaCart';
+};
+
+const getAppDescription = () => {
+  const raw = process.env.APP_DESCRIPTION_OVERRIDE;
+  return raw && raw.trim().length > 0
+    ? raw.trim()
+    : 'Illuminate the Best Deals - Check if prices are good deals, create shopping lists, and track prices across stores.';
+};
+
+const stripTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+
+const getScope = () => getBranchBasePath();
+
+const getManifestId = () => {
+  const raw = process.env.MANIFEST_ID_OVERRIDE;
+  if (raw && raw.trim().length > 0) {
+    const normalized = raw.trim().startsWith('/') ? raw.trim() : `/${raw.trim()}`;
+    return normalized;
+  }
+  return getScope();
+};
+
+const getIcons = () => {
+  const base = stripTrailingSlash(getScope());
+  const toIconPath = (file: string) => `${base}/${file}`;
+  return [
+    {
+      src: toIconPath('icons/192x192.png'),
+      sizes: '192x192',
+      type: 'image/png',
+    },
+    {
+      src: toIconPath('icons/512x512.png'),
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'any maskable',
+    },
+  ];
+};
+
+const getManifest = () => ({
+  id: getManifestId(),
+  name: getAppName(),
+  short_name: getAppShortName(),
+  description: getAppDescription(),
+  start_url: getScope(),
+  scope: getScope(),
+  display: 'standalone',
+  background_color: '#0f172a',
+  theme_color: '#7c3aed',
+  icons: getIcons(),
+});
+
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? getBranchBasePath() : '/',
   define: {
     '__APP_VERSION__': JSON.stringify(`${getVersion()} (${getGitHash()})`),
     '__BUILD_TIME__': JSON.stringify(getBuildTime()),
     '__APP_NAME__': JSON.stringify(getAppName()),
+    '__APP_SHORT_NAME__': JSON.stringify(getAppShortName()),
+    '__APP_DESCRIPTION__': JSON.stringify(getAppDescription()),
   },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      manifest: false,
+      manifest: getManifest(),
       includeAssets: ['icons/192x192.png', 'icons/512x512.png'],
       devOptions: {
         enabled: true,

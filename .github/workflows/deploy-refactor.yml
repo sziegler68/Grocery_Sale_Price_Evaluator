@@ -44,6 +44,9 @@ jobs:
         env:
           BRANCH_BASE_PATH: refactor
           APP_NAME_OVERRIDE: "Development App"
+          APP_SHORT_NAME_OVERRIDE: "Dev App"
+          APP_DESCRIPTION_OVERRIDE: "Development build of LunaCart for testing upcoming features."
+          MANIFEST_ID_OVERRIDE: "/Grocery_Sale_Price_Evaluator/refactor"
 
       - name: Prepare deployment bundle
         run: |
