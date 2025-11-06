@@ -3,6 +3,7 @@ import React from 'react';
 // Version info injected at build time
 declare const __APP_VERSION__: string;
 declare const __BUILD_TIME__: string;
+declare const __APP_NAME__: string;
 
 const Footer: React.FC = () => {
   const version = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev';
@@ -14,7 +15,9 @@ const Footer: React.FC = () => {
         hour: '2-digit',
         minute: '2-digit'
       })
-    : 'development';
+      : 'development';
+  const appName = typeof __APP_NAME__ !== 'undefined' ? __APP_NAME__ : 'LunaCart';
+  const versionLabel = appName !== 'LunaCart' ? 'Dev ID' : 'Version';
 
   return (
     <footer className="bg-card text-primary py-8 mt-16 border-t border-primary">
@@ -26,8 +29,8 @@ const Footer: React.FC = () => {
           <p className="text-sm text-secondary mt-2">
             Built with 💚 by Greenie App Builder
           </p>
-          <p className="text-xs text-tertiary mt-3">
-            Version: <span className="font-mono text-brand">{version}</span>
+            <p className="text-xs text-tertiary mt-3">
+              {versionLabel}: <span className="font-mono text-brand">{version}</span>
             {' • '}
             <span className="text-tertiary">{buildTime}</span>
           </p>
