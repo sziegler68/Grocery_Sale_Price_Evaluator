@@ -107,6 +107,26 @@ Per REFRACTOR_OCR_PLAN.md:
 1. **221394a** - Phase 1: Refactor components to use Zustand stores (INCOMPLETE)
 2. **3759736** - Add Phase 1 verification checklist
 3. **27240f5** - Phase 1 PROPERLY COMPLETED: Full store integration ✅
+4. **b4bd902** - Fix Phase 1 regressions: Real-time updates and cart editing ✅
+
+## Regressions Fixed (After Second Audit)
+
+### Issue 1: Real-time Updates Broken
+**Problem:** `processBatchedUpdates()` was made a no-op, breaking live updates for all users.
+
+**Fix:**
+- ❌ Removed no-op `processBatchedUpdates()`
+- ❌ Removed component-level `subscribeToListItems()` with broken callback
+- ✅ Now uses store's `subscribeToList()` which properly calls `loadListItems()`
+- ✅ Live updates work: check/uncheck, add, delete all sync in real-time
+
+### Issue 2: Cart Editing Bypassed Store
+**Problem:** Editing cart items called `updateCartItem()` API directly, bypassing store.
+
+**Fix:**
+- ✅ Added `updateCartItem` action to `useShoppingTripStore`
+- ✅ ShoppingTripView now uses `updateCartItemStore()` instead of direct API
+- ✅ All cart operations (add, update, remove) flow through store
 
 ## Next: Phase 2
 
