@@ -155,6 +155,7 @@ const Items: React.FC = () => {
           categories={categories}
           stores={stores}
           darkMode={darkMode}
+          allItems={items}
         />
 
         {isLoading ? (
