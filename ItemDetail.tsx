@@ -7,7 +7,7 @@ import Header from './Header';
 import Footer from './Footer';
 import PriceChart from './PriceChart';
 import { useDarkMode } from './useDarkMode';
-import { formatPrice } from './priceUtils';
+import { formatPrice } from './src/shared/utils/priceUtils';
 import {
   fetchItemWithHistory,
   isUsingMockData,

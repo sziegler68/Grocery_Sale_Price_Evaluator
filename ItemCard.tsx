@@ -4,7 +4,7 @@ import { TrendingDown, Target, Calendar, Store, AlertTriangle, Flag } from 'luci
 import { format } from 'date-fns';
 import type { GroceryItem } from './groceryData';
 import { getUnitPreferences } from './Settings';
-import { normalizePrice } from './unitConversion';
+import { normalizePrice } from './src/shared/utils/unitConversion';
 
 interface ItemCardProps {
   item: GroceryItem;

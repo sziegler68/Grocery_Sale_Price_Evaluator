@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, TrendingUp, TrendingDown } from 'lucide-react';
-import { formatPrice, calculateUnitPrice } from './priceUtils';
+import { formatPrice, calculateUnitPrice } from './src/shared/utils/priceUtils';
 
 interface QuickPriceInputProps {
   isOpen: boolean;
