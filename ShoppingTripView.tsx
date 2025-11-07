@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Plus, Check, X, ShoppingCart as ShoppingCartIcon, AlertCircle } from 'lucide-react';
-import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
-import type { ShoppingListItem } from './shoppingListTypes';
-import { calculateBudgetStatus } from './shoppingTripTypes';
+import type { ShoppingTrip, CartItem } from './src/features/shopping-trips/types';
+import type { ShoppingListItem } from './src/features/shopping-lists/types';
+import { calculateBudgetStatus } from './src/features/shopping-trips/types';
 import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from './shoppingTripApi';
 import { getSupabaseClient } from './supabaseClient';
 import { updateItem as updateListItem } from './shoppingListApi';
-import { SHOPPING_LIST_CATEGORIES } from './shoppingListTypes';
+import { SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
 import QuickPriceInput from './QuickPriceInput';
 import { toast } from 'react-toastify';
 import { getSalesTaxRate } from './Settings';

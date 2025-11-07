@@ -25,9 +25,9 @@ import { getSupabaseClient } from './supabaseClient';
 import { getActiveTrip, createShoppingTrip } from './shoppingTripApi';
 import { createGroceryItem } from './groceryData';
 import { removeShareCode } from './shoppingListStorage';
-import { SHOPPING_LIST_CATEGORIES } from './shoppingListTypes';
-import type { ShoppingList, ShoppingListItem as ShoppingListItemType } from './shoppingListTypes';
-import type { ShoppingTrip, CartItem } from './shoppingTripTypes';
+import { SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
+import type { ShoppingList, ShoppingListItem as ShoppingListItemType } from './src/features/shopping-lists/types';
+import type { ShoppingTrip, CartItem } from './src/features/shopping-trips/types';
 import { toast } from 'react-toastify';
 
 const ShoppingListDetail: React.FC = () => {

@@ -10,7 +10,7 @@ import type {
   CreateShoppingListInput,
   AddItemToListInput,
   UpdateItemInput 
-} from './shoppingListTypes';
+} from './src/features/shopping-lists/types';
 
 /**
  * Generate a unique share code using the database function

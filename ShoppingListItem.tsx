@@ -1,6 +1,6 @@
 import React, { useState, memo } from 'react';
 import { Check, X, Edit2, Trash2 } from 'lucide-react';
-import type { ShoppingListItem as ShoppingListItemType } from './shoppingListTypes';
+import type { ShoppingListItem as ShoppingListItemType } from './src/features/shopping-lists/types';
 import { deleteItem, updateItem } from './shoppingListApi';
 import { toast } from 'react-toastify';
 

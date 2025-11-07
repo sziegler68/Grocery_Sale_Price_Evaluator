@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Users, Copy } from 'lucide-react';
-import type { ShoppingList } from './shoppingListTypes';
+import type { ShoppingList } from './src/features/shopping-lists/types';
 import { toast } from 'react-toastify';
 
 interface ShoppingListCardProps {

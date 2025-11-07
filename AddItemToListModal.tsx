@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Plus, Search } from 'lucide-react';
 import { addItemToList } from './shoppingListApi';
 import { fetchAllItems } from './groceryData';
-import { mapToShoppingListCategory, SHOPPING_LIST_CATEGORIES } from './shoppingListTypes';
+import { mapToShoppingListCategory, SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
 import { getUserNameForList } from './listUserNames';
 import { notifyItemsAdded } from './notificationService';
 import { toast } from 'react-toastify';

@@ -8,7 +8,7 @@ import JoinListModal from './JoinListModal';
 import { useDarkMode } from './useDarkMode';
 import { getStoredShareCodes } from './shoppingListStorage';
 import { getShoppingListsByCodes, getItemsForList } from './shoppingListApi';
-import type { ShoppingList } from './shoppingListTypes';
+import type { ShoppingList } from './src/features/shopping-lists/types';
 
 const ShoppingLists: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();

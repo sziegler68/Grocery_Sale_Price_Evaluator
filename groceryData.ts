@@ -6,37 +6,10 @@ import supabase, {
   type GroceryItemsInsert,
   type GroceryItemsUpdate,
 } from './supabaseClient';
+import type { GroceryItem, DataSource, GroceryDataResult, GroceryItemDetailResult } from './src/features/price-tracker/types';
 
-export type GroceryItem = {
-  id: string;
-  itemName: string;
-  category: GroceryItemRow['category'];
-  meatQuality?: GroceryItemRow['meat_quality'] | undefined;
-  storeName: string;
-  price: number;
-  quantity: number;
-  unitType: string;
-  unitPrice: number;
-  datePurchased: Date;
-  notes?: string;
-  targetPrice?: number;
-  userId?: string;
-};
-
-export type DataSource = 'supabase' | 'mock';
-
-export type GroceryDataResult = {
-  items: GroceryItem[];
-  source: DataSource;
-  error?: string;
-};
-
-export type GroceryItemDetailResult = {
-  item: GroceryItem | null;
-  priceHistory: GroceryItem[];
-  source: DataSource;
-  error?: string;
-};
+// Re-export types for backward compatibility
+export type { GroceryItem, DataSource, GroceryDataResult, GroceryItemDetailResult };
 
 const MOCK_ITEMS: GroceryItem[] = [
   {
