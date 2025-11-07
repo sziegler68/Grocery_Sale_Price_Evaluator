@@ -19,6 +19,9 @@ const Header: React.FC<HeaderProps> = ({ darkMode, toggleDarkMode }) => {
           <Link to="/" className="flex items-center space-x-2">
             <ShoppingCart className="h-8 w-8 text-brand" />
             <span className="text-xl font-bold">LunaCart</span>
+            <span className="ml-2 px-2 py-1 text-xs font-bold bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-full animate-pulse">
+              DEV VERSION
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
