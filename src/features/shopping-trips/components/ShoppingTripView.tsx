@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Plus, Check, X, ShoppingCart as ShoppingCartIcon, AlertCircle } from 'lucide-react';
+import { Plus, ShoppingCart as ShoppingCartIcon } from 'lucide-react';
 import type { ShoppingTrip, CartItem } from '../types';
 import type { ShoppingListItem } from '../../shopping-lists/types';
 import { calculateBudgetStatus } from '../types';
