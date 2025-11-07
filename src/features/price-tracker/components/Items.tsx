@@ -4,21 +4,17 @@ import Footer from '../../../shared/components/Footer';
 import ItemCard from './ItemCard';
 import SearchFilter from './SearchFilter';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
-import {
-  fetchAllItems,
-  getBestPriceByItemName,
-  isUsingMockData,
-  type DataSource,
-  type GroceryItem,
-} from '../api/groceryData';
+import { getBestPriceByItemName, isUsingMockData, type GroceryItem } from '../api/groceryData';
+import { usePriceTrackerStore } from '../store/usePriceTrackerStore';
 
 const Items: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
-  const [items, setItems] = useState<GroceryItem[]>([]);
-  const [filteredItems, setFilteredItems] = useState<GroceryItem[]>([]);
-  const [dataSource, setDataSource] = useState<DataSource>('mock');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // Use store for data
+  const { items, isLoading, error, dataSource, loadItems } = usePriceTrackerStore();
+  
+  // Local UI state for filtering
+  const [filteredItems, setFilteredItems] = useState(items);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedStore, setSelectedStore] = useState('');
@@ -26,28 +22,10 @@ const Items: React.FC = () => {
   const [showAboveTarget, setShowAboveTarget] = useState(false);
   const [showBestPrices, setShowBestPrices] = useState(false);
 
+  // Load items on mount
   useEffect(() => {
-    let isMounted = true;
-
-    const loadItems = async () => {
-      setIsLoading(true);
-      const result = await fetchAllItems();
-
-      if (!isMounted) return;
-
-      setItems(result.items);
-      setFilteredItems(result.items);
-      setDataSource(result.source);
-      setErrorMessage(result.error ?? null);
-      setIsLoading(false);
-    };
-
-    void loadItems();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    loadItems();
+  }, [loadItems]);
 
   useEffect(() => {
     let filtered = [...items];
@@ -127,8 +105,8 @@ const Items: React.FC = () => {
           }`}
         >
           {dataSourceBanner}
-          {errorMessage && (
-            <span className="ml-2 text-xs font-medium">(Error: {errorMessage})</span>
+          {error && (
+            <span className="ml-2 text-xs font-medium">(Error: {error})</span>
           )}
         </div>
 

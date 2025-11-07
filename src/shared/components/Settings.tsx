@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { Settings as SettingsIcon, Save, Bell } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { 
-  getNotificationSettings, 
-  saveNotificationSettings, 
   requestPushPermission, 
-  isPushNotificationSupported,
-  type NotificationSettings 
+  isPushNotificationSupported 
 } from '../../features/notifications/api';
+import { useNotificationStore } from '../../features/notifications/store/useNotificationStore';
 
 export interface UnitPreferences {
   meat: 'pound' | 'ounce';
@@ -80,9 +78,24 @@ export const saveSalesTaxRate = (rate: number): void => {
 const Settings: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [preferences, setPreferences] = useState<UnitPreferences>(getUnitPreferences());
-  const [notifSettings, setNotifSettings] = useState<NotificationSettings>(getNotificationSettings());
   const [salesTax, setSalesTax] = useState<number>(getSalesTaxRate());
   const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(getSalesTaxRate() > 0 ? getSalesTaxRate().toFixed(2) : '');
+  
+  // Use notification store
+  const { 
+    isEnabled: notifEnabled, 
+    isPushEnabled: pushEnabled, 
+    types: notifTypes,
+    loadSettings,
+    setEnabled: setNotifEnabled,
+    setPushEnabled,
+    updateTypes 
+  } = useNotificationStore();
+
+  // Load notification settings on mount
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   // Handle sales tax input - calculator style with decimal point
   const handleSalesTaxInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +117,7 @@ const Settings: React.FC = () => {
 
   const handleSave = () => {
     saveUnitPreferences(preferences);
-    saveNotificationSettings(notifSettings);
+    // Notification settings are saved automatically by store
     saveSalesTaxRate(salesTax);
     toast.success('Settings saved successfully!');
   };
@@ -112,7 +125,7 @@ const Settings: React.FC = () => {
   const handleRequestPushPermission = async () => {
     const granted = await requestPushPermission();
     if (granted) {
-      setNotifSettings(prev => ({ ...prev, pushEnabled: true }));
+      setPushEnabled(true);
       toast.success('Push notifications enabled!');
     } else {
       toast.error('Push notification permission denied');
@@ -346,13 +359,13 @@ const Settings: React.FC = () => {
               <span className="text-sm font-medium">Enable Notifications</span>
               <input
                 type="checkbox"
-                checked={notifSettings.enabled}
-                onChange={(e) => setNotifSettings(prev => ({ ...prev, enabled: e.target.checked }))}
+                checked={notifEnabled}
+                onChange={(e) => setNotifEnabled(e.target.checked)}
                 className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
               />
             </label>
 
-            {notifSettings.enabled && (
+            {notifEnabled && (
               <>
                 <div className="pl-6 space-y-4 border-l-2 border-purple-200 dark:border-purple-800">
                   <div className="space-y-3">
@@ -365,10 +378,10 @@ const Settings: React.FC = () => {
                       </div>
                       <input
                         type="checkbox"
-                        checked={notifSettings.pushEnabled}
+                        checked={pushEnabled}
                         onChange={(e) => {
                           const newValue = e.target.checked;
-                          setNotifSettings(prev => ({ ...prev, pushEnabled: newValue }));
+                          setPushEnabled(newValue);
                           
                           // If enabling and permission not granted, auto-request
                           if (newValue && !isPushNotificationSupported()) {
@@ -379,7 +392,7 @@ const Settings: React.FC = () => {
                       />
                     </label>
 
-                    {notifSettings.pushEnabled && !isPushNotificationSupported() && (
+                    {pushEnabled && !isPushNotificationSupported() && (
                       <div className={`p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/20 border border-amber-300`}>
                         <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
                           Push notifications require browser permission
@@ -393,7 +406,7 @@ const Settings: React.FC = () => {
                       </div>
                     )}
 
-                    {notifSettings.pushEnabled && isPushNotificationSupported() && (
+                    {pushEnabled && isPushNotificationSupported() && (
                       <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/20' : 'bg-green-50'} border border-green-300`}>
                         <p className="text-sm text-green-700 dark:text-green-400">
                           ? Push notifications enabled
@@ -415,11 +428,8 @@ const Settings: React.FC = () => {
                       </div>
                       <input
                         type="checkbox"
-                        checked={notifSettings.types.itemsAdded}
-                        onChange={(e) => setNotifSettings(prev => ({
-                          ...prev,
-                          types: { ...prev.types, itemsAdded: e.target.checked }
-                        }))}
+                        checked={notifTypes.itemsAdded}
+                        onChange={(e) => updateTypes({ itemsAdded: e.target.checked })}
                         className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
                       />
                     </label>
@@ -433,11 +443,8 @@ const Settings: React.FC = () => {
                       </div>
                       <input
                         type="checkbox"
-                        checked={notifSettings.types.itemsPurchased}
-                        onChange={(e) => setNotifSettings(prev => ({
-                          ...prev,
-                          types: { ...prev.types, itemsPurchased: e.target.checked }
-                        }))}
+                        checked={notifTypes.itemsPurchased}
+                        onChange={(e) => updateTypes({ itemsPurchased: e.target.checked })}
                         className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
                       />
                     </label>
@@ -451,11 +458,8 @@ const Settings: React.FC = () => {
                       </div>
                       <input
                         type="checkbox"
-                        checked={notifSettings.types.shoppingComplete}
-                        onChange={(e) => setNotifSettings(prev => ({
-                          ...prev,
-                          types: { ...prev.types, shoppingComplete: e.target.checked }
-                        }))}
+                        checked={notifTypes.shoppingComplete}
+                        onChange={(e) => updateTypes({ shoppingComplete: e.target.checked })}
                         className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-5 h-5"
                       />
                     </label>
