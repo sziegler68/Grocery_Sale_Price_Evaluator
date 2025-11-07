@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-toastify';
-import { Plus, Calculator } from 'lucide-react';
+import { Plus, Calculator, Search } from 'lucide-react';
 import { calculateUnitPrice as calcUnitPrice, formatPrice } from './src/shared/utils/priceUtils';
 
 const categories = ['Beef', 'Pork', 'Chicken', 'Seafood', 'Dairy', 'Produce', 'Snacks', 'Drinks', 'Household', 'Other'];
@@ -42,6 +43,12 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
   const [selectedStore, setSelectedStore] = useState<string>(initialData?.storeName || '');
   const [customStoreName, setCustomStoreName] = useState<string>('');
   const [isOrganic, setIsOrganic] = useState<boolean>(initialData?.meatQuality === 'Organic' || false);
+  
+  // Autocomplete state
+  const [suggestions, setSuggestions] = useState<Array<{ itemName: string; targetPrice?: number }>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const itemNameInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -113,6 +120,52 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
     setValue('targetPrice', parseFloat(formatted));
   };
 
+  // Filter suggestions based on item name (trigger on 1+ letters, show max 3)
+  useEffect(() => {
+    if (!watchedItemName || watchedItemName.length < 1) {
+      setSuggestions([]);
+      return;
+    }
+
+    const searchTerm = watchedItemName.toLowerCase();
+    const filtered = existingItems.filter(item =>
+      item.itemName.toLowerCase().includes(searchTerm)
+    );
+
+    // Get unique item names
+    const uniqueItems = new Map<string, typeof existingItems[0]>();
+    filtered.forEach(item => {
+      const existing = uniqueItems.get(item.itemName);
+      if (!existing || (item.targetPrice && !existing.targetPrice)) {
+        uniqueItems.set(item.itemName, item);
+      }
+    });
+
+    setSuggestions(Array.from(uniqueItems.values()).slice(0, 3));
+  }, [watchedItemName, existingItems]);
+
+  // Update dropdown position when showing
+  useEffect(() => {
+    if (showSuggestions && itemNameInputRef.current) {
+      const rect = itemNameInputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [showSuggestions, suggestions]);
+
+  const handleSelectSuggestion = (item: typeof existingItems[0]) => {
+    setValue('itemName', item.itemName);
+    if (item.targetPrice) {
+      setValue('targetPrice', item.targetPrice);
+      setTargetPriceDisplay(item.targetPrice.toFixed(2));
+    }
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
   // Auto-fill target price from existing items with same name
   React.useEffect(() => {
     if (watchedItemName && existingItems.length > 0) {
@@ -180,18 +233,59 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium mb-2">Item Name *</label>
-            <input
-              {...register('itemName')}
-              type="text"
-              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
-              placeholder="e.g., Chicken Breast"
-            />
+            <div className="relative">
+              <input
+                {...register('itemName')}
+                ref={(e) => {
+                  register('itemName').ref(e);
+                  itemNameInputRef.current = e;
+                }}
+                type="text"
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                className="w-full px-4 py-3 pr-10 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
+                placeholder="e.g., Chicken Breast"
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            </div>
             {errors.itemName && (
               <p className="text-red-500 text-sm mt-1">{errors.itemName.message}</p>
             )}
           </div>
+
+          {/* Autocomplete Dropdown - Rendered via Portal */}
+          {showSuggestions && suggestions.length > 0 && createPortal(
+            <div
+              style={{
+                position: 'fixed',
+                top: `${dropdownPosition.top}px`,
+                left: `${dropdownPosition.left}px`,
+                width: `${dropdownPosition.width}px`,
+                zIndex: 9999,
+              }}
+              className="rounded-lg shadow-2xl border-2 bg-white dark:bg-zinc-800 border-purple-500 max-h-60 overflow-y-auto"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              {suggestions.map((item, idx) => (
+                <button
+                  key={`${item.itemName}-${idx}`}
+                  type="button"
+                  onClick={() => handleSelectSuggestion(item)}
+                  className="w-full text-left px-4 py-3 hover:bg-purple-100 dark:hover:bg-zinc-600 border-b border-gray-200 dark:border-zinc-600 last:border-0 transition-colors"
+                >
+                  <div className="font-medium text-gray-900 dark:text-white">{item.itemName}</div>
+                  {item.targetPrice && (
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      Target: ${item.targetPrice.toFixed(2)}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>,
+            document.body
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-2">Category *</label>

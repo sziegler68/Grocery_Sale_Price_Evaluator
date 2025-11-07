@@ -53,9 +53,9 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
     loadItems();
   }, []);
 
-  // Filter suggestions based on item name
+  // Filter suggestions based on item name (trigger on 1+ letters, show max 3)
   useEffect(() => {
-    if (itemName.length < 2) {
+    if (itemName.length < 1) {
       setSuggestions([]);
       return;
     }
@@ -76,7 +76,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
       }
     });
 
-    const suggestionsList = Array.from(uniqueItems.values()).slice(0, 5);
+    const suggestionsList = Array.from(uniqueItems.values()).slice(0, 3);
     console.log('[AddItemModal] Suggestions:', suggestionsList.length, 'items');
     setSuggestions(suggestionsList);
   }, [itemName, priceDbItems]);
