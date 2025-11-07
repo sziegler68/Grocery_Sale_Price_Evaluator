@@ -5,7 +5,8 @@ import {
   getTripById, 
   addItemToCart, 
   removeCartItem, 
-  completeTrip 
+  completeTrip,
+  getCartItems 
 } from '../api';
 
 interface ShoppingTripStore {
@@ -18,6 +19,7 @@ interface ShoppingTripStore {
   // Actions
   startTrip: (listId: string, budget: number, storeName: string, salesTaxRate?: number) => Promise<ShoppingTrip>;
   loadTrip: (tripId: string) => Promise<void>;
+  loadCartItems: (tripId: string) => Promise<void>;
   addToCart: (item: any) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   finishTrip: (tripId: string) => Promise<void>;
@@ -55,8 +57,21 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
     try {
       const trip = await getTripById(tripId);
       set({ currentTrip: trip, isLoading: false });
+      // Also load cart items
+      await get().loadCartItems(tripId);
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
+    }
+  },
+
+  // Load cart items for a trip
+  loadCartItems: async (tripId) => {
+    try {
+      const items = await getCartItems(tripId);
+      set({ cartItems: items });
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
     }
   },
 

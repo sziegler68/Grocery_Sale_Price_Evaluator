@@ -4,7 +4,7 @@ import type { ShoppingTrip, CartItem } from '../types';
 import type { ShoppingListItem } from '../../shopping-lists/types';
 import { calculateBudgetStatus } from '../types';
 import { useShoppingTripStore } from '../store/useShoppingTripStore';
-import { getCartItems, subscribeToCartUpdates, updateCartItem } from '../api';
+import { subscribeToCartUpdates, updateCartItem } from '../api';
 import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { updateItem as updateListItem } from '../../shopping-lists/api';
 import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
@@ -28,52 +28,32 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   onBack,
   onComplete
 }) => {
-  // Use store for trip state
+  // Use store for ALL trip state - no local duplication
   const { 
     currentTrip, 
-    cartItems: storeCartItems, 
+    cartItems, // Use store cartItems directly
     isLoading,
     addToCart,
     removeFromCart,
     finishTrip,
-    loadTrip 
+    loadTrip,
+    loadCartItems 
   } = useShoppingTripStore();
   
   // Use current trip from store or initial prop
   const trip = currentTrip || initialTrip;
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<ShoppingListItem | null>(null);
   const [editingCartItem, setEditingCartItem] = useState<CartItem | null>(null);
   const [showPriceInput, setShowPriceInput] = useState(false);
 
   const budgetStatus = calculateBudgetStatus(trip.total_spent, trip.budget);
 
-  // Load trip into store
+  // Load trip into store on mount
   useEffect(() => {
     if (initialTrip) {
       loadTrip(initialTrip.id);
     }
   }, [initialTrip.id, loadTrip]);
-  
-  // Sync local cart items with store
-  useEffect(() => {
-    setCartItems(storeCartItems);
-  }, [storeCartItems]);
-  
-  // Load cart items
-  useEffect(() => {
-    const loadCart = async () => {
-      try {
-        const items = await getCartItems(trip.id);
-        setCartItems(items);
-      } catch (error) {
-        console.error('Error loading cart:', error);
-        toast.error('Failed to load cart');
-      }
-    };
-
-    loadCart();
-  }, [trip.id]);
 
   // Subscribe to real-time updates for BOTH cart items AND trip total
   useEffect(() => {
@@ -82,8 +62,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     // Subscribe to cart_items changes
     const cartChannel = subscribeToCartUpdates(trip.id, async () => {
       console.log('Cart items changed');
-      const items = await getCartItems(trip.id);
-      setCartItems(items);
+      // Reload cart items from store
+      await loadCartItems(trip.id);
     });
     
     // Subscribe to shopping_trips changes (for budget meter)
@@ -186,12 +166,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
         }
       }
 
-      // Immediately reload BOTH cart items AND trip data to update budget meter
-      const [updatedItems] = await Promise.all([
-        getCartItems(trip.id),
-        loadTrip(trip.id)
-      ]);
-      setCartItems(updatedItems);
+      // Reload trip data to update budget meter
+      await loadTrip(trip.id);
       
       setSelectedItem(null);
       setEditingCartItem(null);

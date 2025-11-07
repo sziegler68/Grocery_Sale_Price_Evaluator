@@ -6,7 +6,8 @@ import {
   updateItem, 
   deleteItem,
   checkItem,
-  uncheckItem 
+  uncheckItem,
+  getShoppingListByCode 
 } from '../api';
 import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
 
@@ -20,12 +21,14 @@ interface ShoppingListStore {
 
   // Actions
   loadLists: () => Promise<void>;
+  loadListByShareCode: (shareCode: string) => Promise<ShoppingList | null>;
   loadListItems: (listId: string) => Promise<void>;
   addItem: (item: any) => Promise<void>;
   updateItem: (itemId: string, updates: any) => Promise<void>;
   deleteItem: (itemId: string) => Promise<void>;
   toggleItem: (itemId: string, isChecked: boolean) => Promise<void>;
   setCurrentList: (list: ShoppingList | null) => void;
+  optimisticToggleItem: (itemId: string, isChecked: boolean) => void;
   
   // Real-time subscriptions
   subscribeToList: (listId: string) => () => void;
@@ -48,6 +51,26 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
       set({ lists: [], isLoading: false });
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
+    }
+  },
+
+  // Load a list by share code and set as current
+  loadListByShareCode: async (shareCode: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const list = await getShoppingListByCode(shareCode);
+      if (list) {
+        set({ currentList: list, isLoading: false });
+        // Also load items for this list
+        await get().loadListItems(list.id);
+        return list;
+      } else {
+        set({ currentList: null, isLoading: false, error: 'List not found' });
+        return null;
+      }
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false, currentList: null });
+      throw error;
     }
   },
 
@@ -125,6 +148,17 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
   // Set current list
   setCurrentList: (list) => {
     set({ currentList: list });
+  },
+
+  // Optimistic toggle for instant UI feedback (doesn't call API)
+  optimisticToggleItem: (itemId, isChecked) => {
+    set(state => ({
+      items: state.items.map(item =>
+        item.id === itemId 
+          ? { ...item, is_checked: isChecked, checked_at: isChecked ? new Date().toISOString() : null }
+          : item
+      )
+    }));
   },
 
   // Subscribe to real-time updates for a list

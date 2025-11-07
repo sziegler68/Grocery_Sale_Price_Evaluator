@@ -16,7 +16,6 @@ import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendL
 import { getSalesTaxRate } from '../../../shared/components/Settings';
 import { useShoppingListStore } from '../store/useShoppingListStore';
 import { 
-  getShoppingListByCode, 
   deleteShoppingList, 
   clearAllItems,
   subscribeToListItems,
@@ -40,17 +39,14 @@ const ShoppingListDetail: React.FC = () => {
   // Debug: Verify component is loading
   console.log('🏁 ShoppingListDetail component loaded. Share code:', shareCode);
   
-  // Use store for list data
+  // Use store for ALL list data - no local state duplication
   const { 
     currentList: list, 
-    items: storeItems, 
+    items, // Use store items directly
     isLoading,
-    loadListItems,
-    setCurrentList 
+    loadListByShareCode,
+    optimisticToggleItem
   } = useShoppingListStore();
-  
-  // Local state for UI (optimistic updates use local items state)
-  const [items, setItems] = useState<ShoppingListItemType[]>([]);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
@@ -67,28 +63,19 @@ const ShoppingListDetail: React.FC = () => {
   const checkboxSyncQueueRef = useRef<Map<string, boolean>>(new Map()); // itemId -> newCheckedState
   const checkboxSyncTimeoutRef = useRef<number | null>(null);
   const notificationBatchRef = useRef<{count: number, lastUpdate: number}>({count: 0, lastUpdate: 0});
-  
-  // Delayed re-grouping to prevent visual glitching
-  const [displayItems, setDisplayItems] = useState<ShoppingListItemType[]>([]);
-  const regroupTimeoutRef = useRef<number | null>(null);
 
   const loadListData = useCallback(async () => {
     if (!shareCode) return;
     
     try {
-      const loadedList = await getShoppingListByCode(shareCode);
+      // Use store action to load list by share code
+      const loadedList = await loadListByShareCode(shareCode);
       
       if (!loadedList) {
         toast.error('Shopping list not found');
         navigate('/shopping-lists');
         return;
       }
-
-      // Set list in store
-      setCurrentList(loadedList);
-      
-      // Load items using store action
-      await loadListItems(loadedList.id);
       
       // Try to load active trip, but don't fail if tables don't exist yet
       let trip: ShoppingTrip | null = null;
@@ -104,7 +91,7 @@ const ShoppingListDetail: React.FC = () => {
       console.error('Failed to load shopping list:', error);
       toast.error('Failed to load shopping list');
     }
-  }, [shareCode, navigate, setCurrentList, loadListItems]);
+  }, [shareCode, navigate, loadListByShareCode]);
 
   // Debounced version of loadListData to prevent rapid successive calls
   const debouncedLoadListData = useCallback(() => {
@@ -200,23 +187,8 @@ const ShoppingListDetail: React.FC = () => {
     // Mark this item as having a pending optimistic update
     optimisticUpdatesRef.current.add(itemId);
     
-    // Immediately update UI (optimistic) - instant response!
-    setItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId 
-          ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
-          : item
-      )
-    );
-    
-    // Immediately update display items (no re-grouping yet - keep in place)
-    setDisplayItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId 
-          ? { ...item, is_checked: newCheckedState, checked_at: newCheckedState ? new Date().toISOString() : null }
-          : item
-      )
-    );
+    // Immediately update UI using store (optimistic) - instant response!
+    optimisticToggleItem(itemId, newCheckedState);
     
     // Queue for batched background sync
     checkboxSyncQueueRef.current.set(itemId, newCheckedState);
@@ -230,26 +202,8 @@ const ShoppingListDetail: React.FC = () => {
     checkboxSyncTimeoutRef.current = window.setTimeout(() => {
       syncCheckboxChanges();
     }, 1000);
-    
-    // Delay re-grouping to prevent visual glitching during rapid clicks
-    if (regroupTimeoutRef.current !== null) {
-      clearTimeout(regroupTimeoutRef.current);
-    }
-    
-    regroupTimeoutRef.current = window.setTimeout(() => {
-      // After 2 seconds of no activity, trigger re-grouping by syncing displayItems with items
-      setItems(latestItems => {
-        setDisplayItems(latestItems);
-        return latestItems;
-      });
-    }, 2000);
-  }, [syncCheckboxChanges]);
+  }, [optimisticToggleItem, syncCheckboxChanges]);
 
-  // Sync local items state with store items
-  useEffect(() => {
-    setItems(storeItems);
-  }, [storeItems]);
-  
   useEffect(() => {
     loadListData();
     
@@ -265,43 +219,10 @@ const ShoppingListDetail: React.FC = () => {
     }
   }, [shareCode, loadListData]);
 
-  // Batched update function for subscription
+  // Batched update function for subscription - No longer needed, store handles real-time updates
   const processBatchedUpdates = useCallback(() => {
-    if (subscriptionBatchRef.current.size === 0) return;
-
-    const updates = new Map(subscriptionBatchRef.current);
-    subscriptionBatchRef.current.clear();
-
-    // Direct update - no startTransition to avoid delays
-    setItems(prevItems => {
-      const newItems = [...prevItems];
-      let hasChanges = false;
-
-      updates.forEach((updatedItem, itemId) => {
-        // Skip updates for items with pending optimistic updates to prevent conflicts
-        if (optimisticUpdatesRef.current.has(itemId)) {
-          return;
-        }
-        
-        const itemIndex = newItems.findIndex(item => item.id === itemId);
-        if (itemIndex >= 0) {
-          const existingItem = newItems[itemIndex];
-          // Shallow comparison (much faster than JSON.stringify)
-          if (existingItem.is_checked !== updatedItem.is_checked ||
-              existingItem.item_name !== updatedItem.item_name ||
-              existingItem.checked_at !== updatedItem.checked_at) {
-            newItems[itemIndex] = updatedItem;
-            hasChanges = true;
-          }
-        } else {
-          // New item
-          newItems.push(updatedItem);
-          hasChanges = true;
-        }
-      });
-
-      return hasChanges ? newItems : prevItems;
-    });
+    // Real-time updates now handled by store subscription
+    // This function kept for compatibility but does nothing
   }, []);
 
   // Real-time subscription for list items
@@ -325,9 +246,9 @@ const ShoppingListDetail: React.FC = () => {
           processBatchedUpdates();
         }, 50); // Batch updates within 50ms window (reduced from 100ms)
       },
-      // Handle deletes - immediate
-      (deletedItemId) => {
-        setItems(prevItems => prevItems.filter(item => item.id !== deletedItemId));
+      // Handle deletes - handled by store subscription
+      () => {
+        // Store will handle this through its subscription
       }
     );
 
@@ -659,18 +580,9 @@ const ShoppingListDetail: React.FC = () => {
     loadListData();
   };
 
-  // Sync displayItems with items when items change from external sources
-  useEffect(() => {
-    // Only update if not from user interaction (i.e., from initial load or subscription)
-    if (optimisticUpdatesRef.current.size === 0) {
-      setDisplayItems(items);
-    }
-  }, [items]);
-
   // Group items by category (memoized to prevent recalculation on every render)
-  // Use displayItems instead of items to control when re-grouping happens
   const groupedItems = useMemo(() => {
-    return displayItems.reduce((acc, item) => {
+    return items.reduce((acc, item) => {
       const key = item.is_checked ? 'checked' : item.category;
       if (!acc[key]) {
         acc[key] = [];
@@ -678,7 +590,7 @@ const ShoppingListDetail: React.FC = () => {
       acc[key].push(item);
       return acc;
     }, {} as Record<string, ShoppingListItemType[]>);
-  }, [displayItems]);
+  }, [items]);
 
   const uncheckedItems = useMemo(() => {
     return SHOPPING_LIST_CATEGORIES.map(category => ({
