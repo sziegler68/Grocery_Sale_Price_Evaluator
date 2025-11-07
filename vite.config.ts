@@ -46,11 +46,19 @@ const getBranchBasePath = () => {
 };
 
 const getAppName = () => {
+  // Use dev name for Vercel builds
+  if (process.env.VERCEL) {
+    return 'LunaCart_Dev';
+  }
   const raw = process.env.APP_NAME_OVERRIDE;
   return raw && raw.trim().length > 0 ? raw.trim() : 'LunaCart';
 };
 
 const getAppShortName = () => {
+  // Use dev short name for Vercel builds
+  if (process.env.VERCEL) {
+    return 'LC_Dev';
+  }
   const raw = process.env.APP_SHORT_NAME_OVERRIDE;
   return raw && raw.trim().length > 0 ? raw.trim() : 'LunaCart';
 };
