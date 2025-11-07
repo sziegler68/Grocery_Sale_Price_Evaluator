@@ -6,8 +6,8 @@ import ShoppingListCard from './ShoppingListCard';
 import CreateListModal from './CreateListModal';
 import JoinListModal from './JoinListModal';
 import { useDarkMode } from './useDarkMode';
-import { getStoredShareCodes } from './shoppingListStorage';
-import { getShoppingListsByCodes, getItemsForList } from './shoppingListApi';
+import { getStoredShareCodes } from './src/shared/utils/shoppingListStorage';
+import { getShoppingListsByCodes, getItemsForList } from './src/features/shopping-lists/api';
 import type { ShoppingList } from './src/features/shopping-lists/types';
 
 const ShoppingLists: React.FC = () => {

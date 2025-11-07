@@ -3,7 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { toast } from 'react-toastify';
 import AddItemForm from './AddItemForm';
-import { createGroceryItem, fetchAllItems, type GroceryItem } from './groceryData';
+import { createGroceryItem, fetchAllItems, type GroceryItem } from './src/features/price-tracker/api/groceryData';
 import { useDarkMode } from './useDarkMode';
 
 const AddItem: React.FC = () => {

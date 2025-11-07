@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Plus, Search } from 'lucide-react';
-import { addItemToList } from './shoppingListApi';
-import { fetchAllItems } from './groceryData';
+import { addItemToList } from './src/features/shopping-lists/api';
+import { fetchAllItems } from './src/features/price-tracker/api/groceryData';
 import { mapToShoppingListCategory, SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
-import { getUserNameForList } from './listUserNames';
-import { notifyItemsAdded } from './notificationService';
+import { getUserNameForList } from './src/shared/utils/listUserNames';
+import { notifyItemsAdded } from './src/features/notifications/api';
 import { toast } from 'react-toastify';
-import type { GroceryItem } from './groceryData';
+import type { GroceryItem } from './src/features/price-tracker/api/groceryData';
 
 interface AddItemToListModalProps {
   listId: string;

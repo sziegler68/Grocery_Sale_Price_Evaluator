@@ -3,14 +3,14 @@
  * All interactions with Supabase for shopping lists
  */
 
-import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
+import { getSupabaseClient, isSupabaseConfigured } from '../../../../supabaseClient';
 import type { 
   ShoppingList, 
   ShoppingListItem, 
   CreateShoppingListInput,
   AddItemToListInput,
   UpdateItemInput 
-} from './src/features/shopping-lists/types';
+} from '../types';
 
 /**
  * Generate a unique share code using the database function

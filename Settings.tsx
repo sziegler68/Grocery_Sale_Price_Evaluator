@@ -10,7 +10,7 @@ import {
   requestPushPermission, 
   isPushNotificationSupported,
   type NotificationSettings 
-} from './notificationService';
+} from './src/features/notifications/api';
 
 export interface UnitPreferences {
   meat: 'pound' | 'ounce';

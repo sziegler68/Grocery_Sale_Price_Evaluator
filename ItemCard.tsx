@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingDown, Target, Calendar, Store, AlertTriangle, Flag } from 'lucide-react';
 import { format } from 'date-fns';
-import type { GroceryItem } from './groceryData';
+import type { GroceryItem } from './src/features/price-tracker/api/groceryData';
 import { getUnitPreferences } from './Settings';
 import { normalizePrice } from './src/shared/utils/unitConversion';
 

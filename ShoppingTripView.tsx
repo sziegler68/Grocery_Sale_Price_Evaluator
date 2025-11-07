@@ -3,9 +3,9 @@ import { ArrowLeft, Plus, Check, X, ShoppingCart as ShoppingCartIcon, AlertCircl
 import type { ShoppingTrip, CartItem } from './src/features/shopping-trips/types';
 import type { ShoppingListItem } from './src/features/shopping-lists/types';
 import { calculateBudgetStatus } from './src/features/shopping-trips/types';
-import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from './shoppingTripApi';
+import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from './src/features/shopping-trips/api';
 import { getSupabaseClient } from './supabaseClient';
-import { updateItem as updateListItem } from './shoppingListApi';
+import { updateItem as updateListItem } from './src/features/shopping-lists/api';
 import { SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
 import QuickPriceInput from './QuickPriceInput';
 import { toast } from 'react-toastify';

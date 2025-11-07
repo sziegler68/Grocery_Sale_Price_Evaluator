@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, Copy, Check } from 'lucide-react';
-import { createShoppingList } from './shoppingListApi';
-import { addShareCode } from './shoppingListStorage';
+import { createShoppingList } from './src/features/shopping-lists/api';
+import { addShareCode } from './src/shared/utils/shoppingListStorage';
 import { toast } from 'react-toastify';
 
 interface CreateListModalProps {

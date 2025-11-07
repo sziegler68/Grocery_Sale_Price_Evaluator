@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { toast } from 'react-toastify';
 import AddItemForm from './AddItemForm';
-import { fetchAllItems, updateGroceryItem, type GroceryItem } from './groceryData';
+import { fetchAllItems, updateGroceryItem, type GroceryItem } from './src/features/price-tracker/api/groceryData';
 import { useDarkMode } from './useDarkMode';
 
 const EditItem: React.FC = () => {

@@ -9,8 +9,8 @@ import SetNameModal from './SetNameModal';
 import StartShoppingTripModal from './StartShoppingTripModal';
 import ShoppingTripView from './ShoppingTripView';
 import { useDarkMode } from './useDarkMode';
-import { getUserNameForList, setUserNameForList, removeUserNameForList } from './listUserNames';
-import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from './notificationService';
+import { getUserNameForList, setUserNameForList, removeUserNameForList } from './src/shared/utils/listUserNames';
+import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from './src/features/notifications/api';
 import { getSalesTaxRate } from './Settings';
 import { 
   getShoppingListByCode, 
@@ -20,11 +20,11 @@ import {
   subscribeToListItems,
   checkItem,
   uncheckItem
-} from './shoppingListApi';
+} from './src/features/shopping-lists/api';
 import { getSupabaseClient } from './supabaseClient';
-import { getActiveTrip, createShoppingTrip } from './shoppingTripApi';
-import { createGroceryItem } from './groceryData';
-import { removeShareCode } from './shoppingListStorage';
+import { getActiveTrip, createShoppingTrip } from './src/features/shopping-trips/api';
+import { createGroceryItem } from './src/features/price-tracker/api/groceryData';
+import { removeShareCode } from './src/shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
 import type { ShoppingList, ShoppingListItem as ShoppingListItemType } from './src/features/shopping-lists/types';
 import type { ShoppingTrip, CartItem } from './src/features/shopping-trips/types';

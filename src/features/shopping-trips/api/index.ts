@@ -1,6 +1,6 @@
 // API functions for shopping trip budget tracking
-import { getSupabaseClient } from './supabaseClient';
-import type { ShoppingTrip, CartItem, CreateTripInput, AddCartItemInput } from './src/features/shopping-trips/types';
+import { getSupabaseClient } from '../../../../supabaseClient';
+import type { ShoppingTrip, CartItem, CreateTripInput, AddCartItemInput } from '../types';
 
 // Create a new shopping trip
 export const createShoppingTrip = async (input: CreateTripInput): Promise<ShoppingTrip> => {

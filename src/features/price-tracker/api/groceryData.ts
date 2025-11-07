@@ -5,8 +5,8 @@ import supabase, {
   type GroceryItemRow,
   type GroceryItemsInsert,
   type GroceryItemsUpdate,
-} from './supabaseClient';
-import type { GroceryItem, DataSource, GroceryDataResult, GroceryItemDetailResult } from './src/features/price-tracker/types';
+} from '../../../../supabaseClient';
+import type { GroceryItem, DataSource, GroceryDataResult, GroceryItemDetailResult } from '../types';
 
 // Re-export types for backward compatibility
 export type { GroceryItem, DataSource, GroceryDataResult, GroceryItemDetailResult };

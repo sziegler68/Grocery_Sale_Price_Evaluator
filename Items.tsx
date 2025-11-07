@@ -10,7 +10,7 @@ import {
   isUsingMockData,
   type DataSource,
   type GroceryItem,
-} from './groceryData';
+} from './src/features/price-tracker/api/groceryData';
 
 const Items: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();

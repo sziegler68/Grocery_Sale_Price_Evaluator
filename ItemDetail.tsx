@@ -15,7 +15,7 @@ import {
   deleteGroceryItem,
   type DataSource,
   type GroceryItem,
-} from './groceryData';
+} from './src/features/price-tracker/api/groceryData';
 
 const ItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
