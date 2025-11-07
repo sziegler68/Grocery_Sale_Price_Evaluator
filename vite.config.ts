@@ -64,6 +64,10 @@ const getAppShortName = () => {
 };
 
 const getAppDescription = () => {
+  // Use dev description for Vercel builds
+  if (process.env.VERCEL) {
+    return 'Development build - Testing new features';
+  }
   const raw = process.env.APP_DESCRIPTION_OVERRIDE;
   return raw && raw.trim().length > 0
     ? raw.trim()
