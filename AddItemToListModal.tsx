@@ -41,9 +41,10 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
     const loadItems = async () => {
       try {
         const result = await fetchAllItems();
+        console.log('[AddItemModal] Loaded price database items:', result.items.length, 'items');
         setPriceDbItems(result.items);
       } catch (error) {
-        console.error('Failed to load price database:', error);
+        console.error('[AddItemModal] Failed to load price database:', error);
       }
     };
     loadItems();
@@ -61,6 +62,8 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
       item.itemName.toLowerCase().includes(searchTerm)
     );
 
+    console.log('[AddItemModal] Search term:', searchTerm, 'Filtered:', filtered.length);
+
     // Get unique item names with their most common target price
     const uniqueItems = new Map<string, GroceryItem>();
     filtered.forEach(item => {
@@ -70,7 +73,9 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
       }
     });
 
-    setSuggestions(Array.from(uniqueItems.values()).slice(0, 5));
+    const suggestionsList = Array.from(uniqueItems.values()).slice(0, 5);
+    console.log('[AddItemModal] Suggestions:', suggestionsList.length, 'items');
+    setSuggestions(suggestionsList);
   }, [itemName, priceDbItems]);
 
   // Handle target price input with auto-formatting (fills from right to left)
@@ -194,19 +199,20 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
               <div
-                className="absolute z-20 w-full mt-1 rounded-lg shadow-lg border bg-input border-primary max-h-60 overflow-y-auto"
+                className="absolute z-[100] w-full mt-1 rounded-lg shadow-2xl border-2 bg-white dark:bg-zinc-800 border-purple-500 max-h-60 overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
               >
                 {suggestions.map((item) => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => handleSelectSuggestion(item)}
-                    className={`w-full text-left px-4 py-3 hover:bg-purple-50 dark:hover:bg-zinc-600 border-b border-gray-100 dark:border-zinc-600 last:border-0`}
+                    className={`w-full text-left px-4 py-3 hover:bg-purple-100 dark:hover:bg-zinc-600 border-b border-gray-200 dark:border-zinc-600 last:border-0 transition-colors`}
                   >
-                    <div className="font-medium">{item.itemName}</div>
-                    <div className="text-sm text-secondary">
+                    <div className="font-medium text-gray-900 dark:text-white">{item.itemName}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
                       {item.category}
-                      {item.targetPrice && ` ? Target: $${item.targetPrice.toFixed(2)}/${item.unitType}`}
+                      {item.targetPrice && ` • Target: $${item.targetPrice.toFixed(2)}/${item.unitType}`}
                     </div>
                   </button>
                 ))}
