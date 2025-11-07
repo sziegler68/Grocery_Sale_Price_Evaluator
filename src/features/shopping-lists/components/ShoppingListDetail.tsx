@@ -14,9 +14,9 @@ import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { getUserNameForList, setUserNameForList, removeUserNameForList } from '../../../shared/utils/listUserNames';
 import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from '../../notifications/api';
 import { getSalesTaxRate } from '../../../shared/components/Settings';
+import { useShoppingListStore } from '../store/useShoppingListStore';
 import { 
   getShoppingListByCode, 
-  getItemsForList, 
   deleteShoppingList, 
   clearAllItems,
   subscribeToListItems,
@@ -28,7 +28,7 @@ import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
 import { createGroceryItem } from '../../price-tracker/api/groceryData';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from '../types';
-import type { ShoppingList, ShoppingListItem as ShoppingListItemType } from '../types';
+import type { ShoppingListItem as ShoppingListItemType } from '../types';
 import type { ShoppingTrip, CartItem } from '../../shopping-trips/types';
 import { toast } from 'react-toastify';
 
@@ -40,9 +40,17 @@ const ShoppingListDetail: React.FC = () => {
   // Debug: Verify component is loading
   console.log('🏁 ShoppingListDetail component loaded. Share code:', shareCode);
   
-  const [list, setList] = useState<ShoppingList | null>(null);
+  // Use store for list data
+  const { 
+    currentList: list, 
+    items: storeItems, 
+    isLoading,
+    loadListItems,
+    setCurrentList 
+  } = useShoppingListStore();
+  
+  // Local state for UI (optimistic updates use local items state)
   const [items, setItems] = useState<ShoppingListItemType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
@@ -64,12 +72,8 @@ const ShoppingListDetail: React.FC = () => {
   const [displayItems, setDisplayItems] = useState<ShoppingListItemType[]>([]);
   const regroupTimeoutRef = useRef<number | null>(null);
 
-  const loadListData = useCallback(async (showLoading = true) => {
+  const loadListData = useCallback(async () => {
     if (!shareCode) return;
-
-    if (showLoading) {
-      setIsLoading(true);
-    }
     
     try {
       const loadedList = await getShoppingListByCode(shareCode);
@@ -80,7 +84,11 @@ const ShoppingListDetail: React.FC = () => {
         return;
       }
 
-      const loadedItems = await getItemsForList(loadedList.id);
+      // Set list in store
+      setCurrentList(loadedList);
+      
+      // Load items using store action
+      await loadListItems(loadedList.id);
       
       // Try to load active trip, but don't fail if tables don't exist yet
       let trip: ShoppingTrip | null = null;
@@ -91,18 +99,12 @@ const ShoppingListDetail: React.FC = () => {
         // Silently ignore - trip feature not available yet
       }
 
-      setList(loadedList);
-      setItems(loadedItems);
       setActiveTrip(trip);
     } catch (error) {
       console.error('Failed to load shopping list:', error);
       toast.error('Failed to load shopping list');
-    } finally {
-      if (showLoading) {
-        setIsLoading(false);
-      }
     }
-  }, [shareCode, navigate]);
+  }, [shareCode, navigate, setCurrentList, loadListItems]);
 
   // Debounced version of loadListData to prevent rapid successive calls
   const debouncedLoadListData = useCallback(() => {
@@ -113,7 +115,7 @@ const ShoppingListDetail: React.FC = () => {
     
     // Schedule a new reload
     loadDataTimeoutRef.current = window.setTimeout(() => {
-      loadListData(false);
+      loadListData();
     }, 300);
   }, [loadListData]);
 
@@ -243,6 +245,11 @@ const ShoppingListDetail: React.FC = () => {
     }, 2000);
   }, [syncCheckboxChanges]);
 
+  // Sync local items state with store items
+  useEffect(() => {
+    setItems(storeItems);
+  }, [storeItems]);
+  
   useEffect(() => {
     loadListData();
     
@@ -256,7 +263,7 @@ const ShoppingListDetail: React.FC = () => {
         setTimeout(() => setShowNameModal(true), 500);
       }
     }
-  }, [shareCode]);
+  }, [shareCode, loadListData]);
 
   // Batched update function for subscription
   const processBatchedUpdates = useCallback(() => {
@@ -649,7 +656,7 @@ const ShoppingListDetail: React.FC = () => {
     // Return to list view
     setViewingTrip(false);
     setActiveTrip(null);
-    loadListData(false);
+    loadListData();
   };
 
   // Sync displayItems with items when items change from external sources

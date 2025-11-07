@@ -3,7 +3,8 @@ import { Plus, ShoppingCart as ShoppingCartIcon } from 'lucide-react';
 import type { ShoppingTrip, CartItem } from '../types';
 import type { ShoppingListItem } from '../../shopping-lists/types';
 import { calculateBudgetStatus } from '../types';
-import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from '../api';
+import { useShoppingTripStore } from '../store/useShoppingTripStore';
+import { getCartItems, subscribeToCartUpdates, updateCartItem } from '../api';
 import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { updateItem as updateListItem } from '../../shopping-lists/api';
 import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
@@ -27,15 +28,38 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   onBack,
   onComplete
 }) => {
-  const [trip, setTrip] = useState<ShoppingTrip>(initialTrip);
+  // Use store for trip state
+  const { 
+    currentTrip, 
+    cartItems: storeCartItems, 
+    isLoading,
+    addToCart,
+    removeFromCart,
+    finishTrip,
+    loadTrip 
+  } = useShoppingTripStore();
+  
+  // Use current trip from store or initial prop
+  const trip = currentTrip || initialTrip;
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ShoppingListItem | null>(null);
   const [editingCartItem, setEditingCartItem] = useState<CartItem | null>(null);
   const [showPriceInput, setShowPriceInput] = useState(false);
 
   const budgetStatus = calculateBudgetStatus(trip.total_spent, trip.budget);
 
+  // Load trip into store
+  useEffect(() => {
+    if (initialTrip) {
+      loadTrip(initialTrip.id);
+    }
+  }, [initialTrip.id, loadTrip]);
+  
+  // Sync local cart items with store
+  useEffect(() => {
+    setCartItems(storeCartItems);
+  }, [storeCartItems]);
+  
   // Load cart items
   useEffect(() => {
     const loadCart = async () => {
@@ -45,8 +69,6 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       } catch (error) {
         console.error('Error loading cart:', error);
         toast.error('Failed to load cart');
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -77,10 +99,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
         },
         async (payload) => {
           console.log('Trip total updated:', payload);
-          const updatedTrip = await getTripById(trip.id);
-          if (updatedTrip) {
-            setTrip(updatedTrip);
-          }
+          // Reload trip from store to get updated total
+          await loadTrip(trip.id);
         }
       )
       .subscribe();
@@ -139,8 +159,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
         });
         toast.success(`Updated ${selectedItem.item_name}`);
       } else {
-        // Add new item to cart
-        await addItemToCart({
+        // Add new item to cart using store action
+        await addToCart({
           trip_id: trip.id,
           list_item_id: selectedItem.id,
           item_name: selectedItem.item_name,
@@ -167,14 +187,11 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       }
 
       // Immediately reload BOTH cart items AND trip data to update budget meter
-      const [updatedItems, updatedTrip] = await Promise.all([
+      const [updatedItems] = await Promise.all([
         getCartItems(trip.id),
-        getTripById(trip.id)
+        loadTrip(trip.id)
       ]);
       setCartItems(updatedItems);
-      if (updatedTrip) {
-        setTrip(updatedTrip);
-      }
       
       setSelectedItem(null);
       setEditingCartItem(null);
@@ -187,18 +204,9 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
 
   const handleRemoveFromCart = async (cartItem: CartItem) => {
     try {
-      await removeCartItem(cartItem.id);
+      // Use store action to remove item
+      await removeFromCart(cartItem.id);
       toast.success(`Removed ${cartItem.item_name}`);
-      
-      // Immediately reload BOTH cart items AND trip data
-      const [updatedItems, updatedTrip] = await Promise.all([
-        getCartItems(trip.id),
-        getTripById(trip.id)
-      ]);
-      setCartItems(updatedItems);
-      if (updatedTrip) {
-        setTrip(updatedTrip);
-      }
     } catch (error) {
       console.error('Error removing item:', error);
       toast.error('Failed to remove item');
@@ -208,9 +216,11 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   const handleCompleteTrip = async () => {
     if (window.confirm('Complete this shopping trip?')) {
       try {
-        const completedTrip = await completeTrip(trip.id);
+        // Use store action to complete trip
+        await finishTrip(trip.id);
         toast.success('Trip completed!');
-        onComplete(completedTrip, cartItems);
+        // Call the callback with the trip data
+        onComplete(trip, cartItems);
       } catch (error) {
         console.error('Error completing trip:', error);
         toast.error('Failed to complete trip');
