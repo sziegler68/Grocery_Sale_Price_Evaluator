@@ -5,6 +5,8 @@ import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
 import ShoppingListItem from './ShoppingListItem';
 import AddItemToListModal from './AddItemToListModal';
+import { ListStats } from './ListStats';
+import { CategoryGroup } from './CategoryGroup';
 import SetNameModal from '../../../shared/components/SetNameModal';
 import StartShoppingTripModal from '../../shopping-trips/components/StartShoppingTripModal';
 import ShoppingTripView from '../../shopping-trips/components/ShoppingTripView';
@@ -728,15 +730,13 @@ const ShoppingListDetail: React.FC = () => {
         </Link>
 
         {/* List Header */}
-        <div
-          className="p-6 rounded-xl shadow-lg mb-6 bg-card"
-        >
+        <div className="p-6 rounded-xl shadow-lg mb-6 bg-card">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold mb-2">{list.name}</h1>
               <div className="flex items-center space-x-2 text-sm text-secondary">
                 <span>{items.length} item{items.length !== 1 ? 's' : ''}</span>
-                <span>?</span>
+                <span>•</span>
                 <span>{checkedItems.length} purchased</span>
               </div>
             </div>
@@ -764,6 +764,15 @@ const ShoppingListDetail: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* List Stats */}
+        {items.length > 0 && (
+          <ListStats
+            totalItems={items.length}
+            checkedItems={checkedItems.length}
+            completionPercentage={Math.round((checkedItems.length / items.length) * 100)}
+          />
+        )}
 
         {/* Action Buttons */}
         <div className="mb-6 space-y-4">
@@ -845,25 +854,17 @@ const ShoppingListDetail: React.FC = () => {
             <>
               {/* Unchecked Items (grouped by category) */}
               {uncheckedItems.map(({ category, items: categoryItems }) => (
-                <div key={category}>
-                  <h2 className="text-lg font-bold text-purple-600 mb-3 uppercase tracking-wide">
-                    {category}
-                  </h2>
-                  <div className="space-y-2">
-                    {categoryItems.map((item) => (
-                      <ShoppingListItem
-                        key={item.id}
-                        item={item}
-                        darkMode={darkMode}
-                        onUpdate={handleItemUpdate}
-                        onOptimisticCheck={handleOptimisticCheck}
-                        listId={list.id}
-                        listName={list.name}
-                        shareCode={shareCode}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <CategoryGroup
+                  key={category}
+                  category={category}
+                  items={categoryItems}
+                  darkMode={darkMode}
+                  onUpdate={handleItemUpdate}
+                  onOptimisticCheck={handleOptimisticCheck}
+                  listId={list.id}
+                  listName={list.name}
+                  shareCode={shareCode}
+                />
               ))}
 
               {/* Checked Items (at bottom) */}

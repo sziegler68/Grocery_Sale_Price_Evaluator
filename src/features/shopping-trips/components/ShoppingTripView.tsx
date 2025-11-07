@@ -10,6 +10,9 @@ import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
 import QuickPriceInput from '../../price-tracker/components/QuickPriceInput';
 import { toast } from 'react-toastify';
 import { getSalesTaxRate } from '../../../shared/components/Settings';
+import { BudgetMeter } from './BudgetMeter';
+import { TripHeader } from './TripHeader';
+import { CartItemCard } from './CartItemCard';
 
 interface ShoppingTripViewProps {
   trip: ShoppingTrip;
@@ -252,94 +255,18 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       </div>
       {/* Header */}
       <div className="sticky top-0 z-10 bg-card border-b border-primary shadow-sm relative">
-        <div className="flex items-center justify-between p-4">
-          <button
-            onClick={onBack}
-            className="p-2 hover-bg rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h2 className="font-semibold">Shopping Trip</h2>
-          <button
-            onClick={handleCompleteTrip}
-            className="p-2 hover:bg-green-100 dark:hover:bg-green-900 text-success rounded-lg transition-colors"
-          >
-            <Check className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Budget Meter */}
         <div className="p-4">
-          <div className={`p-4 rounded-xl ${
-            budgetStatus.color === 'green'
-              ? 'bg-green-50 dark:bg-green-900/20'
-              : budgetStatus.color === 'yellow'
-              ? 'bg-yellow-50 dark:bg-yellow-900/20'
-              : 'bg-red-50 dark:bg-red-900/20'
-          }`}>
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <span className="text-sm font-medium">
-                  {trip.store_name}
-                </span>
-                <span className="text-xs text-secondary ml-2">
-                  (Tax: {(trip.sales_tax_rate || getSalesTaxRate()).toFixed(2)}%)
-                </span>
-              </div>
-              <span className={`text-xs font-medium ${
-                budgetStatus.color === 'green'
-                  ? 'text-success'
-                  : budgetStatus.color === 'yellow'
-                  ? 'text-warning'
-                  : 'text-error'
-              }`}>
-                {budgetStatus.percentage.toFixed(0)}% of budget
-              </span>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-2">
-              <div
-                className={`h-full transition-all duration-500 ${
-                  budgetStatus.color === 'green'
-                    ? 'bg-green-600'
-                    : budgetStatus.color === 'yellow'
-                    ? 'bg-yellow-600'
-                    : 'bg-red-600 animate-pulse'
-                }`}
-                style={{ width: `${Math.min(budgetStatus.percentage, 100)}%` }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold">
-                ${trip.total_spent.toFixed(2)}
-              </span>
-              <span className="text-sm text-secondary">
-                / ${Math.round(trip.budget)}
-              </span>
-            </div>
-
-            {budgetStatus.remaining < 0 ? (
-              <div className="flex items-center space-x-2 mt-2 text-error">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">
-                  ${Math.abs(budgetStatus.remaining).toFixed(2)} over budget!
-                </span>
-              </div>
-            ) : budgetStatus.status === 'approaching' ? (
-              <div className="flex items-center space-x-2 mt-2 text-warning">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">
-                  ${budgetStatus.remaining.toFixed(2)} remaining - Almost there!
-                </span>
-              </div>
-            ) : (
-              <span className="text-sm text-secondary mt-2 block">
-                ${budgetStatus.remaining.toFixed(2)} remaining
-              </span>
-            )}
-          </div>
+          <TripHeader
+            storeName={trip.store_name}
+            itemCount={cartItems.length}
+            onBack={onBack}
+            onComplete={handleCompleteTrip}
+          />
+          <BudgetMeter
+            totalSpent={trip.total_spent}
+            budget={trip.budget}
+            budgetStatus={budgetStatus}
+          />
         </div>
       </div>
 
@@ -402,57 +329,18 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                   <span>In Cart ({cartItems.length})</span>
                 </h3>
                 <div className="space-y-2">
-                  {cartItems.map(item => {
-                    const pricePerUnit = item.quantity > 0 ? item.price_paid / item.quantity : 0;
-                    const isAtOrUnderTarget = item.target_price ? pricePerUnit <= item.target_price : false;
-                    
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => handleCartItemClick(item)}
-                      className="p-3 rounded-lg border cursor-pointer hover:border-brand transition-colors bg-card border-primary"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="font-medium">{item.item_name}</div>
-                            {item.quantity > 1 && (
-                              <div className="text-xs text-secondary">
-                                Qty: {item.quantity} {item.unit_type}
-                              </div>
-                            )}
-                            {item.target_price && item.quantity > 0 && (
-                              <div className="text-xs mt-1 space-y-0.5">
-                                <div className="text-secondary">
-                                  Target: ${item.target_price.toFixed(2)}/{item.unit_type || 'unit'}
-                                </div>
-                                <div className={`font-medium ${
-                                  isAtOrUnderTarget
-                                    ? 'text-success'
-                                    : 'text-error'
-                                }`}>
-                                  Actual: ${pricePerUnit.toFixed(2)}/{item.unit_type || 'unit'}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-center space-x-3">
-                            <span className="font-bold text-lg">
-                              ${item.price_paid.toFixed(2)}
-                            </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation(); // Don't trigger edit modal
-                                handleRemoveFromCart(item);
-                              }}
-                              className="p-2 hover-bg text-secondary rounded-lg transition-colors"
-                            >
-                              <X className="h-5 w-5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {cartItems.map(item => (
+                    <div key={item.id} onClick={() => handleCartItemClick(item)}>
+                      <CartItemCard
+                        item={item}
+                        onEdit={handleCartItemClick}
+                        onRemove={(itemId) => {
+                          const item = cartItems.find(ci => ci.id === itemId);
+                          if (item) handleRemoveFromCart(item);
+                        }}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
