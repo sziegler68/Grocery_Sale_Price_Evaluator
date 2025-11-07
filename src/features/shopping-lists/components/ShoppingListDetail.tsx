@@ -23,7 +23,7 @@ import {
   checkItem,
   uncheckItem
 } from '../api';
-import { getSupabaseClient } from '../../../../supabaseClient';
+import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
 import { createGroceryItem } from '../../price-tracker/api/groceryData';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';

@@ -4,7 +4,7 @@ import type { ShoppingTrip, CartItem } from '../types';
 import type { ShoppingListItem } from '../../shopping-lists/types';
 import { calculateBudgetStatus } from '../types';
 import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from '../api';
-import { getSupabaseClient } from '../../../../supabaseClient';
+import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { updateItem as updateListItem } from '../../shopping-lists/api';
 import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
 import QuickPriceInput from '../../price-tracker/components/QuickPriceInput';

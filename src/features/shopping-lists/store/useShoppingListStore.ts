@@ -8,7 +8,7 @@ import {
   checkItem,
   uncheckItem 
 } from '../api';
-import { getSupabaseClient, isSupabaseConfigured } from '../../../../supabaseClient';
+import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
 
 interface ShoppingListStore {
   // State

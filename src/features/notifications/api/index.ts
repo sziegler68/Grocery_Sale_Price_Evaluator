@@ -3,7 +3,7 @@
  * Handles both in-app and push notifications with smart throttling
  */
 
-import { getSupabaseClient, isSupabaseConfigured } from '../../../../supabaseClient';
+import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
 
 // Debug flag - set to false to disable verbose logging
 const DEBUG_NOTIFICATIONS = true;

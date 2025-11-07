@@ -5,17 +5,17 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Home from './src/shared/components/Home';
-import AddItem from './src/features/price-tracker/components/AddItem';
-import EditItem from './src/features/price-tracker/components/EditItem';
-import Items from './src/features/price-tracker/components/Items';
-import ItemDetail from './src/features/price-tracker/components/ItemDetail';
-import Analytics from './src/shared/components/Analytics';
-import Settings from './src/shared/components/Settings';
-import ShoppingLists from './src/features/shopping-lists/components/ShoppingLists';
-import ShoppingListDetail from './src/features/shopping-lists/components/ShoppingListDetail';
-import Help from './src/shared/components/Help';
-import NotFound from './src/shared/components/NotFound';
+import Home from '@shared/components/Home';
+import AddItem from '@features/price-tracker/components/AddItem';
+import EditItem from '@features/price-tracker/components/EditItem';
+import Items from '@features/price-tracker/components/Items';
+import ItemDetail from '@features/price-tracker/components/ItemDetail';
+import Analytics from '@shared/components/Analytics';
+import Settings from '@shared/components/Settings';
+import ShoppingLists from '@features/shopping-lists/components/ShoppingLists';
+import ShoppingListDetail from '@features/shopping-lists/components/ShoppingListDetail';
+import Help from '@shared/components/Help';
+import NotFound from '@shared/components/NotFound';
 
 declare const __APP_NAME__: string;
 

@@ -5,7 +5,7 @@ import supabase, {
   type GroceryItemRow,
   type GroceryItemsInsert,
   type GroceryItemsUpdate,
-} from '../../../../supabaseClient';
+} from '@shared/api/supabaseClient';
 import type { GroceryItem, DataSource, GroceryDataResult, GroceryItemDetailResult } from '../types';
 
 // Re-export types for backward compatibility

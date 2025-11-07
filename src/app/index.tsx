@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
-import './styles.css';
+import '../../styles.css';
 
 // Send logs to parent frame (like a preview system)
 function postToParent(level: string, ...args: any[]): void {

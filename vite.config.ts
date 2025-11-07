@@ -4,6 +4,7 @@ import type { ManifestOptions } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
+import path from 'path';
 
 // Get version from package.json
 const getVersion = () => {
@@ -142,6 +143,14 @@ const getManifest = (): Partial<ManifestOptions> => ({
 
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? getBranchBasePath() : '/',
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@app': path.resolve(__dirname, './src/app'),
+      '@features': path.resolve(__dirname, './src/features'),
+      '@shared': path.resolve(__dirname, './src/shared'),
+    },
+  },
   define: {
     '__APP_VERSION__': JSON.stringify(`${getVersion()} (${getGitHash()})`),
     '__BUILD_TIME__': JSON.stringify(getBuildTime()),

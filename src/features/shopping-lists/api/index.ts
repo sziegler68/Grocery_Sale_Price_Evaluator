@@ -3,7 +3,7 @@
  * All interactions with Supabase for shopping lists
  */
 
-import { getSupabaseClient, isSupabaseConfigured } from '../../../../supabaseClient';
+import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
 import type { 
   ShoppingList, 
   ShoppingListItem, 

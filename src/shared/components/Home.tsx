@@ -4,7 +4,7 @@ import { Calculator, ShoppingCart, Search, Settings, HelpCircle } from 'lucide-r
 import Header from './Header';
 import Footer from './Footer';
 import { useDarkMode } from '../hooks/useDarkMode';
-import { isSupabaseConfigured } from '../../../supabaseClient';
+import { isSupabaseConfigured } from '@shared/api/supabaseClient';
 
 const Home: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();

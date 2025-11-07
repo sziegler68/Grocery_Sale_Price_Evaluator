@@ -1,5 +1,5 @@
 // API functions for shopping trip budget tracking
-import { getSupabaseClient } from '../../../../supabaseClient';
+import { getSupabaseClient } from '@shared/api/supabaseClient';
 import type { ShoppingTrip, CartItem, CreateTripInput, AddCartItemInput } from '../types';
 
 // Create a new shopping trip
