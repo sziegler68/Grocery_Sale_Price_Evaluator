@@ -18,7 +18,6 @@ import { useShoppingListStore } from '../store/useShoppingListStore';
 import { 
   deleteShoppingList, 
   clearAllItems,
-  subscribeToListItems,
   checkItem,
   uncheckItem
 } from '../api';
@@ -45,7 +44,8 @@ const ShoppingListDetail: React.FC = () => {
     items, // Use store items directly
     isLoading,
     loadListByShareCode,
-    optimisticToggleItem
+    optimisticToggleItem,
+    subscribeToList
   } = useShoppingListStore();
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
@@ -55,8 +55,6 @@ const ShoppingListDetail: React.FC = () => {
   const [activeTrip, setActiveTrip] = useState<ShoppingTrip | null>(null);
   const [viewingTrip, setViewingTrip] = useState(false);
   const loadDataTimeoutRef = useRef<number | null>(null);
-  const subscriptionBatchRef = useRef<Map<string, ShoppingListItemType>>(new Map());
-  const subscriptionTimeoutRef = useRef<number | null>(null);
   const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
   
   // Batched checkbox sync queue
@@ -219,46 +217,17 @@ const ShoppingListDetail: React.FC = () => {
     }
   }, [shareCode, loadListData]);
 
-  // Batched update function for subscription - No longer needed, store handles real-time updates
-  const processBatchedUpdates = useCallback(() => {
-    // Real-time updates now handled by store subscription
-    // This function kept for compatibility but does nothing
-  }, []);
-
-  // Real-time subscription for list items
+  // Real-time subscription for list items using store
   useEffect(() => {
     if (!list) return;
 
-    const unsubscribe = subscribeToListItems(
-      list.id,
-      // Handle updates and inserts - batch them
-      (updatedItem) => {
-        // Add to batch
-        subscriptionBatchRef.current.set(updatedItem.id, updatedItem);
-
-        // Clear existing timeout
-        if (subscriptionTimeoutRef.current !== null) {
-          clearTimeout(subscriptionTimeoutRef.current);
-        }
-
-        // Schedule batched update with reduced delay for faster response
-        subscriptionTimeoutRef.current = window.setTimeout(() => {
-          processBatchedUpdates();
-        }, 50); // Batch updates within 50ms window (reduced from 100ms)
-      },
-      // Handle deletes - handled by store subscription
-      () => {
-        // Store will handle this through its subscription
-      }
-    );
+    // Use the store's subscription which properly reloads items
+    const unsubscribe = subscribeToList(list.id);
 
     return () => {
       unsubscribe();
-      if (subscriptionTimeoutRef.current !== null) {
-        clearTimeout(subscriptionTimeoutRef.current);
-      }
     };
-  }, [list?.id, processBatchedUpdates]);
+  }, [list?.id, subscribeToList]);
 
   // Flush pending checkbox changes on unmount
   useEffect(() => {

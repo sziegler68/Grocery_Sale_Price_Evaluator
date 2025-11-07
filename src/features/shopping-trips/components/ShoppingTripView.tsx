@@ -4,7 +4,7 @@ import type { ShoppingTrip, CartItem } from '../types';
 import type { ShoppingListItem } from '../../shopping-lists/types';
 import { calculateBudgetStatus } from '../types';
 import { useShoppingTripStore } from '../store/useShoppingTripStore';
-import { subscribeToCartUpdates, updateCartItem } from '../api';
+import { subscribeToCartUpdates } from '../api';
 import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { updateItem as updateListItem } from '../../shopping-lists/api';
 import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
@@ -34,6 +34,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     cartItems, // Use store cartItems directly
     isLoading,
     addToCart,
+    updateCartItem: updateCartItemStore,
     removeFromCart,
     finishTrip,
     loadTrip,
@@ -131,8 +132,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       // Store TOTAL price (user's input), not per unit
       // No more silly divide-then-multiply math!
       if (editingCartItem) {
-        // Update existing cart item
-        await updateCartItem(editingCartItem.id, {
+        // Update existing cart item using store action
+        await updateCartItemStore(editingCartItem.id, {
           price_paid: data.price, // Store total price as entered
           quantity: data.quantity,
           crv_amount: data.crvAmount

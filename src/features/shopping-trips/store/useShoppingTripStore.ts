@@ -6,7 +6,8 @@ import {
   addItemToCart, 
   removeCartItem, 
   completeTrip,
-  getCartItems 
+  getCartItems,
+  updateCartItem as updateCartItemAPI
 } from '../api';
 
 interface ShoppingTripStore {
@@ -21,6 +22,7 @@ interface ShoppingTripStore {
   loadTrip: (tripId: string) => Promise<void>;
   loadCartItems: (tripId: string) => Promise<void>;
   addToCart: (item: any) => Promise<void>;
+  updateCartItem: (itemId: string, updates: any) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   finishTrip: (tripId: string) => Promise<void>;
   clearTrip: () => void;
@@ -84,6 +86,22 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
       }));
       
       // Reload trip to update totals
+      const { currentTrip } = get();
+      if (currentTrip) {
+        await get().loadTrip(currentTrip.id);
+      }
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
+  // Update cart item
+  updateCartItem: async (itemId, updates) => {
+    try {
+      await updateCartItemAPI(itemId, updates);
+      
+      // Reload trip and cart items to get updated values
       const { currentTrip } = get();
       if (currentTrip) {
         await get().loadTrip(currentTrip.id);
