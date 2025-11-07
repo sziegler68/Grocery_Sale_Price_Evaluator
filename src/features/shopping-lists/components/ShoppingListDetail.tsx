@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt, CheckSquare, Square } from 'lucide-react';
-import Header from './Header';
-import Footer from './Footer';
+import Header from '../../../shared/components/Header';
+import Footer from '../../../shared/components/Footer';
 import ShoppingListItem from './ShoppingListItem';
 import AddItemToListModal from './AddItemToListModal';
-import SetNameModal from './SetNameModal';
-import StartShoppingTripModal from './StartShoppingTripModal';
-import ShoppingTripView from './ShoppingTripView';
-import { useDarkMode } from './useDarkMode';
-import { getUserNameForList, setUserNameForList, removeUserNameForList } from './src/shared/utils/listUserNames';
-import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from './src/features/notifications/api';
-import { getSalesTaxRate } from './Settings';
+import SetNameModal from '../../../shared/components/SetNameModal';
+import StartShoppingTripModal from '../../shopping-trips/components/StartShoppingTripModal';
+import ShoppingTripView from '../../shopping-trips/components/ShoppingTripView';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
+import { getUserNameForList, setUserNameForList, removeUserNameForList } from '../../../shared/utils/listUserNames';
+import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from '../../notifications/api';
+import { getSalesTaxRate } from '../../../shared/components/Settings';
 import { 
   getShoppingListByCode, 
   getItemsForList, 
@@ -20,14 +20,14 @@ import {
   subscribeToListItems,
   checkItem,
   uncheckItem
-} from './src/features/shopping-lists/api';
-import { getSupabaseClient } from './supabaseClient';
-import { getActiveTrip, createShoppingTrip } from './src/features/shopping-trips/api';
-import { createGroceryItem } from './src/features/price-tracker/api/groceryData';
-import { removeShareCode } from './src/shared/utils/shoppingListStorage';
-import { SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
-import type { ShoppingList, ShoppingListItem as ShoppingListItemType } from './src/features/shopping-lists/types';
-import type { ShoppingTrip, CartItem } from './src/features/shopping-trips/types';
+} from '../api';
+import { getSupabaseClient } from '../../../../supabaseClient';
+import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
+import { createGroceryItem } from '../../price-tracker/api/groceryData';
+import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
+import { SHOPPING_LIST_CATEGORIES } from '../types';
+import type { ShoppingList, ShoppingListItem as ShoppingListItemType } from '../types';
+import type { ShoppingTrip, CartItem } from '../../shopping-trips/types';
 import { toast } from 'react-toastify';
 
 const ShoppingListDetail: React.FC = () => {

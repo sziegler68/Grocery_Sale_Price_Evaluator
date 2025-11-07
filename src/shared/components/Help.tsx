@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { HelpCircle, ShoppingCart, DollarSign, Bell, Settings as SettingsIcon, ArrowRight } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
-import { useDarkMode } from './useDarkMode';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 const Help: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();

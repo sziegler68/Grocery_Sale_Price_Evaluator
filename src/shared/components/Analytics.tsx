@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import { useDarkMode } from './useDarkMode';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 const Analytics: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();

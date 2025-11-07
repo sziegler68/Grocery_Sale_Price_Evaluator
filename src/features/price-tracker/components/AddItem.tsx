@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Header from './Header';
-import Footer from './Footer';
+import Header from '../../../shared/components/Header';
+import Footer from '../../../shared/components/Footer';
 import { toast } from 'react-toastify';
 import AddItemForm from './AddItemForm';
-import { createGroceryItem, fetchAllItems, type GroceryItem } from './src/features/price-tracker/api/groceryData';
-import { useDarkMode } from './useDarkMode';
+import { createGroceryItem, fetchAllItems, type GroceryItem } from '../api/groceryData';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 
 const AddItem: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();

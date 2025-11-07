@@ -1,7 +1,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
-import { formatPrice } from './src/shared/utils/priceUtils';
+import { formatPrice } from '../../../shared/utils/priceUtils';
 
 interface PriceEntry {
   date: Date;

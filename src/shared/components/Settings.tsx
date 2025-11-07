@@ -3,14 +3,14 @@ import Header from './Header';
 import Footer from './Footer';
 import { Settings as SettingsIcon, Save, Bell } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useDarkMode } from './useDarkMode';
+import { useDarkMode } from '../hooks/useDarkMode';
 import { 
   getNotificationSettings, 
   saveNotificationSettings, 
   requestPushPermission, 
   isPushNotificationSupported,
   type NotificationSettings 
-} from './src/features/notifications/api';
+} from '../../features/notifications/api';
 
 export interface UnitPreferences {
   meat: 'pound' | 'ounce';

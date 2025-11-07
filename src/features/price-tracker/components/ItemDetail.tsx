@@ -3,11 +3,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ArrowLeft, Edit, Target, TrendingDown, Calendar, Store, Tag, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
-import Header from './Header';
-import Footer from './Footer';
+import Header from '../../../shared/components/Header';
+import Footer from '../../../shared/components/Footer';
 import PriceChart from './PriceChart';
-import { useDarkMode } from './useDarkMode';
-import { formatPrice } from './src/shared/utils/priceUtils';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
+import { formatPrice } from '../../../shared/utils/priceUtils';
 import {
   fetchItemWithHistory,
   isUsingMockData,
@@ -15,7 +15,7 @@ import {
   deleteGroceryItem,
   type DataSource,
   type GroceryItem,
-} from './src/features/price-tracker/api/groceryData';
+} from '../api/groceryData';
 
 const ItemDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();

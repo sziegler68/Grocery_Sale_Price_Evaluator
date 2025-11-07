@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, UserPlus, ShoppingCart } from 'lucide-react';
-import Header from './Header';
-import Footer from './Footer';
+import Header from '../../../shared/components/Header';
+import Footer from '../../../shared/components/Footer';
 import ShoppingListCard from './ShoppingListCard';
 import CreateListModal from './CreateListModal';
 import JoinListModal from './JoinListModal';
-import { useDarkMode } from './useDarkMode';
-import { getStoredShareCodes } from './src/shared/utils/shoppingListStorage';
-import { getShoppingListsByCodes, getItemsForList } from './src/features/shopping-lists/api';
-import type { ShoppingList } from './src/features/shopping-lists/types';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
+import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
+import { getShoppingListsByCodes, getItemsForList } from '../api';
+import type { ShoppingList } from '../types';
 
 const ShoppingLists: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();

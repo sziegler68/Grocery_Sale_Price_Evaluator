@@ -5,17 +5,17 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Home from './Home';
-import AddItem from './AddItem';
-import EditItem from './EditItem';
-import Items from './Items';
-import ItemDetail from './ItemDetail';
-import Analytics from './Analytics';
-import Settings from './Settings';
-import ShoppingLists from './ShoppingLists';
-import ShoppingListDetail from './ShoppingListDetail';
-import Help from './Help';
-import NotFound from './NotFound';
+import Home from './src/shared/components/Home';
+import AddItem from './src/features/price-tracker/components/AddItem';
+import EditItem from './src/features/price-tracker/components/EditItem';
+import Items from './src/features/price-tracker/components/Items';
+import ItemDetail from './src/features/price-tracker/components/ItemDetail';
+import Analytics from './src/shared/components/Analytics';
+import Settings from './src/shared/components/Settings';
+import ShoppingLists from './src/features/shopping-lists/components/ShoppingLists';
+import ShoppingListDetail from './src/features/shopping-lists/components/ShoppingListDetail';
+import Help from './src/shared/components/Help';
+import NotFound from './src/shared/components/NotFound';
 
 declare const __APP_NAME__: string;
 

@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Plus, Check, X, ShoppingCart as ShoppingCartIcon, AlertCircle } from 'lucide-react';
-import type { ShoppingTrip, CartItem } from './src/features/shopping-trips/types';
-import type { ShoppingListItem } from './src/features/shopping-lists/types';
-import { calculateBudgetStatus } from './src/features/shopping-trips/types';
-import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from './src/features/shopping-trips/api';
-import { getSupabaseClient } from './supabaseClient';
-import { updateItem as updateListItem } from './src/features/shopping-lists/api';
-import { SHOPPING_LIST_CATEGORIES } from './src/features/shopping-lists/types';
-import QuickPriceInput from './QuickPriceInput';
+import type { ShoppingTrip, CartItem } from '../types';
+import type { ShoppingListItem } from '../../shopping-lists/types';
+import { calculateBudgetStatus } from '../types';
+import { getCartItems, removeCartItem, addItemToCart, completeTrip, subscribeToCartUpdates, getTripById, updateCartItem } from '../api';
+import { getSupabaseClient } from '../../../../supabaseClient';
+import { updateItem as updateListItem } from '../../shopping-lists/api';
+import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
+import QuickPriceInput from '../../price-tracker/components/QuickPriceInput';
 import { toast } from 'react-toastify';
-import { getSalesTaxRate } from './Settings';
+import { getSalesTaxRate } from '../../../shared/components/Settings';
 
 interface ShoppingTripViewProps {
   trip: ShoppingTrip;

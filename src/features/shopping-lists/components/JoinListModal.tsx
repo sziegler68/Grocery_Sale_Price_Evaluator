@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, UserPlus } from 'lucide-react';
-import { getShoppingListByCode } from './src/features/shopping-lists/api';
-import { addShareCode } from './src/shared/utils/shoppingListStorage';
+import { getShoppingListByCode } from '../api';
+import { addShareCode } from '../../../shared/utils/shoppingListStorage';
 import { toast } from 'react-toastify';
 
 interface JoinListModalProps {

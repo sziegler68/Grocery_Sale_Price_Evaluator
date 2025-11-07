@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
+import Header from '../../../shared/components/Header';
+import Footer from '../../../shared/components/Footer';
 import { toast } from 'react-toastify';
 import AddItemForm from './AddItemForm';
-import { fetchAllItems, updateGroceryItem, type GroceryItem } from './src/features/price-tracker/api/groceryData';
-import { useDarkMode } from './useDarkMode';
+import { fetchAllItems, updateGroceryItem, type GroceryItem } from '../api/groceryData';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 
 const EditItem: React.FC = () => {
   const { id } = useParams<{ id: string }>();

@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-toastify';
 import { Plus, Calculator, Search } from 'lucide-react';
-import { calculateUnitPrice as calcUnitPrice, formatPrice } from './src/shared/utils/priceUtils';
+import { calculateUnitPrice as calcUnitPrice, formatPrice } from '../../../shared/utils/priceUtils';
 
 const categories = ['Beef', 'Pork', 'Chicken', 'Seafood', 'Dairy', 'Produce', 'Snacks', 'Drinks', 'Household', 'Other'];
 const beefQualities = ['Choice', 'Prime', 'Wagyu', 'Grassfed', 'Organic'];

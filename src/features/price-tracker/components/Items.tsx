@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import Header from './Header';
-import Footer from './Footer';
+import Header from '../../../shared/components/Header';
+import Footer from '../../../shared/components/Footer';
 import ItemCard from './ItemCard';
 import SearchFilter from './SearchFilter';
-import { useDarkMode } from './useDarkMode';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import {
   fetchAllItems,
   getBestPriceByItemName,
   isUsingMockData,
   type DataSource,
   type GroceryItem,
-} from './src/features/price-tracker/api/groceryData';
+} from '../api/groceryData';
 
 const Items: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
