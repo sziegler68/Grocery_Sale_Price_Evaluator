@@ -88,6 +88,28 @@ const getManifestId = () => {
 };
 
 const getIcons = () => {
+  // Use simple generic icons for Vercel dev builds
+  if (process.env.VERCEL) {
+    // Simple orange/pink gradient square with "DEV" text
+    const devIcon192 = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(249,115,22);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(236,72,153);stop-opacity:1"/></linearGradient></defs><rect width="192" height="192" fill="url(%23grad)"/><text x="96" y="120" font-family="Arial,sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">DEV</text></svg>';
+    const devIcon512 = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgb(249,115,22);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(236,72,153);stop-opacity:1"/></linearGradient></defs><rect width="512" height="512" fill="url(%23grad)"/><text x="256" y="320" font-family="Arial,sans-serif" font-size="128" font-weight="bold" fill="white" text-anchor="middle">DEV</text></svg>';
+    
+    return [
+      {
+        src: devIcon192,
+        sizes: '192x192',
+        type: 'image/svg+xml',
+      },
+      {
+        src: devIcon512,
+        sizes: '512x512',
+        type: 'image/svg+xml',
+        purpose: 'any maskable',
+      },
+    ];
+  }
+  
+  // Production icons for GitHub Pages
   const base = stripTrailingSlash(getScope());
   const toIconPath = (file: string) => `${base}/${file}`;
   return [
