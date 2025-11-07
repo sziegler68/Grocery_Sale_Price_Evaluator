@@ -178,7 +178,12 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Item Name with Autocomplete */}
           <div className="relative">
-            <label className="block text-sm font-medium mb-2">Item Name *</label>
+            <label className="block text-sm font-medium mb-2">
+              Item Name * 
+              <span className="text-xs text-gray-500 ml-2">
+                ({priceDbItems.length} items loaded)
+              </span>
+            </label>
             <div className="relative">
               <input
                 type="text"
@@ -188,6 +193,10 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                   setShowSuggestions(true);
                 }}
                 onFocus={() => setShowSuggestions(true)}
+                onBlur={() => {
+                  // Delay hiding to allow click on suggestion
+                  setTimeout(() => setShowSuggestions(false), 200);
+                }}
                 placeholder="Start typing..."
                 className="w-full px-4 py-3 pr-10 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
                 autoFocus
@@ -196,11 +205,18 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             </div>
 
+            {/* Debug info */}
+            {itemName.length >= 2 && (
+              <div className="text-xs text-gray-500 mt-1">
+                Showing {suggestions.length} suggestions for "{itemName}"
+              </div>
+            )}
+
             {/* Suggestions Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
               <div
                 className="absolute z-[100] w-full mt-1 rounded-lg shadow-2xl border-2 bg-white dark:bg-zinc-800 border-purple-500 max-h-60 overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
               >
                 {suggestions.map((item) => (
                   <button
