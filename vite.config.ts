@@ -31,6 +31,12 @@ const getBuildTime = () => {
 const repoBasePath = '/Grocery_Sale_Price_Evaluator/';
 
 const getBranchBasePath = () => {
+  // If building on Vercel, always use root path
+  if (process.env.VERCEL) {
+    return '/';
+  }
+  
+  // GitHub Pages needs the repo path
   const raw = process.env.BRANCH_BASE_PATH ?? '';
   const trimmed = raw.trim().replace(/^\/+|\/+$/g, '');
   if (!trimmed) {
