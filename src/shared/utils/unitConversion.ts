@@ -1,4 +1,4 @@
-import type { UnitPreferences } from './Settings';
+import type { UnitPreferences } from '../../../Settings';
 import { getItemWeightEstimate, type ItemWeightEstimate } from './itemWeightEstimates';
 
 // Unit conversion factors
