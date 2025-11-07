@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, Search } from 'lucide-react';
 import { addItemToList } from './shoppingListApi';
 import { fetchAllItems } from './groceryData';
@@ -35,6 +36,8 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
   const [priceDbItems, setPriceDbItems] = useState<GroceryItem[]>([]);
   const [suggestions, setSuggestions] = useState<GroceryItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Load items from price database for autocomplete
   useEffect(() => {
@@ -95,6 +98,18 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
     setTargetPriceDisplay(formatted);
     setTargetPrice(parseFloat(formatted));
   };
+
+  // Update dropdown position when showing
+  useEffect(() => {
+    if (showSuggestions && inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [showSuggestions, suggestions]);
 
   const handleSelectSuggestion = (item: GroceryItem) => {
     setItemName(item.itemName);
@@ -186,6 +201,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
             </label>
             <div className="relative">
               <input
+                ref={inputRef}
                 type="text"
                 value={itemName}
                 onChange={(e) => {
@@ -211,30 +227,38 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
                 Showing {suggestions.length} suggestions for "{itemName}"
               </div>
             )}
-
-            {/* Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div
-                className="absolute z-[100] w-full mt-1 rounded-lg shadow-2xl border-2 bg-white dark:bg-zinc-800 border-purple-500 max-h-60 overflow-y-auto"
-                onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
-              >
-                {suggestions.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleSelectSuggestion(item)}
-                    className={`w-full text-left px-4 py-3 hover:bg-purple-100 dark:hover:bg-zinc-600 border-b border-gray-200 dark:border-zinc-600 last:border-0 transition-colors`}
-                  >
-                    <div className="font-medium text-gray-900 dark:text-white">{item.itemName}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      {item.category}
-                      {item.targetPrice && ` • Target: $${item.targetPrice.toFixed(2)}/${item.unitType}`}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
+
+          {/* Suggestions Dropdown - Rendered via Portal */}
+          {showSuggestions && suggestions.length > 0 && createPortal(
+            <div
+              style={{
+                position: 'fixed',
+                top: `${dropdownPosition.top}px`,
+                left: `${dropdownPosition.left}px`,
+                width: `${dropdownPosition.width}px`,
+                zIndex: 9999,
+              }}
+              className="rounded-lg shadow-2xl border-2 bg-white dark:bg-zinc-800 border-purple-500 max-h-60 overflow-y-auto"
+              onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
+            >
+              {suggestions.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleSelectSuggestion(item)}
+                  className={`w-full text-left px-4 py-3 hover:bg-purple-100 dark:hover:bg-zinc-600 border-b border-gray-200 dark:border-zinc-600 last:border-0 transition-colors`}
+                >
+                  <div className="font-medium text-gray-900 dark:text-white">{item.itemName}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    {item.category}
+                    {item.targetPrice && ` • Target: $${item.targetPrice.toFixed(2)}/${item.unitType}`}
+                  </div>
+                </button>
+              ))}
+            </div>,
+            document.body
+          )}
 
           {/* Category */}
           <div>
