@@ -24,7 +24,7 @@ import { fetchAllItems, createGroceryItem } from '../api/groceryData';
 import type { GroceryItem } from '../types';
 
 /**
- * Input for item ingestion
+ * Input for item ingestion (Phase 4: with OCR/moderation support)
  */
 export interface IngestItemInput {
   itemName: string;
@@ -37,6 +37,15 @@ export interface IngestItemInput {
   meatQuality?: string;
   notes?: string;
   datePurchased?: Date;
+  
+  // Phase 4: OCR metadata (optional)
+  ocr_source?: 'manual_entry' | 'google_vision' | 'tesseract' | 'aws_textract' | 'azure_ocr' | 'other';
+  ocr_confidence?: number;
+  ocr_raw_text?: string;
+  receipt_url?: string;
+  
+  // Phase 4: Auto-flagging (optional, for suspicious data)
+  auto_flag_if_suspicious?: boolean;
 }
 
 /**
@@ -195,7 +204,31 @@ export async function ingestGroceryItem(
   // Step 3: Calculate unit price
   const unitPrice = normalized.price / normalized.quantity;
 
-  // Step 4: Create the item
+  // Step 4: Phase 4 - Check for suspicious data (auto-flagging)
+  let shouldFlag = false;
+  let flagReason: string | undefined;
+  
+  if (input.auto_flag_if_suspicious) {
+    // Auto-flag if price is suspiciously low/high
+    if (normalized.price < 0.01 || normalized.price > 10000) {
+      shouldFlag = true;
+      flagReason = 'Suspicious price detected';
+    }
+    
+    // Auto-flag if OCR confidence is low
+    if (input.ocr_confidence !== undefined && input.ocr_confidence < 0.5) {
+      shouldFlag = true;
+      flagReason = flagReason ? `${flagReason}; Low OCR confidence` : 'Low OCR confidence';
+    }
+    
+    // Auto-flag if quantity is suspicious
+    if (normalized.quantity > 1000) {
+      shouldFlag = true;
+      flagReason = flagReason ? `${flagReason}; Suspicious quantity` : 'Suspicious quantity';
+    }
+  }
+
+  // Step 5: Create the item
   try {
     const createdItem = await createGroceryItem({
       itemName: input.itemName, // Use original capitalization for display
@@ -210,6 +243,25 @@ export async function ingestGroceryItem(
       notes: input.notes,
       datePurchased: input.datePurchased || new Date(),
     });
+
+    // Step 6: Phase 4 - TODO: Create OCR scan record if OCR metadata provided
+    // This requires createdItem.id, which would be added in a future PR
+    // For now, OCR metadata is accepted but not persisted separately
+    if (input.ocr_source && input.ocr_source !== 'manual_entry') {
+      console.log('[INGESTION] OCR metadata received:', {
+        source: input.ocr_source,
+        confidence: input.ocr_confidence,
+        receipt_url: input.receipt_url,
+      });
+      // TODO: Call createOCRScan(createdItem.id, {...}) once API is ready
+    }
+    
+    // Step 7: Phase 4 - TODO: Flag item if suspicious
+    // This requires an API to update flagged_for_review
+    if (shouldFlag) {
+      console.warn('[INGESTION] Suspicious data detected, should flag:', flagReason);
+      // TODO: Call flagItemForReview(createdItem.id, flagReason) once API is ready
+    }
 
     return {
       success: true,

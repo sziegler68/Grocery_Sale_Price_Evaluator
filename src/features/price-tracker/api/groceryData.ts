@@ -89,6 +89,13 @@ const mapRowToItem = (row: GroceryItemRow): GroceryItem => ({
   notes: row.notes ?? undefined,
   targetPrice: row.target_price ?? undefined,
   userId: row.user_id ?? undefined,
+  
+  // Phase 4: Moderation fields (with safe defaults)
+  flagged_for_review: row.flagged_for_review ?? false,
+  verified: row.verified ?? false,
+  flagged_reason: row.flagged_reason ?? undefined,
+  reviewed_by: row.reviewed_by ?? undefined,
+  reviewed_at: row.reviewed_at ?? undefined,
 });
 
 const buildErrorResult = (errorMessage: string): GroceryDataResult => ({

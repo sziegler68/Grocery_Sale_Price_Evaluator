@@ -38,6 +38,13 @@ export type GroceryItemRow = {
   notes: string | null;
   target_price: number | null;
   user_id: string | null;
+  
+  // Phase 4: Moderation fields
+  flagged_for_review?: boolean;
+  verified?: boolean;
+  flagged_reason?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
 };
 
 export type GroceryItemsInsert = Omit<GroceryItemRow, 'id' | 'created_at' | 'unit_price'> & {
