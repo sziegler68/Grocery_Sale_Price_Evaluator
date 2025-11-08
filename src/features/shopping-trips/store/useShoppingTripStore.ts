@@ -3,12 +3,14 @@ import type { ShoppingTrip, CartItem } from '../types';
 import { 
   createShoppingTrip, 
   getTripById, 
-  addItemToCart, 
-  removeCartItem, 
-  completeTrip,
   getCartItems,
-  updateCartItem as updateCartItemAPI
+  completeTrip as completeTripAPI
 } from '../api';
+import {
+  addItemToCart as addItemToCartService,
+  updateCartItem as updateCartItemService,
+  removeItemFromCart as removeItemFromCartService,
+} from '../services/tripService';
 
 interface ShoppingTripStore {
   // State
@@ -77,15 +79,17 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
     }
   },
 
-  // Add item to cart
+  // Add item to cart using service (with validation & normalization)
   addToCart: async (itemData) => {
     try {
-      const newItem = await addItemToCart(itemData);
-      set(state => ({ 
-        cartItems: [...state.cartItems, newItem] 
-      }));
+      const result = await addItemToCartService(itemData);
       
-      // Reload trip to update totals
+      if (!result.success) {
+        set({ error: result.error || 'Failed to add item' });
+        throw new Error(result.error || 'Failed to add item');
+      }
+      
+      // Reload trip and cart to get updated values
       const { currentTrip } = get();
       if (currentTrip) {
         await get().loadTrip(currentTrip.id);
@@ -96,10 +100,15 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
     }
   },
 
-  // Update cart item
+  // Update cart item using service (with validation & normalization)
   updateCartItem: async (itemId, updates) => {
     try {
-      await updateCartItemAPI(itemId, updates);
+      const result = await updateCartItemService(itemId, updates);
+      
+      if (!result.success) {
+        set({ error: result.error || 'Failed to update item' });
+        throw new Error(result.error || 'Failed to update item');
+      }
       
       // Reload trip and cart items to get updated values
       const { currentTrip } = get();
@@ -112,13 +121,15 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
     }
   },
 
-  // Remove item from cart
+  // Remove item from cart using service
   removeFromCart: async (itemId) => {
     try {
-      await removeCartItem(itemId);
-      set(state => ({
-        cartItems: state.cartItems.filter(item => item.id !== itemId)
-      }));
+      const result = await removeItemFromCartService(itemId);
+      
+      if (!result.success) {
+        set({ error: result.error || 'Failed to remove item' });
+        throw new Error(result.error || 'Failed to remove item');
+      }
       
       // Reload trip to update totals
       const { currentTrip } = get();
@@ -135,7 +146,7 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
   finishTrip: async (tripId) => {
     set({ isLoading: true });
     try {
-      await completeTrip(tripId);
+      await completeTripAPI(tripId);
       set({ currentTrip: null, cartItems: [], isLoading: false });
     } catch (error: any) {
       set({ error: error.message, isLoading: false });

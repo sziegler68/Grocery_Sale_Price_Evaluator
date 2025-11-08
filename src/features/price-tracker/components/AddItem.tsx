@@ -3,7 +3,8 @@ import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
 import { toast } from 'react-toastify';
 import AddItemForm from './AddItemForm';
-import { createGroceryItem, fetchAllItems, type GroceryItem } from '../api/groceryData';
+import { fetchAllItems, type GroceryItem } from '../api/groceryData';
+import { ingestGroceryItem } from '../services/itemIngestion';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 
 const AddItem: React.FC = () => {
@@ -19,26 +20,47 @@ const AddItem: React.FC = () => {
   }, []);
 
   const handleSubmit = async (data: any) => {
-    try {
-      await createGroceryItem({
-        itemName: data.itemName,
-        category: data.category,
-        meatQuality: data.meatQuality,
-        storeName: data.storeName,
-        price: data.price,
-        quantity: data.quantity,
-        unitType: data.unitType,
-        unitPrice: data.unitPrice,
-        datePurchased: data.datePurchased,
-        notes: data.notes,
-        targetPrice: data.targetPrice,
-        userId: data.userId,
-      });
+    // Use ingestion service with validation, normalization, and fuzzy matching
+    const result = await ingestGroceryItem({
+      itemName: data.itemName,
+      price: data.price,
+      quantity: data.quantity,
+      storeName: data.storeName,
+      unitType: data.unitType,
+      category: data.category,
+      targetPrice: data.targetPrice,
+      meatQuality: data.meatQuality,
+      notes: data.notes,
+      datePurchased: data.datePurchased,
+    }, {
+      skipDuplicateCheck: false, // Enable smart duplicate detection
+      fuzzyThreshold: 0.85, // 85% similarity threshold
+    });
 
+    if (result.success) {
       toast.success('Item added successfully!');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to save item. Check your Supabase configuration and try again.';
-      toast.error(message);
+      // Reload items to show the new one
+      const refreshed = await fetchAllItems();
+      setExistingItems(refreshed.items);
+    } else if (result.matchFound) {
+      // Duplicate detected - show warning with match info
+      const { existingItem, similarity, suggestedAction } = result.matchFound;
+      const matchPercent = Math.round(similarity * 100);
+      
+      if (suggestedAction === 'update') {
+        toast.warning(
+          `Similar item found: "${existingItem.itemName}" (${matchPercent}% match). This looks like a duplicate. Consider updating the existing item instead.`,
+          { autoClose: 8000 }
+        );
+      } else {
+        toast.info(
+          `Possible duplicate: "${existingItem.itemName}" (${matchPercent}% match). If this is a new item, try again with a more specific name.`,
+          { autoClose: 8000 }
+        );
+      }
+    } else {
+      // Validation or creation error
+      toast.error(result.error || 'Failed to save item');
     }
   };
 
