@@ -21,6 +21,8 @@ import {
   type FuzzyMatchResult,
 } from '@shared/utils/fuzzyMatch';
 import { fetchAllItems, createGroceryItem } from '../api/groceryData';
+import { createOCRScan } from '../api/ocrScans';
+import { flagItemForReview } from '../api/moderation';
 import type { GroceryItem } from '../types';
 
 /**
@@ -244,23 +246,34 @@ export async function ingestGroceryItem(
       datePurchased: input.datePurchased || new Date(),
     });
 
-    // Step 6: Phase 4 - TODO: Create OCR scan record if OCR metadata provided
-    // This requires createdItem.id, which would be added in a future PR
-    // For now, OCR metadata is accepted but not persisted separately
+    // Step 6: Phase 4 - Create OCR scan record if OCR metadata provided
     if (input.ocr_source && input.ocr_source !== 'manual_entry') {
-      console.log('[INGESTION] OCR metadata received:', {
-        source: input.ocr_source,
-        confidence: input.ocr_confidence,
-        receipt_url: input.receipt_url,
-      });
-      // TODO: Call createOCRScan(createdItem.id, {...}) once API is ready
+      try {
+        console.log('[INGESTION] Creating OCR scan record for item:', createdItem.id);
+        await createOCRScan({
+          grocery_item_id: createdItem.id,
+          ocr_source: input.ocr_source,
+          confidence: input.ocr_confidence,
+          raw_text: input.ocr_raw_text,
+          receipt_url: input.receipt_url,
+        });
+        console.log('[INGESTION] ✅ OCR scan record created successfully');
+      } catch (error: any) {
+        console.error('[INGESTION] ⚠️ Failed to create OCR scan record:', error.message);
+        // Don't fail the whole operation if OCR record creation fails
+      }
     }
     
-    // Step 7: Phase 4 - TODO: Flag item if suspicious
-    // This requires an API to update flagged_for_review
-    if (shouldFlag) {
-      console.warn('[INGESTION] Suspicious data detected, should flag:', flagReason);
-      // TODO: Call flagItemForReview(createdItem.id, flagReason) once API is ready
+    // Step 7: Phase 4 - Flag item if suspicious
+    if (shouldFlag && flagReason) {
+      try {
+        console.warn('[INGESTION] Flagging suspicious item:', createdItem.id, flagReason);
+        await flagItemForReview(createdItem.id, flagReason);
+        console.log('[INGESTION] ✅ Item flagged successfully');
+      } catch (error: any) {
+        console.error('[INGESTION] ⚠️ Failed to flag item:', error.message);
+        // Don't fail the whole operation if flagging fails
+      }
     }
 
     return {
