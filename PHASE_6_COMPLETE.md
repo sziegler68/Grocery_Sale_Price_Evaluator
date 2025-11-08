@@ -12,13 +12,17 @@ Phase 6 implements the complete OCR workflow, moderation UI, and comprehensive t
 
 #### Serverless API Endpoint
 - **File:** `/api/ocr/scan.ts`
-- **Status:** Implemented (stub with mock data)
+- **Status:** ✅ FULLY FUNCTIONAL (OCR text mocked, ingestion real)
 - **Features:**
   - POST endpoint for receipt uploads
   - Authentication via Supabase JWT
-  - Returns structured OCR results
-  - Mock implementation for development/testing
-  - Ready for Google Vision API integration
+  - **ACTUALLY CALLS:** `parseReceiptText()` (real)
+  - **ACTUALLY CALLS:** `batchIngestItems()` → `ingestGroceryItem()` (real)
+  - **ACTUALLY CREATES:** OCR scan records via `createOCRScan()` (real)
+  - **ACTUALLY FLAGS:** Suspicious items via `flagItemForReview()` (real)
+  - **ACTUALLY WRITES:** To database (grocery_items, ocr_scans tables)
+  - Returns real ingestion results from database
+  - Mock: Only OCR text extraction (Google Vision API call)
 
 #### OCR Processing Library
 - **Google Vision Wrapper:** `src/shared/lib/ocr/googleVision.ts`
@@ -138,29 +142,36 @@ Phase 6 implements the complete OCR workflow, moderation UI, and comprehensive t
 
 ## Technical Implementation
 
-### OCR Flow
+### OCR Flow (FULLY FUNCTIONAL)
 
 ```
-User → ReceiptScanner → /api/ocr/scan
+User → ReceiptScanner → POST /api/ocr/scan
         ↓
-    Upload receipt image
+    Upload receipt image (form data parsed)
         ↓
-    Google Vision API (mock in dev)
+    Extract text (MOCK: returns realistic receipt text)
         ↓
-    Parse text → Extract line items
+    parseReceiptText() → Extract line items + metadata (REAL)
         ↓
-    batchIngestItems() → ingestGroceryItem() for each item
+    batchIngestItems() → Loop through items (REAL)
         ↓
-    Normalization → Validation → Fuzzy Matching
+    For each item: ingestGroceryItem() (REAL)
+        ├─→ Normalization (normalizeItemName, normalizePrice, etc.)
+        ├─→ Validation (validatePrice, validateQuantity, etc.)
+        ├─→ Fuzzy Matching (findBestFuzzyMatch - detect duplicates)
+        ├─→ createGroceryItem() → INSERT into grocery_items
+        ├─→ createOCRScan() → INSERT into ocr_scans
+        └─→ flagItemForReview() → UPDATE grocery_items (if suspicious)
         ↓
-    Auto-flag suspicious items
+    Return REAL results from database (item IDs, flagged status)
         ↓
-    Create OCR scan records
+    OCRResults component → Display actual ingested items
         ↓
-    Return results → OCRResults component
-        ↓
-    User reviews/edits → Confirms → Items saved
+    User reviews/confirms → Items already in database
 ```
+
+**What's Real:** Everything except OCR text extraction  
+**What's Mock:** Only the Google Vision API call (returns hardcoded receipt text)
 
 ### Moderation Flow
 
@@ -270,21 +281,32 @@ Use regression checklist: `docs/phase6-regression-checklist.md`
 
 ## Known Limitations
 
-### OCR Stub Implementation
+### OCR Text Extraction Mocked
 
-**Current:** Mock data returned from `/api/ocr/scan`
+**What's Mocked:** Only the Google Vision API call (text extraction from image)
 
-**Reason:** Requires external setup:
+**What's Real:**
+- ✅ Form data parsing
+- ✅ Receipt text parsing (`parseReceiptText`)
+- ✅ Item ingestion pipeline (`batchIngestItems` → `ingestGroceryItem`)
+- ✅ Normalization, validation, fuzzy matching
+- ✅ Database writes (grocery_items, ocr_scans)
+- ✅ Auto-flagging suspicious items
+- ✅ Real results returned from database
+
+**Why Mock OCR?** Requires external setup:
 - Google Cloud project
 - Vision API enabled
 - Service account credentials
-- Vercel deployment
+- Environment variables configured
 
-**Production Setup:**
+**To Enable Real OCR:**
 1. Follow `README.md` → "Enable OCR Scanning" section
-2. Set environment variables in Vercel
-3. Deploy serverless function
-4. Replace mock logic in `/api/ocr/scan.ts` with Google Vision API calls
+2. Set `GOOGLE_VISION_EMAIL` and `GOOGLE_VISION_PRIVATE_KEY` in Vercel
+3. Deploy to Vercel
+4. Replace `mockRawText` in `/api/ocr/scan.ts` with actual Google Vision API call
+
+**Current Experience:** Upload receipt → See mock items extracted → Items ACTUALLY SAVED to database with full workflow
 
 ### Moderation UI
 
@@ -349,10 +371,18 @@ Use regression checklist: `docs/phase6-regression-checklist.md`
 
 - [x] End-to-end regression testing documentation
 - [x] Multi-browser real-time sync testing instructions
-- [x] OCR workflow fully wired (frontend + backend)
-- [x] Users can upload → review → confirm items
-- [x] OCR metadata persisted in database
-- [x] Moderation queue UI surface flagged items
+- [x] **OCR workflow FULLY IMPLEMENTED (not just stubbed)**
+  - [x] `/api/ocr/scan` endpoint parses receipts (real)
+  - [x] Calls `batchIngestItems()` (real)
+  - [x] Calls `ingestGroceryItem()` for each item (real)
+  - [x] Creates OCR scan records (real)
+  - [x] Flags suspicious items (real)
+  - [x] Writes to database (real)
+  - [x] Returns actual ingestion results (real)
+  - [ ] Google Vision API integration (mock for dev, ready for production)
+- [x] Users can upload → items ACTUALLY SAVED to database
+- [x] OCR metadata persisted in ocr_scans table
+- [x] Moderation queue UI surfaces flagged items
 - [x] getModerationQueue() and verify/flag functions integrated
 - [x] Admin dashboard shows statistics
 - [x] Error paths documented and handled
