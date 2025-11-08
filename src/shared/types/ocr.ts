@@ -1,5 +1,5 @@
 /**
- * Shared OCR types for Phase 4
+ * Shared OCR types for Phase 4 & Phase 6
  */
 
 import { z } from 'zod';
@@ -16,7 +16,7 @@ export const OCRSourceSchema = z.enum([
 
 export type OCRSource = z.infer<typeof OCRSourceSchema>;
 
-// OCR scan metadata schema
+// OCR scan metadata schema (database)
 export const OCRScanSchema = z.object({
   id: z.string().uuid(),
   created_at: z.string(),
@@ -45,6 +45,51 @@ export const CreateOCRScanSchema = z.object({
 });
 
 export type CreateOCRScanInput = z.infer<typeof CreateOCRScanSchema>;
+
+// Phase 6: OCR processing types (API responses)
+
+export interface OCRLineItem {
+  description: string;
+  price: number;
+  quantity: number;
+  confidence: number;
+}
+
+export interface OCRMetadata {
+  storeName: string;
+  storeConfidence: number;
+  total: number;
+  totalConfidence: number;
+  date: string;
+  dateConfidence: number;
+}
+
+export interface OCRResult {
+  rawText: string;
+  confidence: number;
+  receiptUrl: string;
+  lineItems: OCRLineItem[];
+  metadata: OCRMetadata;
+}
+
+export interface OCRScanResponse {
+  success: boolean;
+  processingTimeMs: number;
+  ocrResult?: OCRResult;
+  ingestedItems?: Array<{
+    id: string | null;
+    itemName: string;
+    price: number;
+    flagged: boolean;
+    flagReason?: string;
+  }>;
+  error?: {
+    code: string;
+    message: string;
+    details?: string;
+  };
+  _note?: string; // For mock API responses
+}
 
 // Moderation fields schema
 export const ModerationFieldsSchema = z.object({

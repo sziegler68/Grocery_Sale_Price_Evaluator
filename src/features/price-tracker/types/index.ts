@@ -48,7 +48,11 @@ export type GroceryItem = {
   reviewed_by?: string | null;
   reviewed_at?: string | null;
   
-  // Phase 4: OCR metadata (optional, can be loaded separately)
+  // Phase 4: OCR metadata fields (inline, from grocery_items table)
+  ocr_source?: OCRSourceType;
+  ocr_confidence?: number | null;
+  
+  // Phase 4: OCR scans (optional, can be loaded separately from ocr_scans table)
   ocr_scans?: OCRScan[];
 };
 
