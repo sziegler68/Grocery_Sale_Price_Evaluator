@@ -23,7 +23,7 @@ import {
 } from '../api';
 import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
-import { createGroceryItem } from '../../price-tracker/api/groceryData';
+import { ingestGroceryItem } from '../../price-tracker/services/itemIngestion';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from '../types';
 import type { ShoppingListItem as ShoppingListItemType } from '../types';
@@ -477,44 +477,54 @@ const ShoppingListDetail: React.FC = () => {
       if (shouldSave) {
         let savedCount = 0;
         let errorCount = 0;
+        let duplicateCount = 0;
 
         for (const item of cartItems) {
-          try {
-            // Map shopping list categories to grocery item categories
-            const categoryMap: Record<string, 'Beef' | 'Pork' | 'Chicken' | 'Seafood' | 'Dairy' | 'Produce' | 'Snacks' | 'Drinks' | 'Household' | 'Other'> = {
-              'Meats': 'Chicken',
-              'Dairy': 'Dairy',
-              'Produce': 'Produce',
-              'Snacks': 'Snacks',
-              'Drinks': 'Drinks',
-              'Household': 'Household'
-            };
-            const groceryCategory = item.category ? (categoryMap[item.category] || 'Other') : 'Other';
-            
-            // Calculate unit price
-            const unitPrice = item.price_paid / item.quantity;
-            
-            await createGroceryItem({
-              itemName: item.item_name,
-              price: item.price_paid,
-              quantity: item.quantity,
-              unitType: item.unit_type || 'each',
-              unitPrice: unitPrice,
-              datePurchased: new Date(),
-              storeName: completedTrip.store_name,
-              category: groceryCategory,
-              targetPrice: item.target_price || undefined,
-              meatQuality: undefined
-            });
+          // Map shopping list categories to grocery item categories
+          const categoryMap: Record<string, 'Beef' | 'Pork' | 'Chicken' | 'Seafood' | 'Dairy' | 'Produce' | 'Snacks' | 'Drinks' | 'Household' | 'Other'> = {
+            'Meats': 'Chicken',
+            'Dairy': 'Dairy',
+            'Produce': 'Produce',
+            'Snacks': 'Snacks',
+            'Drinks': 'Drinks',
+            'Household': 'Household'
+          };
+          const groceryCategory = item.category ? (categoryMap[item.category] || 'Other') : 'Other';
+          
+          // Use ingestion service for validation, normalization, and duplicate detection
+          const result = await ingestGroceryItem({
+            itemName: item.item_name,
+            price: item.price_paid,
+            quantity: item.quantity,
+            unitType: item.unit_type || 'each',
+            storeName: completedTrip.store_name,
+            category: groceryCategory,
+            targetPrice: item.target_price || undefined,
+            notes: undefined,
+            datePurchased: new Date(),
+          }, {
+            skipDuplicateCheck: false, // Enable duplicate detection for trip exports
+            fuzzyThreshold: 0.85,
+          });
+
+          if (result.success) {
             savedCount++;
-          } catch (error) {
-            console.error(`Failed to save ${item.item_name}:`, error);
+          } else if (result.matchFound) {
+            // Item was a duplicate - count separately
+            duplicateCount++;
+            console.log(`Duplicate detected: ${item.item_name} matched ${result.matchFound.existingItem.itemName}`);
+          } else {
+            console.error(`Failed to save ${item.item_name}:`, result.error);
             errorCount++;
           }
         }
 
+        // Show summary with duplicate info
         if (savedCount > 0) {
           toast.success(`Saved ${savedCount} price${savedCount !== 1 ? 's' : ''} to Price Tracker!`);
+        }
+        if (duplicateCount > 0) {
+          toast.info(`Skipped ${duplicateCount} duplicate item${duplicateCount !== 1 ? 's' : ''}`);
         }
         if (errorCount > 0) {
           toast.warning(`Failed to save ${errorCount} item${errorCount !== 1 ? 's' : ''}`);
