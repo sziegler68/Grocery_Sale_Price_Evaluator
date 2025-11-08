@@ -11,6 +11,7 @@ import {
   updateCartItem as updateCartItemService,
   removeItemFromCart as removeItemFromCartService,
 } from '../services/tripService';
+import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
 
 interface ShoppingTripStore {
   // State
@@ -18,6 +19,7 @@ interface ShoppingTripStore {
   cartItems: CartItem[];
   isLoading: boolean;
   error: string | null;
+  activeSubscriptions: Map<string, () => void>; // Track active subscriptions for cleanup
 
   // Actions
   startTrip: (listId: string, budget: number, storeName: string, salesTaxRate?: number) => Promise<ShoppingTrip>;
@@ -28,6 +30,11 @@ interface ShoppingTripStore {
   removeFromCart: (itemId: string) => Promise<void>;
   finishTrip: (tripId: string) => Promise<void>;
   clearTrip: () => void;
+  
+  // Real-time subscriptions
+  subscribeToCartUpdates: (tripId: string) => () => void;
+  subscribeToTripUpdates: (tripId: string) => () => void;
+  cleanupAllSubscriptions: () => void;
 }
 
 export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
@@ -36,6 +43,7 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
   cartItems: [],
   isLoading: false,
   error: null,
+  activeSubscriptions: new Map(),
 
   // Start a new shopping trip
   startTrip: async (listId, budget, storeName, salesTaxRate) => {
@@ -157,5 +165,119 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
   // Clear current trip
   clearTrip: () => {
     set({ currentTrip: null, cartItems: [] });
+  },
+
+  // Subscribe to cart_items changes
+  subscribeToCartUpdates: (tripId: string) => {
+    if (!isSupabaseConfigured) return () => {};
+
+    const subscriptionKey = `cart-items-${tripId}`;
+    
+    // Clean up existing subscription if any
+    const existing = get().activeSubscriptions.get(subscriptionKey);
+    if (existing) {
+      existing();
+    }
+
+    const supabase = getSupabaseClient();
+    
+    console.log('[STORE] 📡 Setting up cart items subscription for trip:', tripId.substring(0, 8) + '...');
+    
+    const channel = supabase
+      .channel(subscriptionKey)
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'cart_items',
+          filter: `trip_id=eq.${tripId}`
+        },
+        () => {
+          console.log('[STORE] 🛒 Cart items changed, reloading...');
+          // Reload cart items when changes occur
+          get().loadCartItems(tripId);
+        }
+      )
+      .subscribe();
+
+    const unsubscribe = () => {
+      console.log('[STORE] 🔌 Unsubscribing from cart updates');
+      channel.unsubscribe();
+      set(state => {
+        const newSubs = new Map(state.activeSubscriptions);
+        newSubs.delete(subscriptionKey);
+        return { activeSubscriptions: newSubs };
+      });
+    };
+
+    // Track this subscription
+    set(state => {
+      const newSubs = new Map(state.activeSubscriptions);
+      newSubs.set(subscriptionKey, unsubscribe);
+      return { activeSubscriptions: newSubs };
+    });
+
+    return unsubscribe;
+  },
+
+  // Subscribe to shopping_trips changes (for budget meter updates)
+  subscribeToTripUpdates: (tripId: string) => {
+    if (!isSupabaseConfigured) return () => {};
+
+    const subscriptionKey = `trip-${tripId}`;
+    
+    // Clean up existing subscription if any
+    const existing = get().activeSubscriptions.get(subscriptionKey);
+    if (existing) {
+      existing();
+    }
+
+    const supabase = getSupabaseClient();
+    
+    console.log('[STORE] 📡 Setting up trip updates subscription for trip:', tripId.substring(0, 8) + '...');
+    
+    const channel = supabase
+      .channel(subscriptionKey)
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'shopping_trips',
+          filter: `id=eq.${tripId}`
+        },
+        () => {
+          console.log('[STORE] 💰 Trip totals changed, reloading...');
+          // Reload trip when totals change
+          get().loadTrip(tripId);
+        }
+      )
+      .subscribe();
+
+    const unsubscribe = () => {
+      console.log('[STORE] 🔌 Unsubscribing from trip updates');
+      channel.unsubscribe();
+      set(state => {
+        const newSubs = new Map(state.activeSubscriptions);
+        newSubs.delete(subscriptionKey);
+        return { activeSubscriptions: newSubs };
+      });
+    };
+
+    // Track this subscription
+    set(state => {
+      const newSubs = new Map(state.activeSubscriptions);
+      newSubs.set(subscriptionKey, unsubscribe);
+      return { activeSubscriptions: newSubs };
+    });
+
+    return unsubscribe;
+  },
+
+  // Clean up all tracked subscriptions
+  cleanupAllSubscriptions: () => {
+    const { activeSubscriptions } = get();
+    console.log('[STORE] 🧹 Cleaning up', activeSubscriptions.size, 'subscriptions');
+    activeSubscriptions.forEach(unsubscribe => unsubscribe());
+    set({ activeSubscriptions: new Map() });
   },
 }));

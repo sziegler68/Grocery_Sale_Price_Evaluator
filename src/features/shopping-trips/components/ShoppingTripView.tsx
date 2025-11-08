@@ -4,8 +4,6 @@ import type { ShoppingTrip, CartItem } from '../types';
 import type { ShoppingListItem } from '../../shopping-lists/types';
 import { calculateBudgetStatus } from '../types';
 import { useShoppingTripStore } from '../store/useShoppingTripStore';
-import { subscribeToCartUpdates } from '../api';
-import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { updateItem as updateListItem } from '../../shopping-lists/api';
 import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
 import QuickPriceInput from '../../price-tracker/components/QuickPriceInput';
@@ -38,7 +36,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     removeFromCart,
     finishTrip,
     loadTrip,
-    loadCartItems 
+    subscribeToCartUpdates,
+    subscribeToTripUpdates
   } = useShoppingTripStore();
   
   // Use current trip from store or initial prop
@@ -56,41 +55,19 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     }
   }, [initialTrip.id, loadTrip]);
 
-  // Subscribe to real-time updates for BOTH cart items AND trip total
+  // Subscribe to real-time updates for BOTH cart items AND trip total via store
   useEffect(() => {
-    const supabase = getSupabaseClient();
-    
     // Subscribe to cart_items changes
-    const cartChannel = subscribeToCartUpdates(trip.id, async () => {
-      console.log('Cart items changed');
-      // Reload cart items from store
-      await loadCartItems(trip.id);
-    });
+    const unsubscribeCart = subscribeToCartUpdates(trip.id);
     
     // Subscribe to shopping_trips changes (for budget meter)
-    const tripChannel = supabase
-      .channel(`trip-${trip.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'shopping_trips',
-          filter: `id=eq.${trip.id}`
-        },
-        async (payload) => {
-          console.log('Trip total updated:', payload);
-          // Reload trip from store to get updated total
-          await loadTrip(trip.id);
-        }
-      )
-      .subscribe();
+    const unsubscribeTrip = subscribeToTripUpdates(trip.id);
 
     return () => {
-      cartChannel.unsubscribe();
-      tripChannel.unsubscribe();
+      unsubscribeCart();
+      unsubscribeTrip();
     };
-  }, [trip.id]);
+  }, [trip.id, subscribeToCartUpdates, subscribeToTripUpdates]);
 
   const handleItemClick = (item: ShoppingListItem) => {
     // Check if already in cart

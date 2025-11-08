@@ -15,13 +15,6 @@ import { getUserNameForList, setUserNameForList, removeUserNameForList } from '.
 import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from '../../notifications/api';
 import { getSalesTaxRate } from '../../../shared/components/Settings';
 import { useShoppingListStore } from '../store/useShoppingListStore';
-import { 
-  deleteShoppingList, 
-  clearAllItems,
-  checkItem,
-  uncheckItem
-} from '../api';
-import { getSupabaseClient } from '@shared/api/supabaseClient';
 import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
 import { ingestGroceryItem } from '../../price-tracker/services/itemIngestion';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
@@ -45,7 +38,11 @@ const ShoppingListDetail: React.FC = () => {
     isLoading,
     loadListByShareCode,
     optimisticToggleItem,
-    subscribeToList
+    toggleItem,
+    subscribeToList,
+    subscribeToNotifications,
+    deleteList,
+    clearItems
   } = useShoppingListStore();
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
@@ -118,18 +115,14 @@ const ShoppingListDetail: React.FC = () => {
     
     console.log('[CHECKBOX] Syncing', updates.size, 'checkbox changes to Supabase');
     
-    // Batch update to Supabase in background
+    // Batch update to Supabase in background using store action
     try {
       const promises = Array.from(updates.entries()).map(([itemId, isChecked]) => {
-        if (isChecked) {
-          return checkItem(itemId);
-        } else {
-          return uncheckItem(itemId);
-        }
+        return toggleItem(itemId, isChecked);
       });
       
       await Promise.all(promises);
-      console.log('[CHECKBOX] ✅ Synced to database');
+      console.log('[CHECKBOX] ✅ Synced to database via store');
       
       // Send notification for first checkbox activity in 1 hour window
       const checkedCount = Array.from(updates.values()).filter(v => v).length;
@@ -242,74 +235,42 @@ const ShoppingListDetail: React.FC = () => {
     };
   }, [syncCheckboxChanges]);
 
-  // Subscribe to live notifications
+  // Subscribe to live notifications via store
   useEffect(() => {
     if (!list) return;
 
-    console.log('[NOTIF] 📡 Setting up notification subscription for list:', list.id.substring(0, 8) + '...');
-    console.log('[NOTIF] 👤 Current user:', userName || 'No name set');
-
-    const client = getSupabaseClient();
-    
-    const channel = client
-      .channel(`notifications-${list.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'live_notifications',
-          filter: `list_id=eq.${list.id}`,
-        },
-        (payload) => {
-          console.log('[NOTIF] 📬 Received notification:', payload);
-          
-          const notification = payload.new as any;
-          
-          console.log('[NOTIF] 📝 Notification details:', {
-            type: notification.notification_type,
-            triggeredBy: notification.triggered_by,
-            message: notification.message
-          });
-          
-          // Don't show notifications triggered by yourself
-          if (userName && notification.triggered_by === userName) {
-            console.log('[NOTIF] ⏭️ Skipping - triggered by current user');
-            return;
-          }
-          
-          console.log('[NOTIF] 🎉 Showing notification to user');
-          
-          // Show toast notification
-          toast.info(notification.message, {
-            position: 'top-center',
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-
-          // Also send browser notification if enabled
-          if ('Notification' in window && Notification.permission === 'granted') {
-            console.log('[NOTIF] 🔔 Sending browser notification');
-            new Notification('Shopping List Update', {
-              body: notification.message,
-              icon: '/icons/192x192.png',
-              tag: 'shopping-list-notification',
-            });
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log('[NOTIF] Subscription status:', status);
+    const unsubscribe = subscribeToNotifications(list.id, userName, (notification) => {
+      console.log('[NOTIF] 📝 Notification details:', {
+        type: notification.notification_type,
+        triggeredBy: notification.triggered_by,
+        message: notification.message
+      });
+      
+      console.log('[NOTIF] 🎉 Showing notification to user');
+      
+      // Show toast notification
+      toast.info(notification.message, {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
-    return () => {
-      console.log('[NOTIF] 🔌 Unsubscribing from notifications');
-      channel.unsubscribe();
-    };
-  }, [list?.id, userName]);
+      // Also send browser notification if enabled
+      if ('Notification' in window && Notification.permission === 'granted') {
+        console.log('[NOTIF] 🔔 Sending browser notification');
+        new Notification('Shopping List Update', {
+          body: notification.message,
+          icon: '/icons/192x192.png',
+          tag: 'shopping-list-notification',
+        });
+      }
+    });
+
+    return unsubscribe;
+  }, [list?.id, userName, subscribeToNotifications]);
 
   const handleSaveName = (name: string) => {
     if (shareCode) {
@@ -336,7 +297,7 @@ const ShoppingListDetail: React.FC = () => {
     }
 
     try {
-      await clearAllItems(list.id);
+      await clearItems(list.id);
       toast.success('All items cleared');
       loadListData();
     } catch (error) {
@@ -353,7 +314,7 @@ const ShoppingListDetail: React.FC = () => {
     }
 
     try {
-      await deleteShoppingList(list.id);
+      await deleteList(list.id);
       removeShareCode(list.share_code);
       if (shareCode) {
         removeUserNameForList(shareCode);

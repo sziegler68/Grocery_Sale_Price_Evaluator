@@ -7,7 +7,9 @@ import {
   deleteItem,
   checkItem,
   uncheckItem,
-  getShoppingListByCode 
+  getShoppingListByCode,
+  deleteShoppingList,
+  clearAllItems
 } from '../api';
 import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
 
@@ -18,6 +20,7 @@ interface ShoppingListStore {
   items: ShoppingListItem[];
   isLoading: boolean;
   error: string | null;
+  activeSubscriptions: Map<string, () => void>; // Track active subscriptions for cleanup
 
   // Actions
   loadLists: () => Promise<void>;
@@ -26,13 +29,17 @@ interface ShoppingListStore {
   addItem: (item: any) => Promise<void>;
   updateItem: (itemId: string, updates: any) => Promise<void>;
   deleteItem: (itemId: string) => Promise<void>;
+  deleteList: (listId: string) => Promise<void>;
+  clearItems: (listId: string) => Promise<void>;
   toggleItem: (itemId: string, isChecked: boolean) => Promise<void>;
   setCurrentList: (list: ShoppingList | null) => void;
   optimisticToggleItem: (itemId: string, isChecked: boolean) => void;
   
   // Real-time subscriptions
   subscribeToList: (listId: string) => () => void;
+  subscribeToNotifications: (listId: string, userName: string | null, onNotification: (notification: any) => void) => () => void;
   unsubscribeFromList: () => void;
+  cleanupAllSubscriptions: () => void;
 }
 
 export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
@@ -42,6 +49,7 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
   items: [],
   isLoading: false,
   error: null,
+  activeSubscriptions: new Map(),
 
   // Load all lists for user
   loadLists: async () => {
@@ -126,6 +134,32 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
     }
   },
 
+  // Delete entire list
+  deleteList: async (listId) => {
+    try {
+      await deleteShoppingList(listId);
+      set(state => ({
+        lists: state.lists.filter(list => list.id !== listId),
+        currentList: state.currentList?.id === listId ? null : state.currentList,
+        items: state.currentList?.id === listId ? [] : state.items
+      }));
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
+  // Clear all items from list
+  clearItems: async (listId) => {
+    try {
+      await clearAllItems(listId);
+      set({ items: [] });
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    }
+  },
+
   // Toggle item checked status
   toggleItem: async (itemId, isChecked) => {
     try {
@@ -165,9 +199,17 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
   subscribeToList: (listId: string) => {
     if (!isSupabaseConfigured) return () => {};
 
+    const subscriptionKey = `list-items-${listId}`;
+    
+    // Clean up existing subscription if any
+    const existing = get().activeSubscriptions.get(subscriptionKey);
+    if (existing) {
+      existing();
+    }
+
     const supabase = getSupabaseClient();
     const channel = supabase
-      .channel(`list-${listId}`)
+      .channel(subscriptionKey)
       .on('postgres_changes', 
         { 
           event: '*', 
@@ -182,9 +224,86 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
       )
       .subscribe();
 
-    return () => {
+    const unsubscribe = () => {
       channel.unsubscribe();
+      set(state => {
+        const newSubs = new Map(state.activeSubscriptions);
+        newSubs.delete(subscriptionKey);
+        return { activeSubscriptions: newSubs };
+      });
     };
+
+    // Track this subscription
+    set(state => {
+      const newSubs = new Map(state.activeSubscriptions);
+      newSubs.set(subscriptionKey, unsubscribe);
+      return { activeSubscriptions: newSubs };
+    });
+
+    return unsubscribe;
+  },
+
+  // Subscribe to live notifications for a list
+  subscribeToNotifications: (listId: string, userName: string | null, onNotification: (notification: any) => void) => {
+    if (!isSupabaseConfigured) return () => {};
+
+    const subscriptionKey = `notifications-${listId}`;
+    
+    // Clean up existing subscription if any
+    const existing = get().activeSubscriptions.get(subscriptionKey);
+    if (existing) {
+      existing();
+    }
+
+    const supabase = getSupabaseClient();
+    
+    console.log('[STORE] 📡 Setting up notification subscription for list:', listId.substring(0, 8) + '...');
+    
+    const channel = supabase
+      .channel(subscriptionKey)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'live_notifications',
+          filter: `list_id=eq.${listId}`,
+        },
+        (payload) => {
+          console.log('[STORE] 📬 Received notification:', payload);
+          
+          const notification = payload.new as any;
+          
+          // Don't show notifications triggered by yourself
+          if (userName && notification.triggered_by === userName) {
+            console.log('[STORE] ⏭️ Skipping - triggered by current user');
+            return;
+          }
+          
+          // Call the component's callback
+          onNotification(notification);
+        }
+      )
+      .subscribe();
+
+    const unsubscribe = () => {
+      console.log('[STORE] 🔌 Unsubscribing from notifications');
+      channel.unsubscribe();
+      set(state => {
+        const newSubs = new Map(state.activeSubscriptions);
+        newSubs.delete(subscriptionKey);
+        return { activeSubscriptions: newSubs };
+      });
+    };
+
+    // Track this subscription
+    set(state => {
+      const newSubs = new Map(state.activeSubscriptions);
+      newSubs.set(subscriptionKey, unsubscribe);
+      return { activeSubscriptions: newSubs };
+    });
+
+    return unsubscribe;
   },
 
   // Unsubscribe from all
@@ -192,5 +311,14 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
     if (!isSupabaseConfigured) return;
     const supabase = getSupabaseClient();
     supabase.removeAllChannels();
+    set({ activeSubscriptions: new Map() });
+  },
+
+  // Clean up all tracked subscriptions
+  cleanupAllSubscriptions: () => {
+    const { activeSubscriptions } = get();
+    console.log('[STORE] 🧹 Cleaning up', activeSubscriptions.size, 'subscriptions');
+    activeSubscriptions.forEach(unsubscribe => unsubscribe());
+    set({ activeSubscriptions: new Map() });
   },
 }));
