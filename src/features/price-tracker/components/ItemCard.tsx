@@ -18,17 +18,17 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
   const normalized = normalizePrice(item.price, item.quantity, item.unitType, preferences, item.category, item.itemName);
   
   // Price comparisons
-  const isBestPrice = bestPrice && item.unitPrice === bestPrice; // Lowest price ever for this item
+  const isAboveTarget = item.targetPrice && item.unitPrice > item.targetPrice; // Above target - HIGHEST PRIORITY
+  const isBestPriceAndGoodDeal = bestPrice && item.unitPrice === bestPrice && !isAboveTarget; // Lowest ever AND at/below target
   const isAtTarget = item.targetPrice && Math.abs(item.unitPrice - item.targetPrice) < 0.01; // Within 1 cent
-  const isGreatDeal = item.targetPrice && item.unitPrice < item.targetPrice && !isAtTarget; // Below target
-  const isAboveTarget = item.targetPrice && item.unitPrice > item.targetPrice; // Above target
+  const isGreatDeal = item.targetPrice && item.unitPrice < item.targetPrice && !isAtTarget && !isBestPriceAndGoodDeal; // Below target but not best
 
   return (
     <Link to={`/item/${item.id}`}>
       <div className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
         darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
       } border-l-4 ${
-        isBestPrice ? 'border-green-500' : isAboveTarget ? 'border-red-500' : isGreatDeal ? 'border-cyan-500' : isAtTarget ? 'border-yellow-500' : 'border-brand'
+        isAboveTarget ? 'border-red-500' : isBestPriceAndGoodDeal ? 'border-green-500' : isGreatDeal ? 'border-cyan-500' : isAtTarget ? 'border-yellow-500' : 'border-brand'
       }`}>
         <div className="flex justify-between items-start mb-3">
           <div>
@@ -109,25 +109,25 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
 
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary">
           <div className="flex items-center space-x-4">
-            {isBestPrice && (
-              <div className="flex items-center space-x-1 text-green-600">
-                <TrendingDown className="h-4 w-4" />
-                <span className="text-xs font-medium">Best Price to Date!</span>
-              </div>
-            )}
-            {!isBestPrice && isAboveTarget && (
+            {isAboveTarget && (
               <div className="flex items-center space-x-1 text-red-600">
                 <AlertTriangle className="h-4 w-4" />
                 <span className="text-xs font-medium">Above Target</span>
               </div>
             )}
-            {!isBestPrice && isGreatDeal && (
+            {!isAboveTarget && isBestPriceAndGoodDeal && (
+              <div className="flex items-center space-x-1 text-green-600">
+                <TrendingDown className="h-4 w-4" />
+                <span className="text-xs font-medium">Best Price to Date!</span>
+              </div>
+            )}
+            {!isAboveTarget && !isBestPriceAndGoodDeal && isGreatDeal && (
               <div className="flex items-center space-x-1 text-cyan-600">
                 <Target className="h-4 w-4" />
                 <span className="text-xs font-medium">Great Deal!</span>
               </div>
             )}
-            {!isBestPrice && isAtTarget && (
+            {!isAboveTarget && !isBestPriceAndGoodDeal && !isGreatDeal && isAtTarget && (
               <div className="flex items-center space-x-1 text-yellow-600 dark:text-yellow-500">
                 <Target className="h-4 w-4" />
                 <span className="text-xs font-medium">Good Deal</span>
