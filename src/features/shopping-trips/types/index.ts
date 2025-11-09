@@ -20,7 +20,7 @@ export interface CartItem {
   list_item_id?: string;
   item_name: string;
   price_paid: number; // Pre-tax total for the quantity purchased
-  tax_amount: number; // Calculated sales tax (stored, not recalculated)
+  tax_amount?: number; // Calculated sales tax (stored, not recalculated) - optional for backwards compatibility
   quantity: number;
   unit_type?: string;
   category?: string;
@@ -41,7 +41,7 @@ export interface AddCartItemInput {
   list_item_id?: string;
   item_name: string;
   price_paid: number; // Pre-tax total
-  tax_amount: number; // Calculated sales tax
+  tax_amount?: number; // Calculated sales tax (optional for backwards compatibility)
   quantity?: number;
   unit_type?: string;
   category?: string;

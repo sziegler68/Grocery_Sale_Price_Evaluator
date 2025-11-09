@@ -31,7 +31,7 @@ export interface AddToCartInput {
   list_item_id?: string;
   item_name: string;
   price_paid: number | string;
-  tax_amount: number | string;  // Calculated tax (from calculateItemTax)
+  tax_amount?: number | string;  // Calculated tax (optional for backwards compatibility)
   quantity: number | string;
   unit_type?: string;
   category?: string;
@@ -58,20 +58,23 @@ function normalizeAndValidateCartInput(input: AddToCartInput): {
 } {
   // Normalize numeric inputs
   const pricePaid = normalizeNumericInput(input.price_paid);
-  const taxAmount = normalizeNumericInput(input.tax_amount);
+  const taxAmount = input.tax_amount !== undefined ? normalizeNumericInput(input.tax_amount) : 0; // Default to 0 if not provided
   const quantity = normalizeNumericInput(input.quantity);
   const crvAmount = input.crv_amount ? normalizeNumericInput(input.crv_amount) : 0;
   const targetPrice = input.target_price ? normalizeNumericInput(input.target_price) : undefined;
 
-  if (pricePaid === null || taxAmount === null || quantity === null) {
+  if (pricePaid === null || quantity === null) {
     return {
       normalized: {} as AddCartItemInput,
       validation: {
         isValid: false,
-        error: 'Invalid price, tax, or quantity'
+        error: 'Invalid price or quantity'
       }
     };
   }
+  
+  // taxAmount can be 0 (valid) or null (migration not run) - both are OK
+  const finalTaxAmount = taxAmount === null ? 0 : taxAmount;
 
   // Validate price and quantity
   const priceValidation = validatePrice(pricePaid);
@@ -96,7 +99,7 @@ function normalizeAndValidateCartInput(input: AddToCartInput): {
     list_item_id: input.list_item_id,
     item_name: input.item_name, // Keep original capitalization for display
     price_paid: pricePaid,
-    tax_amount: taxAmount,
+    tax_amount: finalTaxAmount,
     quantity,
     unit_type: input.unit_type ? normalizeUnitType(input.unit_type) : undefined,
     category: input.category,
