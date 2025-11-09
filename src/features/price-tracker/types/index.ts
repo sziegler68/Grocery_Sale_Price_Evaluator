@@ -30,7 +30,15 @@ export type GroceryItem = {
   id: string;
   itemName: string;
   category: string;
-  meatQuality?: string | undefined;
+  
+  // Phase 3: Expanded quality tracking
+  meatQuality?: string | undefined; // Deprecated - kept for backwards compatibility
+  organic?: boolean;
+  grassFed?: boolean;
+  freshness?: 'Fresh' | 'Previously Frozen' | 'Frozen';
+  meatGrade?: 'Choice' | 'Prime' | 'Wagyu';
+  seafoodSource?: 'Wild' | 'Farm Raised';
+  
   storeName: string;
   price: number;
   quantity: number;
