@@ -8,6 +8,7 @@ interface QuickPriceInputProps {
   onConfirm: (data: {
     price: number;
     quantity: number;
+    taxAmount: number;  // Calculated sales tax
     crvAmount: number;
     updateTargetPrice: boolean;
   }) => void;
@@ -108,6 +109,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       onConfirm({
         price: totalPrice,
         quantity: quantityNum,
+        taxAmount: taxAmount, // Pass calculated tax (single source of truth)
         crvAmount: totalCrv, // Pass total CRV (crvPerContainer × containerCount)
         updateTargetPrice: updateTarget
       });

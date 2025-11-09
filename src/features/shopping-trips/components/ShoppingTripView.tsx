@@ -100,18 +100,19 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   const handleAddPrice = async (data: {
     price: number;
     quantity: number;
+    taxAmount: number;  // Calculated tax from QuickPriceInput
     crvAmount: number;
     updateTargetPrice: boolean;
   }) => {
     if (!selectedItem) return;
 
     try {
-      // Store TOTAL price (user's input), not per unit
-      // No more silly divide-then-multiply math!
+      // Store TOTAL price (user's input), calculated tax, and CRV
       if (editingCartItem) {
         // Update existing cart item using store action
         await updateCartItemStore(editingCartItem.id, {
           price_paid: data.price, // Store total price as entered
+          tax_amount: data.taxAmount, // Store calculated tax
           quantity: data.quantity,
           crv_amount: data.crvAmount
         });
@@ -123,6 +124,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           list_item_id: selectedItem.id,
           item_name: selectedItem.item_name,
           price_paid: data.price, // Store total price as entered
+          tax_amount: data.taxAmount, // Store calculated tax
           quantity: data.quantity,
           unit_type: selectedItem.unit_type || undefined,
           category: selectedItem.category || undefined,
@@ -297,7 +299,6 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                     <div key={item.id} onClick={() => handleCartItemClick(item)}>
                       <CartItemCard
                         item={item}
-                        salesTaxRate={trip.sales_tax_rate}
                         onEdit={handleCartItemClick}
                         onRemove={(itemId) => {
                           const item = cartItems.find(ci => ci.id === itemId);

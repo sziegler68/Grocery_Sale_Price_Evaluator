@@ -19,7 +19,8 @@ export interface CartItem {
   trip_id: string;
   list_item_id?: string;
   item_name: string;
-  price_paid: number;
+  price_paid: number; // Pre-tax total for the quantity purchased
+  tax_amount: number; // Calculated sales tax (stored, not recalculated)
   quantity: number;
   unit_type?: string;
   category?: string;
@@ -39,12 +40,22 @@ export interface AddCartItemInput {
   trip_id: string;
   list_item_id?: string;
   item_name: string;
-  price_paid: number;
+  price_paid: number; // Pre-tax total
+  tax_amount: number; // Calculated sales tax
   quantity?: number;
   unit_type?: string;
   category?: string;
   target_price?: number;
   crv_amount?: number; // CRV fee for this item
+}
+
+// Cart totals computed by service layer
+export interface CartTotals {
+  subtotal: number;    // Sum of all price_paid
+  tax: number;         // Sum of all tax_amount
+  crv: number;         // Sum of all crv_amount
+  total: number;       // subtotal + tax + crv
+  itemCount: number;   // Number of items in cart
 }
 
 export interface BudgetStatus {

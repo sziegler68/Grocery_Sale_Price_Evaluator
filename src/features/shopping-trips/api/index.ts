@@ -88,6 +88,7 @@ export const addItemToCart = async (input: AddCartItemInput): Promise<CartItem> 
       list_item_id: input.list_item_id,
       item_name: input.item_name,
       price_paid: input.price_paid,
+      tax_amount: input.tax_amount, // Calculated tax (single source of truth)
       quantity: input.quantity || 1,
       unit_type: input.unit_type,
       category: input.category,

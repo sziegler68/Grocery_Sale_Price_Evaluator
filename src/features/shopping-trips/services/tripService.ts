@@ -21,7 +21,7 @@ import {
   getTripById,
   completeTrip as completeTripAPI,
 } from '../api';
-import type { CartItem, AddCartItemInput } from '../types';
+import type { CartItem, AddCartItemInput, CartTotals } from '../types';
 
 /**
  * Input for adding item to cart
@@ -31,6 +31,7 @@ export interface AddToCartInput {
   list_item_id?: string;
   item_name: string;
   price_paid: number | string;
+  tax_amount: number | string;  // Calculated tax (from calculateItemTax)
   quantity: number | string;
   unit_type?: string;
   category?: string;
@@ -57,16 +58,17 @@ function normalizeAndValidateCartInput(input: AddToCartInput): {
 } {
   // Normalize numeric inputs
   const pricePaid = normalizeNumericInput(input.price_paid);
+  const taxAmount = normalizeNumericInput(input.tax_amount);
   const quantity = normalizeNumericInput(input.quantity);
   const crvAmount = input.crv_amount ? normalizeNumericInput(input.crv_amount) : 0;
   const targetPrice = input.target_price ? normalizeNumericInput(input.target_price) : undefined;
 
-  if (pricePaid === null || quantity === null) {
+  if (pricePaid === null || taxAmount === null || quantity === null) {
     return {
       normalized: {} as AddCartItemInput,
       validation: {
         isValid: false,
-        error: 'Invalid price or quantity'
+        error: 'Invalid price, tax, or quantity'
       }
     };
   }
@@ -94,6 +96,7 @@ function normalizeAndValidateCartInput(input: AddToCartInput): {
     list_item_id: input.list_item_id,
     item_name: input.item_name, // Keep original capitalization for display
     price_paid: pricePaid,
+    tax_amount: taxAmount,
     quantity,
     unit_type: input.unit_type ? normalizeUnitType(input.unit_type) : undefined,
     category: input.category,
@@ -143,6 +146,7 @@ export async function updateCartItem(
   itemId: string,
   updates: {
     price_paid?: number | string;
+    tax_amount?: number | string;
     quantity?: number | string;
     crv_amount?: number | string;
   }
@@ -167,6 +171,17 @@ export async function updateCartItem(
       };
     }
     normalized.price_paid = pricePaid;
+  }
+
+  if (updates.tax_amount !== undefined) {
+    const taxAmount = normalizeNumericInput(updates.tax_amount);
+    if (taxAmount === null) {
+      return {
+        success: false,
+        error: 'Invalid tax amount',
+      };
+    }
+    normalized.tax_amount = taxAmount;
   }
 
   if (updates.quantity !== undefined) {
@@ -230,44 +245,49 @@ export async function removeItemFromCart(itemId: string): Promise<CartOperationR
 }
 
 /**
- * Calculate cart totals
+ * Calculate tax for a single item
+ * SINGLE SOURCE OF TRUTH for tax calculation
  */
-export interface CartTotals {
-  subtotal: number;
-  totalCRV: number;
-  taxableAmount: number;
-  salesTax: number;
-  total: number;
-  itemCount: number;
+export function calculateItemTax(pricePaid: number, salesTaxRate: number): number {
+  return pricePaid * (salesTaxRate / 100);
 }
 
-export async function calculateCartTotals(
-  tripId: string,
-  salesTaxRate: number = 0
-): Promise<CartTotals> {
-  const items = await getCartItems(tripId);
-  
-  let subtotal = 0;
-  let totalCRV = 0;
+/**
+ * Compute cart totals from cart items
+ * This is the SINGLE SOURCE OF TRUTH for all cart calculations
+ * 
+ * @param items - Array of cart items (with stored tax_amount)
+ * @returns Aggregated totals
+ */
+export function computeCartTotals(items: CartItem[]): CartTotals {
+  let subtotal = 0;    // Sum of all price_paid
+  let tax = 0;         // Sum of all tax_amount (stored)
+  let crv = 0;         // Sum of all crv_amount
   
   items.forEach(item => {
-    subtotal += item.price_paid;
-    totalCRV += item.crv_amount || 0;
+    subtotal += item.price_paid || 0;
+    tax += item.tax_amount || 0;
+    crv += item.crv_amount || 0;
   });
-  
-  // CRV is not taxable
-  const taxableAmount = subtotal - totalCRV;
-  const salesTax = taxableAmount * salesTaxRate;
-  const total = subtotal + salesTax;
   
   return {
     subtotal,
-    totalCRV,
-    taxableAmount,
-    salesTax,
-    total,
+    tax,
+    crv,
+    total: subtotal + tax + crv,
     itemCount: items.length,
   };
+}
+
+/**
+ * Legacy async version for backward compatibility
+ * @deprecated Use computeCartTotals with items from store instead
+ */
+export async function calculateCartTotals(
+  tripId: string
+): Promise<CartTotals> {
+  const items = await getCartItems(tripId);
+  return computeCartTotals(items);
 }
 
 /**

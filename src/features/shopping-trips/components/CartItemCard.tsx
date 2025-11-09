@@ -4,21 +4,18 @@ import type { CartItem } from '../types';
 
 interface CartItemCardProps {
   item: CartItem;
-  salesTaxRate: number; // From trip.sales_tax_rate
   onEdit: (item: CartItem) => void;
   onRemove: (itemId: string) => void;
 }
 
 export const CartItemCard: React.FC<CartItemCardProps> = ({
   item,
-  salesTaxRate,
   onEdit,
   onRemove,
 }) => {
-  // Calculate tax on item price (CRV is NOT taxed)
-  const taxAmount = item.price_paid * (salesTaxRate / 100);
-  // Total: item + tax + CRV (matches Supabase trigger calculation)
-  const total = item.price_paid + taxAmount + item.crv_amount;
+  // Display stored values - NO CALCULATION!
+  // Tax was calculated once and stored in the database
+  const total = item.price_paid + item.tax_amount + item.crv_amount;
   
   return (
     <div className="p-3 rounded-lg bg-card border border-primary flex items-start justify-between">
@@ -32,7 +29,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
           )}
         </div>
         <div className="text-sm text-secondary mt-1">
-          ${item.price_paid.toFixed(2)} + ${taxAmount.toFixed(2)} tax for {item.quantity} {item.unit_type || 'unit'}{item.quantity !== 1 ? 's' : ''}
+          ${item.price_paid.toFixed(2)} + ${item.tax_amount.toFixed(2)} tax for {item.quantity} {item.unit_type || 'unit'}{item.quantity !== 1 ? 's' : ''}
           {item.crv_amount > 0 && ` + $${item.crv_amount.toFixed(2)} CRV`}
         </div>
         {item.target_price && (

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ShoppingTrip, CartItem } from '../types';
+import type { ShoppingTrip, CartItem, CartTotals } from '../types';
 import { 
   createShoppingTrip, 
   getTripById, 
@@ -10,6 +10,7 @@ import {
   addItemToCart as addItemToCartService,
   updateCartItem as updateCartItemService,
   removeItemFromCart as removeItemFromCartService,
+  computeCartTotals,
 } from '../services/tripService';
 import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
 
@@ -17,6 +18,7 @@ interface ShoppingTripStore {
   // State
   currentTrip: ShoppingTrip | null;
   cartItems: CartItem[];
+  cartTotals: CartTotals; // Cached totals (single source of truth)
   isLoading: boolean;
   error: string | null;
   activeSubscriptions: Map<string, () => void>; // Track active subscriptions for cleanup
@@ -41,6 +43,7 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
   // Initial state
   currentTrip: null,
   cartItems: [],
+  cartTotals: { subtotal: 0, tax: 0, crv: 0, total: 0, itemCount: 0 },
   isLoading: false,
   error: null,
   activeSubscriptions: new Map(),
@@ -80,7 +83,8 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
   loadCartItems: async (tripId) => {
     try {
       const items = await getCartItems(tripId);
-      set({ cartItems: items });
+      const totals = computeCartTotals(items); // Compute totals from loaded items
+      set({ cartItems: items, cartTotals: totals });
     } catch (error: any) {
       set({ error: error.message });
       throw error;
@@ -155,7 +159,12 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
     set({ isLoading: true });
     try {
       await completeTripAPI(tripId);
-      set({ currentTrip: null, cartItems: [], isLoading: false });
+      set({ 
+        currentTrip: null, 
+        cartItems: [], 
+        cartTotals: { subtotal: 0, tax: 0, crv: 0, total: 0, itemCount: 0 },
+        isLoading: false 
+      });
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
       throw error;
@@ -164,7 +173,11 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
 
   // Clear current trip
   clearTrip: () => {
-    set({ currentTrip: null, cartItems: [] });
+    set({ 
+      currentTrip: null, 
+      cartItems: [], 
+      cartTotals: { subtotal: 0, tax: 0, crv: 0, total: 0, itemCount: 0 }
+    });
   },
 
   // Subscribe to cart_items changes
