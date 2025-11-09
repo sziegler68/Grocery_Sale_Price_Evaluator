@@ -137,6 +137,24 @@ export const updateCartItem = async (itemId: string, updates: Partial<CartItem>)
   return data as CartItem;
 };
 
+// Update trip's sales tax rate (for existing trips created before tax rate fix)
+export const updateTripTaxRate = async (tripId: string, salesTaxRate: number): Promise<ShoppingTrip> => {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from('shopping_trips')
+    .update({ sales_tax_rate: salesTaxRate })
+    .eq('id', tripId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating trip tax rate:', error);
+    throw error;
+  }
+
+  return data as ShoppingTrip;
+};
+
 // Complete a shopping trip and check off all cart items
 export const completeTrip = async (tripId: string): Promise<ShoppingTrip> => {
   const supabase = getSupabaseClient();

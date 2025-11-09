@@ -9,6 +9,7 @@ import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
 import QuickPriceInput from '../../price-tracker/components/QuickPriceInput';
 import { toast } from 'react-toastify';
 import { getSalesTaxRate } from '../../../shared/components/Settings';
+import { updateTripTaxRate } from '../api';
 import { BudgetMeter } from './BudgetMeter';
 import { TripHeader } from './TripHeader';
 import { CartItemCard } from './CartItemCard';
@@ -54,6 +55,27 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       loadTrip(initialTrip.id);
     }
   }, [initialTrip.id, loadTrip]);
+
+  // Auto-fix trips with 0% tax rate (created before the fix)
+  useEffect(() => {
+    const fixTaxRate = async () => {
+      if (trip && trip.sales_tax_rate === 0) {
+        const currentTaxRate = getSalesTaxRate();
+        if (currentTaxRate > 0) {
+          console.log(`Auto-fixing trip tax rate: 0% → ${currentTaxRate}%`);
+          try {
+            await updateTripTaxRate(trip.id, currentTaxRate);
+            await loadTrip(trip.id); // Reload to get updated data
+            toast.success(`Updated trip tax rate to ${currentTaxRate}%`);
+          } catch (error) {
+            console.error('Failed to update tax rate:', error);
+          }
+        }
+      }
+    };
+    
+    fixTaxRate();
+  }, [trip?.id, trip?.sales_tax_rate, loadTrip]);
 
   // Subscribe to real-time updates for BOTH cart items AND trip total via store
   useEffect(() => {
