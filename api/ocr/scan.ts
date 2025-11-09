@@ -235,9 +235,8 @@ export default async function handler(
     const receiptUrl = await storeReceiptImage(file, userId);
     console.log('[OCR] Receipt stored at', receiptUrl);
 
-    // 5. Extract text from receipt - ACTUALLY CALLS FUNCTION
-    // (Returns mock text for dev, ready for Google Vision integration)
-    const ocrExtraction = await extractTextFromReceipt(receiptUrl);
+    // 5. Extract text from receipt - ACTUALLY PROCESSES IMAGE WITH TESSERACT
+    const ocrExtraction = await extractTextFromReceipt(file.buffer);
     
     console.log('[OCR] Text extraction complete', { 
       textLength: ocrExtraction.fullText.length, 

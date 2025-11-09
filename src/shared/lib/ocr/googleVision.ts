@@ -1,18 +1,18 @@
 /**
- * Google Cloud Vision API Wrapper
+ * OCR Text Extraction
  * 
- * This module provides a client for interacting with the Google Vision API
- * for receipt text extraction.
+ * This module provides OCR text extraction from receipt images.
  * 
- * STUB IMPLEMENTATION: Returns mock data for development.
+ * PRODUCTION IMPLEMENTATION using Tesseract.js
+ * - Actually reads uploaded image buffer
+ * - Extracts text using Tesseract OCR engine
+ * - Returns real text and confidence scores
+ * - Works in development without API keys
  * 
- * Full implementation requires:
- * 1. npm install @google-cloud/vision
- * 2. Google Cloud project with Vision API enabled
- * 3. Service account credentials in env vars:
- *    - GOOGLE_VISION_EMAIL
- *    - GOOGLE_VISION_PRIVATE_KEY
+ * For higher accuracy in production, can be swapped with Google Vision API.
  */
+
+import { createWorker } from 'tesseract.js';
 
 export interface OCRTextBlock {
   text: string;
@@ -29,44 +29,67 @@ export interface OCRExtractionResult {
 }
 
 /**
- * Extract text from receipt image using Google Vision API
+ * Extract text from receipt image using Tesseract.js
  * 
- * @param imageUrl - Public URL to receipt image
+ * @param imageBuffer - Image file buffer (from uploaded file)
  * @returns Extracted text and confidence scores
  */
 export async function extractTextFromReceipt(
-  imageUrl: string
+  imageBuffer: Buffer
 ): Promise<OCRExtractionResult> {
-  // STUB: Return mock data
-  console.log('[OCR] STUB: extractTextFromReceipt called with:', imageUrl);
+  console.log('[OCR] Starting Tesseract text extraction', {
+    bufferSize: imageBuffer.length,
+  });
   
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  return {
-    fullText: `WHOLE FOODS MARKET
-123 Main Street
-San Francisco, CA 94102
-Date: 01/15/2025
-
-Organic Milk $4.99
-Bananas 3lb $2.49
-Eggs 12ct $5.99
-
-TOTAL $13.47`,
-    confidence: 0.92,
-    textBlocks: [
-      { text: 'WHOLE FOODS MARKET', confidence: 0.98 },
-      { text: 'Organic Milk', confidence: 0.94 },
-      { text: '$4.99', confidence: 0.96 },
-      { text: 'Bananas 3lb', confidence: 0.91 },
-      { text: '$2.49', confidence: 0.95 },
-    ],
-  };
+  try {
+    // Initialize Tesseract worker
+    const worker = await createWorker('eng', 1, {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          console.log(`[OCR] Progress: ${Math.round(m.progress * 100)}%`);
+        }
+      },
+    });
+    
+    // Recognize text from image buffer
+    const { data } = await worker.recognize(imageBuffer);
+    
+    // Terminate worker
+    await worker.terminate();
+    
+    console.log('[OCR] Tesseract extraction complete', {
+      textLength: data.text.length,
+      confidence: data.confidence,
+    });
+    
+    // For simplicity, create one text block per line
+    const lines = data.text.split('\n').filter(line => line.trim());
+    const textBlocks: OCRTextBlock[] = lines.map(line => ({
+      text: line,
+      confidence: data.confidence / 100, // Tesseract uses 0-100, normalize to 0-1
+    }));
+    
+    return {
+      fullText: data.text,
+      confidence: data.confidence / 100, // Normalize to 0-1
+      textBlocks,
+    };
+    
+  } catch (error: any) {
+    console.error('[OCR] Tesseract extraction failed:', error);
+    throw new Error(`OCR extraction failed: ${error.message}`);
+  }
 }
 
 /**
- * Full implementation (commented out until dependencies installed):
+ * Google Cloud Vision API Integration (for production)
+ * 
+ * To use Google Vision instead of Tesseract:
+ * 1. Install: npm install @google-cloud/vision
+ * 2. Set environment variables:
+ *    - GOOGLE_VISION_EMAIL
+ *    - GOOGLE_VISION_PRIVATE_KEY
+ * 3. Replace extractTextFromReceipt() with this implementation:
  * 
  * import vision from '@google-cloud/vision';
  * 
@@ -78,9 +101,11 @@ TOTAL $13.47`,
  * });
  * 
  * export async function extractTextFromReceipt(
- *   imageUrl: string
+ *   imageBuffer: Buffer
  * ): Promise<OCRExtractionResult> {
- *   const [result] = await client.documentTextDetection(imageUrl);
+ *   const [result] = await client.documentTextDetection({
+ *     image: { content: imageBuffer },
+ *   });
  *   
  *   const fullText = result.fullTextAnnotation?.text || '';
  *   const confidence = result.fullTextAnnotation?.pages?.[0]?.confidence || 0;
