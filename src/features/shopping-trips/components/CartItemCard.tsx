@@ -20,6 +20,16 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
   // Total: item + tax + CRV (matches Supabase trigger calculation)
   const total = item.price_paid + taxAmount + item.crv_amount;
   
+  // Debug logging
+  console.log('[CART ITEM]', {
+    item: item.item_name,
+    price: item.price_paid,
+    taxRate: salesTaxRate,
+    taxAmount,
+    crv: item.crv_amount,
+    total
+  });
+  
   return (
     <div className="p-3 rounded-lg bg-card border border-primary flex items-start justify-between">
       <div className="flex-1">
