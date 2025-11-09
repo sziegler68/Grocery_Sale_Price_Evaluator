@@ -398,14 +398,15 @@ const ShoppingListDetail: React.FC = () => {
     }
   };
 
-  const handleStartTrip = async (budget: number, storeName: string) => {
+  const handleStartTrip = async (budget: number, storeName: string, salesTaxRate: number) => {
     if (!list) return;
 
     try {
       const trip = await createShoppingTrip({
         list_id: list.id,
         budget,
-        store_name: storeName
+        store_name: storeName,
+        sales_tax_rate: salesTaxRate
       });
       
       setActiveTrip(trip);
