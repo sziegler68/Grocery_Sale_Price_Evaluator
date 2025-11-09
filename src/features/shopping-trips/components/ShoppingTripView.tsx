@@ -297,6 +297,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                     <div key={item.id} onClick={() => handleCartItemClick(item)}>
                       <CartItemCard
                         item={item}
+                        salesTaxRate={trip.sales_tax_rate}
                         onEdit={handleCartItemClick}
                         onRemove={(itemId) => {
                           const item = cartItems.find(ci => ci.id === itemId);
