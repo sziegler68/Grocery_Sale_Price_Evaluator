@@ -134,7 +134,7 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
             <div className={`font-medium ${item.is_checked ? 'line-through' : ''}`}>
               {item.item_name}
               {item.quantity && item.quantity > 1 && (
-                <span className="ml-2 text-sm text-gray-500">?{item.quantity}</span>
+                <span className="ml-2 text-sm text-gray-500">{item.quantity}</span>
               )}
             </div>
             {item.target_price && item.unit_type && (

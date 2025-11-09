@@ -80,6 +80,7 @@ const Settings: React.FC = () => {
   const [preferences, setPreferences] = useState<UnitPreferences>(getUnitPreferences());
   const [salesTax, setSalesTax] = useState<number>(getSalesTaxRate());
   const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(getSalesTaxRate() > 0 ? getSalesTaxRate().toFixed(2) : '');
+  const [hasNotificationPermission, setHasNotificationPermission] = useState<boolean>(isPushNotificationSupported());
   
   // Use notification store
   const { 
@@ -92,9 +93,10 @@ const Settings: React.FC = () => {
     updateTypes 
   } = useNotificationStore();
 
-  // Load notification settings on mount
+  // Load notification settings and check permission on mount
   useEffect(() => {
     loadSettings();
+    setHasNotificationPermission(isPushNotificationSupported());
   }, [loadSettings]);
 
   // Handle sales tax input - calculator style with decimal point
@@ -126,6 +128,7 @@ const Settings: React.FC = () => {
     const granted = await requestPushPermission();
     if (granted) {
       setPushEnabled(true);
+      setHasNotificationPermission(true);
       toast.success('Push notifications enabled!');
     } else {
       toast.error('Push notification permission denied');
@@ -384,7 +387,7 @@ const Settings: React.FC = () => {
                           setPushEnabled(newValue);
                           
                           // If enabling and permission not granted, auto-request
-                          if (newValue && !isPushNotificationSupported()) {
+                          if (newValue && !hasNotificationPermission) {
                             handleRequestPushPermission();
                           }
                         }}
@@ -392,7 +395,7 @@ const Settings: React.FC = () => {
                       />
                     </label>
 
-                    {pushEnabled && !isPushNotificationSupported() && (
+                    {pushEnabled && !hasNotificationPermission && (
                       <div className={`p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900/20 border border-amber-300`}>
                         <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
                           Push notifications require browser permission
@@ -406,10 +409,10 @@ const Settings: React.FC = () => {
                       </div>
                     )}
 
-                    {pushEnabled && isPushNotificationSupported() && (
+                    {pushEnabled && hasNotificationPermission && (
                       <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/20' : 'bg-green-50'} border border-green-300`}>
                         <p className="text-sm text-green-700 dark:text-green-400">
-                          ? Push notifications enabled
+                          ✓ Push notifications enabled
                         </p>
                       </div>
                     )}

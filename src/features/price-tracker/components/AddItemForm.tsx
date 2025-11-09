@@ -149,8 +149,8 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
     if (showSuggestions && itemNameInputRef.current) {
       const rect = itemNameInputRef.current.getBoundingClientRect();
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
+        top: rect.bottom + 4,
+        left: rect.left,
         width: rect.width,
       });
     }

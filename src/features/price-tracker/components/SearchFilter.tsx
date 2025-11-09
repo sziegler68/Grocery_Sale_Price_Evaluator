@@ -73,8 +73,8 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
     if (showSuggestions && searchInputRef.current) {
       const rect = searchInputRef.current.getBoundingClientRect();
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
+        top: rect.bottom + 4,
+        left: rect.left,
         width: rect.width,
       });
     }
@@ -189,7 +189,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
               onChange={(e) => onAboveTargetChange(e.target.checked)}
               className="rounded border-gray-300 text-red-600 focus:ring-red-500"
             />
-            <span className="text-sm text-red-600">Above Target Only ??</span>
+            <span className="text-sm text-red-600">Above Target Only</span>
           </label>
 
           <label className="flex items-center space-x-2">
