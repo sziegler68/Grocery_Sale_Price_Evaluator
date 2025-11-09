@@ -15,7 +15,9 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
 }) => {
   // Display stored values - NO CALCULATION!
   // Tax was calculated once and stored in the database
-  const total = item.price_paid + item.tax_amount + item.crv_amount;
+  // Fallback to 0 if tax_amount doesn't exist (migration not run yet)
+  const taxAmount = item.tax_amount || 0;
+  const total = item.price_paid + taxAmount + item.crv_amount;
   
   return (
     <div className="p-3 rounded-lg bg-card border border-primary flex items-start justify-between">
@@ -29,7 +31,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
           )}
         </div>
         <div className="text-sm text-secondary mt-1">
-          ${item.price_paid.toFixed(2)} + ${item.tax_amount.toFixed(2)} tax for {item.quantity} {item.unit_type || 'unit'}{item.quantity !== 1 ? 's' : ''}
+          ${item.price_paid.toFixed(2)} + ${taxAmount.toFixed(2)} tax for {item.quantity} {item.unit_type || 'unit'}{item.quantity !== 1 ? 's' : ''}
           {item.crv_amount > 0 && ` + $${item.crv_amount.toFixed(2)} CRV`}
         </div>
         {item.target_price && (

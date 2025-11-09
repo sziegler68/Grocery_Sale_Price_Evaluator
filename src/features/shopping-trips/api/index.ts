@@ -81,25 +81,34 @@ export const getCartItems = async (tripId: string): Promise<CartItem[]> => {
 // Add item to cart
 export const addItemToCart = async (input: AddCartItemInput): Promise<CartItem> => {
   const supabase = getSupabaseClient();
+  
+  // Prepare insert data with tax_amount
+  const insertData: any = {
+    trip_id: input.trip_id,
+    list_item_id: input.list_item_id,
+    item_name: input.item_name,
+    price_paid: input.price_paid,
+    quantity: input.quantity || 1,
+    unit_type: input.unit_type,
+    category: input.category,
+    target_price: input.target_price,
+    crv_amount: input.crv_amount || 0
+  };
+  
+  // Include tax_amount if provided
+  if (input.tax_amount !== undefined) {
+    insertData.tax_amount = input.tax_amount;
+  }
+  
   const { data, error } = await supabase
     .from('cart_items')
-    .insert({
-      trip_id: input.trip_id,
-      list_item_id: input.list_item_id,
-      item_name: input.item_name,
-      price_paid: input.price_paid,
-      tax_amount: input.tax_amount, // Calculated tax (single source of truth)
-      quantity: input.quantity || 1,
-      unit_type: input.unit_type,
-      category: input.category,
-      target_price: input.target_price,
-      crv_amount: input.crv_amount || 0
-    })
+    .insert(insertData)
     .select()
     .single();
 
   if (error) {
     console.error('Error adding item to cart:', error);
+    console.error('Insert data:', insertData);
     throw error;
   }
 
