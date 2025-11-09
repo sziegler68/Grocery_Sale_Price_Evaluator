@@ -36,7 +36,15 @@ export interface IngestItemInput {
   unitType?: string;
   category?: string;
   targetPrice?: number | string;
-  meatQuality?: string;
+  
+  // Phase 3: Quality fields
+  organic?: boolean;
+  grassFed?: boolean;
+  freshness?: 'Fresh' | 'Previously Frozen' | 'Frozen';
+  meatGrade?: 'Choice' | 'Prime' | 'Wagyu';
+  seafoodSource?: 'Wild' | 'Farm Raised';
+  meatQuality?: string; // Legacy - kept for backwards compatibility
+  
   notes?: string;
   datePurchased?: Date;
   

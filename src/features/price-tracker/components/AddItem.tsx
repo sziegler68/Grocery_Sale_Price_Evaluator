@@ -29,6 +29,13 @@ const AddItem: React.FC = () => {
       unitType: data.unitType,
       category: data.category,
       targetPrice: data.targetPrice,
+      // New quality fields
+      organic: data.quality?.organic,
+      grassFed: data.quality?.grassFed,
+      freshness: data.quality?.freshness,
+      meatGrade: data.quality?.meatGrade,
+      seafoodSource: data.quality?.seafoodSource,
+      // Legacy field (kept for backwards compatibility)
       meatQuality: data.meatQuality,
       notes: data.notes,
       datePurchased: data.datePurchased,
