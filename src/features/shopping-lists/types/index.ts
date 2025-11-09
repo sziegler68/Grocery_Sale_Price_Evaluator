@@ -17,6 +17,14 @@ export interface ShoppingListItem {
   quantity: number;
   unit_type: string | null;
   target_price: number | null;
+  
+  // Phase 3: Quality fields
+  organic?: boolean;
+  grass_fed?: boolean;
+  freshness?: 'Fresh' | 'Previously Frozen' | 'Frozen';
+  meat_grade?: 'Choice' | 'Prime' | 'Wagyu';
+  seafood_source?: 'Wild' | 'Farm Raised';
+  
   is_checked: boolean;
   checked_at: string | null;
   notes: string | null;
@@ -35,6 +43,14 @@ export interface AddItemToListInput {
   quantity?: number;
   unit_type?: string;
   target_price?: number;
+  
+  // Phase 3: Quality fields
+  organic?: boolean;
+  grass_fed?: boolean;
+  freshness?: 'Fresh' | 'Previously Frozen' | 'Frozen';
+  meat_grade?: 'Choice' | 'Prime' | 'Wagyu';
+  seafood_source?: 'Wild' | 'Farm Raised';
+  
   notes?: string;
   added_by?: string;
 }
@@ -49,25 +65,27 @@ export interface UpdateItemInput {
   is_checked?: boolean;
 }
 
-// Category display names and order
+// Category display names and order - now synced with price tracker
 export const SHOPPING_LIST_CATEGORIES = [
+  'Meat',
+  'Seafood',
   'Dairy',
-  'Drinks',
-  'Household',
-  'Meats',
-  'Other',
   'Produce',
   'Snacks',
+  'Drinks',
+  'Household',
+  'Other',
 ] as const;
 
 export type ShoppingListCategory = typeof SHOPPING_LIST_CATEGORIES[number];
 
 // Map grocery item categories to shopping list categories
 export const CATEGORY_MAP: Record<string, ShoppingListCategory> = {
-  'Beef': 'Meats',
-  'Pork': 'Meats',
-  'Chicken': 'Meats',
-  'Seafood': 'Meats',
+  'Meat': 'Meat',
+  'Beef': 'Meat', // Legacy mapping
+  'Pork': 'Meat', // Legacy mapping
+  'Chicken': 'Meat', // Legacy mapping
+  'Seafood': 'Seafood',
   'Dairy': 'Dairy',
   'Produce': 'Produce',
   'Snacks': 'Snacks',

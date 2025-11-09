@@ -7,6 +7,8 @@ import { mapToShoppingListCategory, SHOPPING_LIST_CATEGORIES } from '../types';
 import { getUserNameForList } from '../../../shared/utils/listUserNames';
 import { notifyItemsAdded } from '../../notifications/api';
 import { toast } from 'react-toastify';
+import { QualitySelector } from '../../../shared/components/QualitySelector';
+import type { QualityFlags } from '../../../shared/constants/categories';
 import type { GroceryItem } from '../../price-tracker/api/groceryData';
 
 interface AddItemToListModalProps {
@@ -32,6 +34,9 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
   const [targetPriceDisplay, setTargetPriceDisplay] = useState('');
   const [notes, setNotes] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  
+  // Phase 3: Quality state
+  const [quality, setQuality] = useState<QualityFlags>({});
   
   const [priceDbItems, setPriceDbItems] = useState<GroceryItem[]>([]);
   const [suggestions, setSuggestions] = useState<GroceryItem[]>([]);
@@ -119,6 +124,14 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
       setTargetPrice(item.targetPrice);
       setTargetPriceDisplay(item.targetPrice.toFixed(2));
     }
+    // Populate quality from price database if available
+    setQuality({
+      organic: item.organic,
+      grassFed: item.grassFed,
+      freshness: item.freshness,
+      meatGrade: item.meatGrade,
+      seafoodSource: item.seafoodSource,
+    });
     setSuggestions([]);
     setShowSuggestions(false);
   };
@@ -147,6 +160,12 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
         quantity: parseFloat(quantity) || 1,
         unit_type: unitType || undefined,
         target_price: targetPrice,
+        // Phase 3: Quality fields
+        organic: quality.organic,
+        grass_fed: quality.grassFed,
+        freshness: quality.freshness,
+        meat_grade: quality.meatGrade,
+        seafood_source: quality.seafoodSource,
         notes: notes.trim() || undefined,
         added_by: userName || undefined,
       });
@@ -277,6 +296,17 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
               ))}
             </select>
           </div>
+
+          {/* Quality Selector - Shows based on category */}
+          {category && (category === 'Meat' || category === 'Seafood') && (
+            <div className="p-4 rounded-lg bg-secondary border border-primary">
+              <QualitySelector
+                category={category}
+                quality={quality}
+                onChange={setQuality}
+              />
+            </div>
+          )}
 
           {/* Quantity & Unit */}
           <div className="grid grid-cols-2 gap-4">
