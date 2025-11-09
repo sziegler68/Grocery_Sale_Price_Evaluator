@@ -15,6 +15,8 @@ interface SearchFilterProps {
   onAboveTargetChange: (show: boolean) => void;
   showBestPrices: boolean;
   onBestPricesChange: (show: boolean) => void;
+  sortBy: 'price-low' | 'price-high' | 'date-new' | 'date-old' | 'name-az' | 'name-za';
+  onSortChange: (sort: 'price-low' | 'price-high' | 'date-new' | 'date-old' | 'name-az' | 'name-za') => void;
   categories: string[];
   stores: string[];
   darkMode: boolean;
@@ -34,6 +36,8 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   onAboveTargetChange,
   showBestPrices,
   onBestPricesChange,
+  sortBy,
+  onSortChange,
   categories,
   stores,
   darkMode,
@@ -143,7 +147,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
           document.body
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <select
             value={selectedCategory}
             onChange={(e) => onCategoryChange(e.target.value)}
@@ -168,6 +172,21 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             {stores.map(store => (
               <option key={store} value={store}>{store}</option>
             ))}
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => onSortChange(e.target.value as any)}
+            className={`px-4 py-3 rounded-lg border focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+              darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-300'
+            }`}
+          >
+            <option value="date-new">Newest First</option>
+            <option value="date-old">Oldest First</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name-az">Name: A-Z</option>
+            <option value="name-za">Name: Z-A</option>
           </select>
         </div>
 

@@ -26,7 +26,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
       <div className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
         darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
       } border-l-4 ${
-        isBestPrice ? 'border-green-500' : isAboveTarget ? 'border-red-500' : isBelowTarget ? 'border-cyan-500' : 'border-brand'
+        isAboveTarget ? 'border-red-500' : isBelowTarget ? 'border-cyan-500' : isBestPrice ? 'border-green-500' : 'border-brand'
       }`}>
         <div className="flex justify-between items-start mb-3">
           <div>
@@ -107,22 +107,22 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
 
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary">
           <div className="flex items-center space-x-4">
-            {isBestPrice && (
-              <div className="flex items-center space-x-1 text-green-600">
-                <TrendingDown className="h-4 w-4" />
-                <span className="text-xs font-medium">Best Price</span>
-              </div>
-            )}
-            {isAboveTarget && !isBestPrice && (
+            {isAboveTarget && (
               <div className="flex items-center space-x-1 text-red-600">
                 <AlertTriangle className="h-4 w-4" />
                 <span className="text-xs font-medium">Above Target</span>
               </div>
             )}
-            {isBelowTarget && !isBestPrice && (
+            {isBelowTarget && (
               <div className="flex items-center space-x-1 text-cyan-600">
                 <Target className="h-4 w-4" />
                 <span className="text-xs font-medium">Below Target</span>
+              </div>
+            )}
+            {isBestPrice && !isAboveTarget && !isBelowTarget && (
+              <div className="flex items-center space-x-1 text-green-600">
+                <TrendingDown className="h-4 w-4" />
+                <span className="text-xs font-medium">Best Price</span>
               </div>
             )}
           </div>

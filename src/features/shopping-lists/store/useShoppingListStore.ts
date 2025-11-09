@@ -284,7 +284,16 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
           onNotification(notification);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[STORE] 📡 Notification subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('[STORE] ✅ Successfully subscribed to notifications');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[STORE] ❌ Error subscribing to notifications - check Supabase realtime is enabled for live_notifications table');
+        } else if (status === 'TIMED_OUT') {
+          console.error('[STORE] ⏱️ Subscription timed out - check network connection');
+        }
+      });
 
     const unsubscribe = () => {
       console.log('[STORE] 🔌 Unsubscribing from notifications');

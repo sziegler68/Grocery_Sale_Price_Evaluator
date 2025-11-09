@@ -21,6 +21,7 @@ const Items: React.FC = () => {
   const [showBelowTarget, setShowBelowTarget] = useState(false);
   const [showAboveTarget, setShowAboveTarget] = useState(false);
   const [showBestPrices, setShowBestPrices] = useState(false);
+  const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'date-new' | 'date-old' | 'name-az' | 'name-za'>('date-new');
 
   // Load items on mount
   useEffect(() => {
@@ -80,8 +81,28 @@ const Items: React.FC = () => {
       );
     }
 
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'price-low':
+          return a.unitPrice - b.unitPrice;
+        case 'price-high':
+          return b.unitPrice - a.unitPrice;
+        case 'date-new':
+          return b.datePurchased.getTime() - a.datePurchased.getTime();
+        case 'date-old':
+          return a.datePurchased.getTime() - b.datePurchased.getTime();
+        case 'name-az':
+          return a.itemName.localeCompare(b.itemName);
+        case 'name-za':
+          return b.itemName.localeCompare(a.itemName);
+        default:
+          return 0;
+      }
+    });
+
     setFilteredItems(filtered);
-  }, [items, searchTerm, selectedCategory, selectedStore, showBelowTarget, showAboveTarget, showBestPrices]);
+  }, [items, searchTerm, selectedCategory, selectedStore, showBelowTarget, showAboveTarget, showBestPrices, sortBy]);
 
   const categories = useMemo(() => [...new Set(items.map(item => item.category))], [items]);
   const stores = useMemo(() => [...new Set(items.map(item => item.storeName))], [items]);
@@ -125,11 +146,19 @@ const Items: React.FC = () => {
           selectedStore={selectedStore}
           onStoreChange={setSelectedStore}
           showBelowTarget={showBelowTarget}
-          onBelowTargetChange={setShowBelowTarget}
+          onBelowTargetChange={(checked) => {
+            setShowBelowTarget(checked);
+            if (checked) setShowAboveTarget(false); // Make mutually exclusive
+          }}
           showAboveTarget={showAboveTarget}
-          onAboveTargetChange={setShowAboveTarget}
+          onAboveTargetChange={(checked) => {
+            setShowAboveTarget(checked);
+            if (checked) setShowBelowTarget(false); // Make mutually exclusive
+          }}
           showBestPrices={showBestPrices}
           onBestPricesChange={setShowBestPrices}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
           categories={categories}
           stores={stores}
           darkMode={darkMode}

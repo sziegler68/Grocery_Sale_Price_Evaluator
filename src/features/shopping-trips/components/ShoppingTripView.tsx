@@ -160,7 +160,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
     try {
       // Use store action to remove item
       await removeFromCart(cartItem.id);
-      toast.success(`Removed ${cartItem.item_name}`);
+      toast.success(`Removed ${cartItem.item_name} from cart (price saved to history)`);
     } catch (error) {
       console.error('Error removing item:', error);
       toast.error('Failed to remove item');

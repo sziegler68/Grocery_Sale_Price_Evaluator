@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Info } from 'lucide-react';
 
 interface TripHeaderProps {
   storeName: string;
@@ -39,9 +39,21 @@ export const TripHeader: React.FC<TripHeaderProps> = ({
         </button>
       </div>
 
-      <p className="text-sm text-secondary mt-2">
-        {itemCount} {itemCount === 1 ? 'item' : 'items'} in cart
-      </p>
+      <div className="flex items-center space-x-2 mt-2">
+        <p className="text-sm text-secondary">
+          {itemCount} {itemCount === 1 ? 'item' : 'items'} in cart
+        </p>
+        <div className="group relative">
+          <Info className="h-4 w-4 text-gray-400 cursor-help" />
+          <div className="hidden group-hover:block absolute left-0 top-6 z-50 w-72 p-3 rounded-lg shadow-xl border bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-xs">
+            <p className="text-primary font-medium mb-1">📊 Price History</p>
+            <p className="text-secondary">
+              Items added to your cart are automatically saved to your price database. 
+              Even if you remove them from the cart, they stay in your price history for future reference.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
