@@ -13,7 +13,8 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
   onEdit,
   onRemove,
 }) => {
-  const total = item.price_paid * item.quantity + item.crv_amount;
+  // price_paid is TOTAL price (not per unit), so don't multiply by quantity
+  const total = item.price_paid + item.crv_amount;
   
   return (
     <div className="p-3 rounded-lg bg-card border border-primary flex items-start justify-between">
@@ -27,7 +28,7 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
           )}
         </div>
         <div className="text-sm text-secondary mt-1">
-          ${item.price_paid.toFixed(2)} × {item.quantity} {item.unit_type || 'unit'}
+          ${item.price_paid.toFixed(2)} for {item.quantity} {item.unit_type || 'unit'}{item.quantity !== 1 ? 's' : ''}
           {item.crv_amount > 0 && ` + $${item.crv_amount.toFixed(2)} CRV`}
         </div>
         {item.target_price && (
