@@ -40,8 +40,11 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     initialQuantity ? initialQuantity.toString() : '1'
   );
   const [crvEnabled, setCrvEnabled] = useState<boolean>(!!initialCrv && initialCrv > 0);
-  const [crvDisplay, setCrvDisplay] = useState<string>(
-    initialCrv && initialCrv > 0 ? (initialCrv / (initialQuantity || 1)).toFixed(2) : ''
+  const [crvPerContainerDisplay, setCrvPerContainerDisplay] = useState<string>(
+    initialCrv && initialCrv > 0 && initialQuantity ? (initialCrv / initialQuantity).toFixed(2) : '0.05'
+  );
+  const [crvContainerCount, setCrvContainerCount] = useState<string>(
+    initialQuantity ? initialQuantity.toString() : '1'
   );
   const [updateTarget, setUpdateTarget] = useState<boolean>(false);
 
@@ -60,22 +63,30 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     setPriceDisplay(`${dollars}.${cents.toString().padStart(2, '0')}`);
   };
 
-  // Handle CRV input - calculator style
-  const handleCrvInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle CRV per container input - calculator style
+  const handleCrvPerContainerInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value.replace(/\D/g, '');
     if (input === '') {
-      setCrvDisplay('');
+      setCrvPerContainerDisplay('');
       return;
     }
     const numValue = parseInt(input, 10);
     const dollars = Math.floor(numValue / 100);
     const cents = numValue % 100;
-    setCrvDisplay(`${dollars}.${cents.toString().padStart(2, '0')}`);
+    setCrvPerContainerDisplay(`${dollars}.${cents.toString().padStart(2, '0')}`);
   };
+
+  // Update container count when quantity changes
+  React.useEffect(() => {
+    if (crvEnabled && quantity) {
+      setCrvContainerCount(quantity);
+    }
+  }, [quantity, crvEnabled]);
 
   // Display values
   const totalPrice = priceDisplay ? parseFloat(priceDisplay) : 0;
-  const crvPerItem = crvEnabled && crvDisplay ? parseFloat(crvDisplay) : 0;
+  const crvPerContainer = crvEnabled && crvPerContainerDisplay ? parseFloat(crvPerContainerDisplay) : 0;
+  const containerCount = parseFloat(crvContainerCount) || 1;
   const quantityNum = parseFloat(quantity) || 1;
   
   // Calculate unit price (price per item, NOT including CRV)
@@ -83,7 +94,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   
   // Calculate cart addition
   // IMPORTANT: CRV is NOT taxed! It's added AFTER sales tax
-  const totalCrv = crvPerItem * quantityNum; // CRV is per-item, so multiply by quantity
+  const totalCrv = crvPerContainer * containerCount; // CRV per container × number of containers
   const taxAmount = totalPrice * (salesTaxRate / 100); // Tax ONLY on item price, NOT CRV
   const cartAddition = totalPrice + taxAmount + totalCrv; // Item + Tax + CRV
 
@@ -97,12 +108,13 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       onConfirm({
         price: totalPrice,
         quantity: quantityNum,
-        crvAmount: totalCrv, // Pass total CRV (already multiplied by quantity)
+        crvAmount: totalCrv, // Pass total CRV (crvPerContainer × containerCount)
         updateTargetPrice: updateTarget
       });
       setPriceDisplay('');
       setQuantity('1');
-      setCrvDisplay('');
+      setCrvPerContainerDisplay('');
+      setCrvContainerCount('1');
       setCrvEnabled(false);
       setUpdateTarget(false);
       onClose();
@@ -217,7 +229,13 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               checked={crvEnabled}
               onChange={(e) => {
                 setCrvEnabled(e.target.checked);
-                if (!e.target.checked) setCrvDisplay('');
+                if (!e.target.checked) {
+                  setCrvPerContainerDisplay('');
+                  setCrvContainerCount('1');
+                } else {
+                  // Default container count to current quantity
+                  setCrvContainerCount(quantity || '1');
+                }
               }}
               className="w-5 h-5 rounded border-input text-brand focus:ring-2 focus:ring-brand"
             />
@@ -226,26 +244,51 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
             </label>
           </div>
 
-          {/* CRV Amount Input */}
+          {/* CRV Inputs */}
           {crvEnabled && (
-            <div>
-              <label className="block text-xs font-medium mb-2 text-secondary">
-                CRV Amount
-              </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">$</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={crvDisplay}
-                  onChange={handleCrvInput}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand"
-                  placeholder="0.10"
-                />
+            <div className="space-y-4 pl-8 border-l-2 border-brand">
+              <div>
+                <label className="block text-xs font-medium mb-2 text-secondary">
+                  CRV per Container
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={crvPerContainerDisplay}
+                    onChange={handleCrvPerContainerInput}
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand"
+                    placeholder="0.05"
+                  />
+                </div>
+                <p className="text-xs text-secondary mt-1">
+                  Typically $0.05 for cans/small bottles, $0.10 for large bottles
+                </p>
               </div>
-              <p className="text-xs text-secondary mt-1">
-                CRV per item: ${crvPerItem.toFixed(2)} × {quantityNum} = ${totalCrv.toFixed(2)} total
-              </p>
+
+              <div>
+                <label className="block text-xs font-medium mb-2 text-secondary">
+                  Number of CRV Containers
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={crvContainerCount}
+                  onChange={(e) => setCrvContainerCount(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border bg-input border-input text-center text-lg font-semibold focus:ring-2 focus:ring-brand"
+                />
+                <p className="text-xs text-secondary mt-1">
+                  Number of individual containers with CRV (defaults to quantity)
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <p className="text-xs font-medium text-green-700 dark:text-green-400">
+                  Total CRV: ${crvPerContainer.toFixed(2)} × {containerCount} = ${totalCrv.toFixed(2)}
+                </p>
+              </div>
             </div>
           )}
 
@@ -277,7 +320,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               </div>
               {totalCrv > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-secondary">CRV ({quantityNum} × ${crvPerItem.toFixed(2)}):</span>
+                  <span className="text-secondary">CRV ({containerCount} containers × ${crvPerContainer.toFixed(2)}):</span>
                   <span className="font-semibold">${totalCrv.toFixed(2)}</span>
                 </div>
               )}
