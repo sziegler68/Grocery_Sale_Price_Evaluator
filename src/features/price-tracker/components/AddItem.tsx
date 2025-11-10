@@ -40,8 +40,9 @@ const AddItem: React.FC = () => {
       notes: data.notes,
       datePurchased: data.datePurchased,
     }, {
-      skipDuplicateCheck: false, // Enable smart duplicate detection
+      autoMerge: true, // Automatically add new price entries for existing items
       fuzzyThreshold: 0.85, // 85% similarity threshold
+      skipDuplicateCheck: false, // Keep duplicate detection for warnings
     });
 
     if (result.success) {
