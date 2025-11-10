@@ -310,8 +310,16 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
           <div>
             <label className="block text-sm font-medium mb-2">Store *</label>
             <select
+              {...register('storeName')}
               value={selectedStore}
-              onChange={(e) => setSelectedStore(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedStore(value);
+                setValue('storeName', value, { shouldValidate: true, shouldDirty: true });
+                if (value !== 'Other') {
+                  setCustomStoreName('');
+                }
+              }}
               className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
             >
               <option value="">Select store</option>
@@ -319,11 +327,18 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
                 <option key={store} value={store}>{store}</option>
               ))}
             </select>
+            {errors.storeName && (
+              <p className="text-red-500 text-sm mt-1">{errors.storeName.message}</p>
+            )}
             {selectedStore === 'Other' && (
               <input
                 type="text"
                 value={customStoreName}
-                onChange={(e) => setCustomStoreName(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setCustomStoreName(value);
+                  setValue('storeName', value, { shouldValidate: true, shouldDirty: true });
+                }}
                 placeholder="Enter store name"
                 className="w-full px-4 py-3 mt-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand"
               />
