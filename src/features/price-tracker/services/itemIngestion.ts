@@ -166,6 +166,9 @@ export async function ingestGroceryItem(
   const { normalized, validation } = normalizeAndValidateInput(input);
 
   if (!validation.isValid) {
+    console.error('[INGESTION] Validation failed:', validation.error);
+    console.error('[INGESTION] Input:', input);
+    console.error('[INGESTION] Normalized:', normalized);
     return {
       success: false,
       error: validation.error,
