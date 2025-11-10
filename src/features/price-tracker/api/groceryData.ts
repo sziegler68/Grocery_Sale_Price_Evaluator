@@ -79,7 +79,15 @@ const mapRowToItem = (row: GroceryItemRow): GroceryItem => ({
   id: row.id,
   itemName: row.item_name,
   category: row.category,
-  meatQuality: row.meat_quality ?? undefined,
+  
+  // Phase 3: Quality fields
+  meatQuality: row.meat_quality ?? undefined, // Legacy
+  organic: row.organic ?? undefined,
+  grassFed: row.grass_fed ?? undefined,
+  freshness: row.freshness ?? undefined,
+  meatGrade: row.meat_grade ?? undefined,
+  seafoodSource: row.seafood_source ?? undefined,
+  
   storeName: row.store_name,
   price: Number(row.price),
   quantity: Number(row.quantity),
@@ -200,7 +208,15 @@ export const fetchItemWithHistory = async (id: string): Promise<GroceryItemDetai
 export type CreateGroceryItemInput = {
   itemName: string;
   category: GroceryItemRow['category'];
-  meatQuality?: GroceryItemRow['meat_quality'];
+  
+  // Phase 3: Quality fields
+  organic?: boolean;
+  grassFed?: boolean;
+  freshness?: 'Fresh' | 'Previously Frozen' | 'Frozen';
+  meatGrade?: 'Choice' | 'Prime' | 'Wagyu';
+  seafoodSource?: 'Wild' | 'Farm Raised';
+  meatQuality?: GroceryItemRow['meat_quality']; // Legacy
+  
   storeName: string;
   price: number;
   quantity: number;
@@ -215,7 +231,15 @@ export type CreateGroceryItemInput = {
 const mapCreateInputToInsert = (input: CreateGroceryItemInput): GroceryItemsInsert => ({
   item_name: input.itemName,
   category: input.category,
-  meat_quality: input.meatQuality ?? null,
+  
+  // Phase 3: Quality fields
+  organic: input.organic ?? false,
+  grass_fed: input.grassFed ?? false,
+  freshness: input.freshness ?? null,
+  meat_grade: input.meatGrade ?? null,
+  seafood_source: input.seafoodSource ?? null,
+  meat_quality: input.meatQuality ?? null, // Legacy
+  
   store_name: input.storeName,
   price: input.price,
   quantity: input.quantity,

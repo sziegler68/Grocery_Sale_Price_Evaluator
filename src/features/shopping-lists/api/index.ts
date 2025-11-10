@@ -178,6 +178,12 @@ export const addItemToList = async (
       quantity: input.quantity || 1,
       unit_type: input.unit_type || null,
       target_price: input.target_price || null,
+      // Phase 3: Quality fields
+      organic: input.organic ?? false,
+      grass_fed: input.grass_fed ?? false,
+      freshness: input.freshness ?? null,
+      meat_grade: input.meat_grade ?? null,
+      seafood_source: input.seafood_source ?? null,
       notes: input.notes || null,
       added_by: input.added_by || null,
       is_checked: false,

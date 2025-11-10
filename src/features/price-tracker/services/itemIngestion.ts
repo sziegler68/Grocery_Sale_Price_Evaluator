@@ -249,7 +249,13 @@ export async function ingestGroceryItem(
       storeName: input.storeName, // Use original capitalization
       category: (normalized.category as any) || 'Other',
       targetPrice: input.targetPrice ? Number(input.targetPrice) : undefined,
-      meatQuality: input.meatQuality as any,
+      // Phase 3: Quality fields
+      organic: input.organic,
+      grassFed: input.grassFed,
+      freshness: input.freshness,
+      meatGrade: input.meatGrade,
+      seafoodSource: input.seafoodSource,
+      meatQuality: input.meatQuality as any, // Legacy
       notes: input.notes,
       datePurchased: input.datePurchased || new Date(),
     });
