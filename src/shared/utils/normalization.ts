@@ -93,12 +93,12 @@ export function normalizeCategory(category: string): string {
   
   // Standardize common category names
   const categoryMap: Record<string, string> = {
-    'meat': 'Meats',
-    'meats': 'Meats',
-    'beef': 'Beef',
-    'pork': 'Pork',
-    'chicken': 'Chicken',
-    'poultry': 'Chicken',
+    'meat': 'Meat',
+    'meats': 'Meat',
+    'beef': 'Meat',
+    'pork': 'Meat',
+    'chicken': 'Meat',
+    'poultry': 'Meat',
     'seafood': 'Seafood',
     'fish': 'Seafood',
     'dairy': 'Dairy',
