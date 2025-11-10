@@ -163,8 +163,11 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
   };
 
   const onFormSubmit = async (data: FormData) => {
+    console.log('[AddItemForm] Form submitted!', { data, quality, calculatedUnitPrice });
+    
     try {
       if (!calculatedUnitPrice) {
+        console.error('[AddItemForm] Missing unit price');
         toast.error('Please enter valid price and quantity');
         return;
       }
@@ -173,9 +176,17 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
       const finalStoreName = selectedStore === 'Other' ? customStoreName : selectedStore;
       
       if (!finalStoreName || finalStoreName.trim() === '') {
+        console.error('[AddItemForm] Missing store name');
         toast.error('Please enter a store name');
         return;
       }
+      
+      console.log('[AddItemForm] Submitting item...', {
+        itemName: data.itemName,
+        category: data.category,
+        quality,
+        unitPrice,
+      });
       
       await onSubmit({
         ...data,
@@ -184,6 +195,8 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
         unitPrice,
         datePurchased: new Date()
       });
+      
+      console.log('[AddItemForm] ✅ Item submitted successfully');
 
       reset();
       setCalculatedUnitPrice(null);
@@ -192,7 +205,8 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
       setSelectedStore('');
       setCustomStoreName('');
       setQuality({});
-    } catch {
+    } catch (error) {
+      console.error('[AddItemForm] ❌ Error submitting:', error);
       toast.error('Failed to add item. Please try again.');
     }
   };
