@@ -1,7 +1,7 @@
 # Bug Fix Plan - Post-Refactor
 **Date:** 2025-11-10  
 **Branch:** `refactor/professional-architecture-overhaul`  
-**Total Bugs:** 12 (3 critical, 4 high, 4 medium, 1 low)  
+**Total Bugs:** 13 (3 critical, 4 high, 5 medium, 1 low)  
 **Estimated Total Time:** 3-5 days
 
 ---
@@ -1602,14 +1602,82 @@ const CartItem = ({ item }) => {
 
 ---
 
+---
+
+## Bug #13: Expand Grocery Categories (Enhancement)
+
+**Severity:** 🟡 Medium  
+**Complexity:** ⭐⭐ Medium  
+**Estimated Time:** 2-3 hours  
+**Files:** Categories constants, Supabase enum, Settings
+
+### Problem
+Only 8 categories currently available. Need more granular categorization for better organization and price tracking.
+
+### Current Categories (8)
+- Meat, Seafood, Dairy, Produce, Snacks, Drinks, Household, Other
+
+### Proposed Categories (17)
+**Food:** Meat, Seafood, Dairy, Produce, Bakery, Frozen, Pantry, Condiments, Beverages, Snacks  
+**Non-Food:** Household, Personal Care, Baby, Pet, Electronics, Other
+
+### Solution
+Add 9 new categories to support better item organization.
+
+### Implementation Steps
+
+**See detailed plan:** `/workspace/docs/category-expansion-plan.md`
+
+#### Quick Implementation
+
+**Step 1: Update code**
+```typescript
+// src/shared/constants/categories.ts
+export const CATEGORIES = [
+  // Food
+  'Meat', 'Seafood', 'Dairy', 'Produce',
+  'Bakery', 'Frozen', 'Pantry', 'Condiments',
+  'Beverages', 'Snacks',
+  // Non-Food
+  'Household', 'Personal Care', 'Baby', 'Pet',
+  'Electronics', 'Other',
+] as const;
+```
+
+**Step 2: Update Supabase**
+Run migration: `/workspace/supabase/expand_categories.sql`
+
+**Step 3: Test**
+- Add items with new categories
+- Verify filters work
+- Check Settings unit preferences
+
+### Testing Steps
+1. Update categories.ts file
+2. Run Supabase migration
+3. Add test items with new categories
+4. Verify dropdowns show all 17 categories
+5. Test filters and search
+6. Existing items still work
+
+### Verification
+- [ ] 17 categories in dropdowns
+- [ ] Supabase enum updated
+- [ ] Filters work with new categories
+- [ ] Existing data unchanged
+- [ ] No TypeScript errors
+
+---
+
 ## ✅ Sprint 3 Complete Checklist
 
 - [ ] Bug #7: Tax rate imported from settings
 - [ ] Bug #2: User name feature working
 - [ ] Bug #11: Mobile notifications debugged
 - [ ] Bug #1: Multi-pack support (if time permits)
+- [ ] Bug #13: Categories expanded to 17 options
 - [ ] All medium bugs resolved
-- [ ] Commit: `git commit -m "feat: Medium priority improvements - tax import, user name, mobile notifications"`
+- [ ] Commit: `git commit -m "feat: Medium priority improvements - tax import, user name, mobile notifications, expanded categories"`
 
 ---
 
@@ -1770,7 +1838,7 @@ EOF
 
 **Sprint 1 (Critical):** 1-2 days  
 **Sprint 2 (High):** 1 day  
-**Sprint 3 (Medium):** 1-2 days  
+**Sprint 3 (Medium):** 1-2 days (includes category expansion)  
 **Sprint 4 (Low):** 1-2 hours
 
 **Total:** 3-5 days to complete all bugs
@@ -1790,7 +1858,7 @@ Then launch and fix Sprint 3/4 in post-launch iterations.
 |--------|------|-----------|----------------|
 | Sprint 1 | 3 critical | ✅ YES | 1-2 days |
 | Sprint 2 | 4 high | ✅ YES | 1 day |
-| Sprint 3 | 4 medium | ⚠️ Optional | 1-2 days |
+| Sprint 3 | 5 medium | ⚠️ Optional | 1-2 days |
 | Sprint 4 | 1 low | ❌ Defer | 1-2 hours |
 
 ---
