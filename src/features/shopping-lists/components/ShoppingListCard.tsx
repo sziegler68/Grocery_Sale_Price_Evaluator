@@ -20,7 +20,7 @@ const ShoppingListCard: React.FC<ShoppingListCardProps> = ({ list, itemCount, da
   };
 
   return (
-    <Link to={`/shopping-list/${list.share_code}`}>
+    <Link to={`/shopping-lists/${list.share_code}`}>
       <div
         className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
           darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
