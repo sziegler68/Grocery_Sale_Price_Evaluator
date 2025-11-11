@@ -113,6 +113,31 @@ function normalizeAndValidateInput(input: IngestItemInput): {
 }
 
 /**
+ * Check if an item is an exact duplicate (same item + store + date + price)
+ * Only exact duplicates on the same day should be skipped
+ */
+function isExactDuplicate(
+  newItem: {
+    itemName: string;
+    storeName: string;
+    unitPrice: number;
+    datePurchased: Date;
+  },
+  existingItem: GroceryItem
+): boolean {
+  const today = new Date(newItem.datePurchased).toISOString().split('T')[0]; // YYYY-MM-DD
+  const existingDate = new Date(existingItem.datePurchased).toISOString().split('T')[0];
+  
+  const isSameDay = existingDate === today;
+  const isSameItem = existingItem.itemName.toLowerCase() === newItem.itemName.toLowerCase();
+  const isSameStore = existingItem.storeName.toLowerCase() === newItem.storeName.toLowerCase();
+  const isSamePrice = Math.abs(existingItem.unitPrice - newItem.unitPrice) < 0.01; // Within 1 cent
+  
+  // Only consider duplicate if ALL match (same item, store, day, price)
+  return isSameDay && isSameItem && isSameStore && isSamePrice;
+}
+
+/**
  * Find similar existing items using fuzzy matching
  */
 async function findSimilarItems(
@@ -175,19 +200,67 @@ export async function ingestGroceryItem(
     };
   }
 
-  // Step 2: Check for duplicates (unless skipped)
+  // Step 2: Calculate unit price (needed for duplicate check)
+  const unitPrice = normalized.price / normalized.quantity;
+  const datePurchased = input.datePurchased || new Date();
+
+  // Step 3: Check for exact duplicates (unless skipped)
   if (!skipDuplicateCheck) {
+    // First, check for exact duplicates (same item + store + date + price)
+    const result = await fetchAllItems();
+    
+    if (result.source !== 'mock' && result.items.length > 0) {
+      const exactDuplicate = result.items.find(existingItem => 
+        isExactDuplicate(
+          {
+            itemName: normalized.itemName,
+            storeName: normalized.storeName,
+            unitPrice,
+            datePurchased,
+          },
+          existingItem
+        )
+      );
+
+      if (exactDuplicate) {
+        const today = datePurchased.toISOString().split('T')[0];
+        console.log(`[DUPLICATE] Skipping: ${normalized.itemName} - exact match found for today (${today})`);
+        return {
+          success: false,
+          matchFound: {
+            existingItem: exactDuplicate,
+            similarity: 1.0,
+            suggestedAction: 'update',
+          },
+          error: `Exact duplicate detected: "${exactDuplicate.itemName}" already exists for ${normalized.storeName} on ${today} with the same price. Skipping to avoid duplicate entry.`,
+        };
+      }
+    }
+
+    // Then check for fuzzy matches (similar name) - but allow saving if different date/price
     const similarItem = await findSimilarItems(normalized.itemName, fuzzyThreshold);
 
     if (similarItem) {
       const { match: existingItem, similarity } = similarItem;
 
-      // Exact match or very high similarity
+      // Very high similarity - check if it's a different price point (price history)
       if (similarity >= 0.95) {
-        if (autoMerge) {
+        // Check if it's a different date or price - if so, allow saving (price history)
+        const existingDate = new Date(existingItem.datePurchased).toISOString().split('T')[0];
+        const newDate = datePurchased.toISOString().split('T')[0];
+        const priceDifference = Math.abs(existingItem.unitPrice - unitPrice);
+        
+        if (existingDate !== newDate || priceDifference >= 0.01) {
+          // Different date or price - this is price history, allow saving
+          console.log(`[PRICE_HISTORY] Saving: ${normalized.itemName} - new price point for ${normalized.storeName} (${existingDate !== newDate ? 'different date' : 'different price'})`);
+          // Continue to save the item
+        } else if (autoMerge) {
           // Auto-merge: add as new price entry for same item
-          console.log(`Auto-merging with existing item: ${existingItem.itemName}`);
+          console.log(`[PRICE_HISTORY] Auto-merging: ${normalized.itemName} - adding new price entry`);
+          // Continue to save the item
         } else {
+          // Same date and price - this was already caught by exact duplicate check above
+          // But if we get here, it means exact duplicate check didn't find it (edge case)
           // Return match info for user to decide
           return {
             success: false,
@@ -200,22 +273,14 @@ export async function ingestGroceryItem(
           };
         }
       } else if (similarity >= fuzzyThreshold) {
-        // Moderate match - suggest confirmation
-        return {
-          success: false,
-          matchFound: {
-            existingItem,
-            similarity,
-            suggestedAction: 'confirm',
-          },
-          error: `Possible duplicate: "${existingItem.itemName}" (${Math.round(similarity * 100)}% match). Confirm if this is a new item.`,
-        };
+        // Moderate match - different enough to be a separate item, allow saving
+        console.log(`[PRICE_HISTORY] Saving: ${normalized.itemName} - similar but distinct item (${Math.round(similarity * 100)}% match)`);
+        // Continue to save the item
       }
     }
   }
 
-  // Step 3: Calculate unit price
-  const unitPrice = normalized.price / normalized.quantity;
+  // Unit price already calculated in Step 2 for duplicate check
 
   // Step 4: Phase 4 - Check for suspicious data (auto-flagging)
   let shouldFlag = false;
@@ -260,7 +325,7 @@ export async function ingestGroceryItem(
       seafoodSource: input.seafoodSource,
       meatQuality: input.meatQuality as any, // Legacy
       notes: input.notes,
-      datePurchased: input.datePurchased || new Date(),
+      datePurchased: datePurchased,
     });
 
     // Step 6: Phase 4 - Create OCR scan record if OCR metadata provided
