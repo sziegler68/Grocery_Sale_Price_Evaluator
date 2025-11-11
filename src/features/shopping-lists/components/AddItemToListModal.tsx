@@ -59,6 +59,7 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
   }, []);
 
   // Filter suggestions based on item name (trigger on 1+ letters, show max 3)
+  // Prioritize matches that start with typed letters
   useEffect(() => {
     if (itemName.length < 1) {
       setSuggestions([]);
@@ -66,11 +67,24 @@ const AddItemToListModal: React.FC<AddItemToListModalProps> = ({
     }
 
     const searchTerm = itemName.toLowerCase();
-    const filtered = priceDbItems.filter(item =>
-      item.itemName.toLowerCase().includes(searchTerm)
-    );
+    
+    // Separate items that start with search term vs contain it
+    const startsWith: GroceryItem[] = [];
+    const contains: GroceryItem[] = [];
+    
+    priceDbItems.forEach(item => {
+      const itemNameLower = item.itemName.toLowerCase();
+      if (itemNameLower.startsWith(searchTerm)) {
+        startsWith.push(item);
+      } else if (itemNameLower.includes(searchTerm)) {
+        contains.push(item);
+      }
+    });
 
-    console.log('[AddItemModal] Search term:', searchTerm, 'Filtered:', filtered.length);
+    // Combine: starts with first, then contains
+    const filtered = [...startsWith, ...contains];
+
+    console.log('[AddItemModal] Search term:', searchTerm, 'Filtered:', filtered.length, '(starts with:', startsWith.length, ')');
 
     // Get unique item names with their most common target price
     const uniqueItems = new Map<string, GroceryItem>();

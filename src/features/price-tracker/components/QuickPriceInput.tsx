@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, TrendingUp, TrendingDown } from 'lucide-react';
+import { X, Check, TrendingUp, TrendingDown, Plus, Trash2 } from 'lucide-react';
 import { formatPrice, calculateUnitPrice } from '../../../shared/utils/priceUtils';
 
 interface QuickPriceInputProps {
@@ -16,6 +16,7 @@ interface QuickPriceInputProps {
   unitType?: string;
   targetPrice?: number; // Target price PER UNIT
   salesTaxRate: number;
+  category?: string; // For pack logic (meat items)
   // For editing existing cart items
   initialPrice?: number; // Total price
   initialQuantity?: number;
@@ -30,6 +31,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   unitType = '',
   targetPrice,
   salesTaxRate,
+  category,
   initialPrice,
   initialQuantity,
   initialCrv
@@ -48,6 +50,19 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     initialQuantity ? initialQuantity.toString() : '1'
   );
   const [updateTarget, setUpdateTarget] = useState<boolean>(false);
+  
+  // Container units/quantity mode
+  const [useContainerMode, setUseContainerMode] = useState<boolean>(false);
+  const [containerPriceDisplay, setContainerPriceDisplay] = useState<string>('');
+  const [unitsPerContainer, setUnitsPerContainer] = useState<string>('1');
+  const [containerUnitType, setContainerUnitType] = useState<string>('pack');
+  
+  // Pack mode for meat items
+  const isMeatItem = category === 'Meat';
+  const [usePackMode, setUsePackMode] = useState<boolean>(false);
+  const [packs, setPacks] = useState<Array<{ price: string; weight: string }>>([
+    { price: '', weight: '' }
+  ]);
 
   if (!isOpen) return null;
 
@@ -84,14 +99,79 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     }
   }, [quantity, crvEnabled]);
 
-  // Display values
-  const totalPrice = priceDisplay ? parseFloat(priceDisplay) : 0;
+  // Handle container price input
+  const handleContainerPriceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value.replace(/\D/g, '');
+    if (input === '') {
+      setContainerPriceDisplay('');
+      return;
+    }
+    const numValue = parseInt(input, 10);
+    const dollars = Math.floor(numValue / 100);
+    const cents = numValue % 100;
+    setContainerPriceDisplay(`${dollars}.${cents.toString().padStart(2, '0')}`);
+  };
+
+  // Pack mode handlers
+  const addPack = () => {
+    setPacks([...packs, { price: '', weight: '' }]);
+  };
+
+  const removePack = (index: number) => {
+    if (packs.length > 1) {
+      setPacks(packs.filter((_, i) => i !== index));
+    }
+  };
+
+  const updatePack = (index: number, field: 'price' | 'weight', value: string) => {
+    const newPacks = [...packs];
+    if (field === 'price') {
+      const input = value.replace(/\D/g, '');
+      if (input === '') {
+        newPacks[index].price = '';
+      } else {
+        const numValue = parseInt(input, 10);
+        const dollars = Math.floor(numValue / 100);
+        const cents = numValue % 100;
+        newPacks[index].price = `${dollars}.${cents.toString().padStart(2, '0')}`;
+      }
+    } else {
+      newPacks[index].weight = value;
+    }
+    setPacks(newPacks);
+  };
+
+  // Calculate values based on mode
+  let totalPrice = 0;
+  let quantityNum = 1;
+  
+  if (usePackMode && isMeatItem) {
+    // Pack mode: sum all packs
+    totalPrice = packs.reduce((sum, pack) => {
+      const packPrice = pack.price ? parseFloat(pack.price) : 0;
+      return sum + packPrice;
+    }, 0);
+    quantityNum = packs.reduce((sum, pack) => {
+      const packWeight = pack.weight ? parseFloat(pack.weight) : 0;
+      return sum + packWeight;
+    }, 0);
+  } else if (useContainerMode) {
+    // Container mode: container price, units per container
+    const containerPrice = containerPriceDisplay ? parseFloat(containerPriceDisplay) : 0;
+    const unitsPerContainerNum = parseFloat(unitsPerContainer) || 1;
+    totalPrice = containerPrice;
+    quantityNum = unitsPerContainerNum;
+  } else {
+    // Normal mode: direct price and quantity
+    totalPrice = priceDisplay ? parseFloat(priceDisplay) : 0;
+    quantityNum = parseFloat(quantity) || 1;
+  }
+  
   const crvPerContainer = crvEnabled && crvPerContainerDisplay ? parseFloat(crvPerContainerDisplay) : 0;
   const containerCount = parseFloat(crvContainerCount) || 1;
-  const quantityNum = parseFloat(quantity) || 1;
   
   // Calculate unit price (price per item, NOT including CRV)
-  const unitPrice = totalPrice > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0;
+  const unitPrice = totalPrice > 0 && quantityNum > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0;
   
   // Calculate cart addition
   // IMPORTANT: CRV is NOT taxed! It's added AFTER sales tax
@@ -113,12 +193,19 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
         crvAmount: totalCrv, // Pass total CRV (crvPerContainer × containerCount)
         updateTargetPrice: updateTarget
       });
+      // Reset all fields
       setPriceDisplay('');
       setQuantity('1');
+      setContainerPriceDisplay('');
+      setUnitsPerContainer('1');
+      setContainerUnitType('pack');
       setCrvPerContainerDisplay('');
       setCrvContainerCount('1');
       setCrvEnabled(false);
       setUpdateTarget(false);
+      setUseContainerMode(false);
+      setUsePackMode(false);
+      setPacks([{ price: '', weight: '' }]);
       onClose();
     }
   };
@@ -145,38 +232,201 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Total Price Input */}
-          <div>
-            <label className="block text-xs font-medium mb-2 text-secondary">
-              Total Price
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">$</span>
+          {/* Pack Mode Toggle (Meat items only) */}
+          {isMeatItem && (
+            <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
               <input
-                type="text"
-                inputMode="numeric"
-                value={priceDisplay}
-                onChange={handlePriceInput}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input text-xl font-semibold focus:ring-2 focus:ring-brand"
-                placeholder="0.00"
+                type="checkbox"
+                id="pack-mode-checkbox"
+                checked={usePackMode}
+                onChange={(e) => {
+                  setUsePackMode(e.target.checked);
+                  if (!e.target.checked) {
+                    setPacks([{ price: '', weight: '' }]);
+                  }
+                }}
+                className="w-5 h-5 rounded border-input text-brand focus:ring-2 focus:ring-brand"
               />
+              <label htmlFor="pack-mode-checkbox" className="text-sm font-medium cursor-pointer flex-1">
+                Multiple packs (each pack has different weight)
+              </label>
             </div>
-          </div>
+          )}
 
-          {/* Quantity Input */}
-          <div>
-            <label className="block text-xs font-medium mb-2 text-secondary">
-              Quantity{unitType ? ` (${unitType})` : ''}
-            </label>
-            <input
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border bg-input border-input text-center text-lg font-semibold focus:ring-2 focus:ring-brand"
-            />
-          </div>
+          {/* Pack Mode Inputs */}
+          {usePackMode && isMeatItem ? (
+            <div className="space-y-3">
+              {packs.map((pack, index) => (
+                <div key={index} className="p-3 rounded-lg border border-primary bg-secondary">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Pack {index + 1}</span>
+                    {packs.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removePack(index)}
+                        className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium mb-1 text-secondary">Price</label>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-secondary">$</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={pack.price}
+                          onChange={(e) => updatePack(index, 'price', e.target.value)}
+                          className="w-full pl-6 pr-2 py-2 rounded border bg-input border-input text-sm focus:ring-2 focus:ring-brand"
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1 text-secondary">Weight ({unitType || 'lb'})</label>
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        value={pack.weight}
+                        onChange={(e) => updatePack(index, 'weight', e.target.value)}
+                        className="w-full px-2 py-2 rounded border bg-input border-input text-sm text-center focus:ring-2 focus:ring-brand"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addPack}
+                className="w-full py-2 rounded-lg border border-dashed border-primary hover:bg-secondary transition-colors flex items-center justify-center space-x-2 text-sm"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add Another Pack</span>
+              </button>
+              {totalPrice > 0 && quantityNum > 0 && (
+                <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                  <p className="text-xs font-medium text-green-700 dark:text-green-400">
+                    Total: ${totalPrice.toFixed(2)} for {quantityNum.toFixed(2)} {unitType || 'lb'} = ${unitPrice.toFixed(2)}/{unitType || 'lb'}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Container Mode Toggle */}
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="container-mode-checkbox"
+                  checked={useContainerMode}
+                  onChange={(e) => setUseContainerMode(e.target.checked)}
+                  className="w-5 h-5 rounded border-input text-brand focus:ring-2 focus:ring-brand"
+                />
+                <label htmlFor="container-mode-checkbox" className="text-sm font-medium cursor-pointer flex-1">
+                  Price is for a container/pack (e.g., 3-pack, case)
+                </label>
+              </div>
+
+              {useContainerMode ? (
+                <>
+                  {/* Container Price */}
+                  <div>
+                    <label className="block text-xs font-medium mb-2 text-secondary">
+                      Price for Container
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={containerPriceDisplay}
+                        onChange={handleContainerPriceInput}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input text-xl font-semibold focus:ring-2 focus:ring-brand"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Units per Container */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium mb-2 text-secondary">
+                        Units per Container
+                      </label>
+                      <input
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        value={unitsPerContainer}
+                        onChange={(e) => setUnitsPerContainer(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border bg-input border-input text-center text-lg font-semibold focus:ring-2 focus:ring-brand"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-2 text-secondary">
+                        Container Unit Type
+                      </label>
+                      <input
+                        type="text"
+                        value={containerUnitType}
+                        onChange={(e) => setContainerUnitType(e.target.value)}
+                        placeholder="pack, case, etc"
+                        className="w-full px-4 py-3 rounded-lg border bg-input border-input text-center text-lg font-semibold focus:ring-2 focus:ring-brand"
+                      />
+                    </div>
+                  </div>
+
+                  {totalPrice > 0 && quantityNum > 0 && (
+                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                        ${containerPriceDisplay} per {containerUnitType} ({unitsPerContainer} {unitType || 'units'}) = ${unitPrice.toFixed(2)}/{unitType || 'unit'}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Total Price Input */}
+                  <div>
+                    <label className="block text-xs font-medium mb-2 text-secondary">
+                      Total Price
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={priceDisplay}
+                        onChange={handlePriceInput}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input text-xl font-semibold focus:ring-2 focus:ring-brand"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quantity Input */}
+                  <div>
+                    <label className="block text-xs font-medium mb-2 text-secondary">
+                      Quantity{unitType ? ` (${unitType})` : ''}
+                    </label>
+                    <input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      className="w-full px-4 py-3 rounded-lg border bg-input border-input text-center text-lg font-semibold focus:ring-2 focus:ring-brand"
+                    />
+                  </div>
+                </>
+              )}
+            </>
+          )}
 
           {/* Unit Price Display */}
           {unitPrice > 0 && unitType && (

@@ -87,9 +87,8 @@ async function importCSV() {
       const price = parseFloat(row.price);
       const quantity = parseFloat(row.quantity);
       const unitPrice = parseFloat(row.unit_price);
-      const targetPrice = row.target_price && row.target_price.trim() 
-        ? parseFloat(row.target_price) 
-        : null;
+      // Set target_price to unit_price (average price per unit) since CSV has avg prices
+      const targetPrice = unitPrice;
 
       // Validate numeric values
       if (isNaN(price) || price < 0) {
@@ -121,7 +120,7 @@ async function importCSV() {
       };
 
       // Insert into database
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('grocery_items')
         .insert(insertData)
         .select()
