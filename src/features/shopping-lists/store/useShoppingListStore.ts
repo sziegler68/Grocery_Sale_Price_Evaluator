@@ -217,14 +217,49 @@ export const useShoppingListStore = create<ShoppingListStore>((set, get) => ({
           table: 'shopping_list_items',
           filter: `list_id=eq.${listId}`
         },
-        () => {
-          // Reload items when changes occur
-          get().loadListItems(listId);
+        (payload) => {
+          console.log('[REALTIME] Shopping list item change detected:', payload.eventType, payload);
+          
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          
+          // Update Zustand state directly based on the event type
+          if (eventType === 'INSERT' && newRecord) {
+            console.log('[REALTIME] Adding new item to state');
+            set(state => ({
+              items: [...state.items, newRecord as ShoppingListItem]
+            }));
+          } else if (eventType === 'UPDATE' && newRecord) {
+            console.log('[REALTIME] Updating item in state');
+            set(state => ({
+              items: state.items.map(item =>
+                item.id === newRecord.id ? (newRecord as ShoppingListItem) : item
+              )
+            }));
+          } else if (eventType === 'DELETE' && oldRecord) {
+            console.log('[REALTIME] Removing item from state');
+            set(state => ({
+              items: state.items.filter(item => item.id !== oldRecord.id)
+            }));
+          } else {
+            // Fallback: reload from database if payload format is unexpected
+            console.log('[REALTIME] Unexpected payload format, reloading from database');
+            get().loadListItems(listId);
+          }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[REALTIME] Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('[REALTIME] ✅ Successfully subscribed to shopping list items');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[REALTIME] ❌ Channel error - check Supabase Realtime is enabled');
+        } else if (status === 'TIMED_OUT') {
+          console.error('[REALTIME] ⏱️ Subscription timed out');
+        }
+      });
 
     const unsubscribe = () => {
+      console.log('[REALTIME] 🔌 Unsubscribing from shopping list items');
       channel.unsubscribe();
       set(state => {
         const newSubs = new Map(state.activeSubscriptions);

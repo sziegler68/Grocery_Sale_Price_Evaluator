@@ -205,13 +205,52 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
           table: 'cart_items',
           filter: `trip_id=eq.${tripId}`
         },
-        () => {
-          console.log('[STORE] 🛒 Cart items changed, reloading...');
-          // Reload cart items when changes occur
-          get().loadCartItems(tripId);
+        (payload) => {
+          console.log('[REALTIME] Cart item change detected:', payload.eventType, payload);
+          
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          
+          // Update Zustand state directly based on the event type
+          if (eventType === 'INSERT' && newRecord) {
+            console.log('[REALTIME] Adding new cart item to state');
+            set(state => {
+              const updatedItems = [...state.cartItems, newRecord as CartItem];
+              const totals = computeCartTotals(updatedItems);
+              return { cartItems: updatedItems, cartTotals: totals };
+            });
+          } else if (eventType === 'UPDATE' && newRecord) {
+            console.log('[REALTIME] Updating cart item in state');
+            set(state => {
+              const updatedItems = state.cartItems.map(item =>
+                item.id === newRecord.id ? (newRecord as CartItem) : item
+              );
+              const totals = computeCartTotals(updatedItems);
+              return { cartItems: updatedItems, cartTotals: totals };
+            });
+          } else if (eventType === 'DELETE' && oldRecord) {
+            console.log('[REALTIME] Removing cart item from state');
+            set(state => {
+              const updatedItems = state.cartItems.filter(item => item.id !== oldRecord.id);
+              const totals = computeCartTotals(updatedItems);
+              return { cartItems: updatedItems, cartTotals: totals };
+            });
+          } else {
+            // Fallback: reload from database if payload format is unexpected
+            console.log('[REALTIME] Unexpected payload format, reloading from database');
+            get().loadCartItems(tripId);
+          }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[REALTIME] Cart subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('[REALTIME] ✅ Successfully subscribed to cart items');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[REALTIME] ❌ Channel error - check Supabase Realtime is enabled');
+        } else if (status === 'TIMED_OUT') {
+          console.error('[REALTIME] ⏱️ Subscription timed out');
+        }
+      });
 
     const unsubscribe = () => {
       console.log('[STORE] 🔌 Unsubscribing from cart updates');
@@ -258,13 +297,31 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
           table: 'shopping_trips',
           filter: `id=eq.${tripId}`
         },
-        () => {
-          console.log('[STORE] 💰 Trip totals changed, reloading...');
-          // Reload trip when totals change
-          get().loadTrip(tripId);
+        (payload) => {
+          console.log('[REALTIME] Trip update detected:', payload);
+          
+          if (payload.new) {
+            console.log('[REALTIME] Updating trip in state');
+            set(state => ({
+              currentTrip: payload.new as ShoppingTrip
+            }));
+            
+            // Also reload cart items to ensure totals are in sync
+            // (totals are computed from cart items, but trip.total_spent might have changed)
+            get().loadCartItems(tripId);
+          }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[REALTIME] Trip subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('[REALTIME] ✅ Successfully subscribed to trip updates');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[REALTIME] ❌ Channel error - check Supabase Realtime is enabled');
+        } else if (status === 'TIMED_OUT') {
+          console.error('[REALTIME] ⏱️ Subscription timed out');
+        }
+      });
 
     const unsubscribe = () => {
       console.log('[STORE] 🔌 Unsubscribing from trip updates');
