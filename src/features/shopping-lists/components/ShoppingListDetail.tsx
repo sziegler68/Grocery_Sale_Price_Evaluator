@@ -430,18 +430,13 @@ const ShoppingListDetail: React.FC = () => {
   const handleCompleteTrip = async (completedTrip: ShoppingTrip, cartItems: CartItem[]) => {
     if (!list) return;
 
-    // Ask if user wants to save prices to database
+    // Always save prices to database (mandatory for price tracking)
     if (cartItems.length > 0) {
-      const shouldSave = window.confirm(
-        `Save ${cartItems.length} item price${cartItems.length !== 1 ? 's' : ''} to Price Tracker?\n\nThis will add today's prices to your price history for comparison.`
-      );
+      let savedCount = 0;
+      let errorCount = 0;
+      let duplicateCount = 0;
 
-      if (shouldSave) {
-        let savedCount = 0;
-        let errorCount = 0;
-        let duplicateCount = 0;
-
-        for (const item of cartItems) {
+      for (const item of cartItems) {
           // Map shopping list categories to grocery item categories
           const categoryMap: Record<string, 'Beef' | 'Pork' | 'Chicken' | 'Seafood' | 'Dairy' | 'Produce' | 'Snacks' | 'Drinks' | 'Household' | 'Other'> = {
             'Meats': 'Chicken',
@@ -481,16 +476,15 @@ const ShoppingListDetail: React.FC = () => {
           }
         }
 
-        // Show summary with duplicate info
-        if (savedCount > 0) {
-          toast.success(`Saved ${savedCount} price${savedCount !== 1 ? 's' : ''} to Price Tracker!`);
-        }
-        if (duplicateCount > 0) {
-          toast.info(`Skipped ${duplicateCount} duplicate item${duplicateCount !== 1 ? 's' : ''}`);
-        }
-        if (errorCount > 0) {
-          toast.warning(`Failed to save ${errorCount} item${errorCount !== 1 ? 's' : ''}`);
-        }
+      // Show summary with duplicate info
+      if (savedCount > 0) {
+        toast.success(`Saved ${savedCount} price${savedCount !== 1 ? 's' : ''} to Price Tracker!`);
+      }
+      if (duplicateCount > 0) {
+        toast.info(`Skipped ${duplicateCount} duplicate item${duplicateCount !== 1 ? 's' : ''}`);
+      }
+      if (errorCount > 0) {
+        toast.warning(`Failed to save ${errorCount} item${errorCount !== 1 ? 's' : ''}`);
       }
     }
 
@@ -503,7 +497,7 @@ const ShoppingListDetail: React.FC = () => {
       : `Saved $${difference.toFixed(2)}!`;
     
     toast.success(
-      `Trip complete! Spent $${completedTrip.total_spent.toFixed(2)}. ${summaryMessage}`,
+      `Trip complete! Spent $${completedTrip.total_spent.toFixed(2)}. ${summaryMessage} Prices saved to database.`,
       { autoClose: 5000 }
     );
 
