@@ -302,7 +302,7 @@ export const useShoppingTripStore = create<ShoppingTripStore>((set, get) => ({
           
           if (payload.new) {
             console.log('[REALTIME] Updating trip in state');
-            set(state => ({
+            set(() => ({
               currentTrip: payload.new as ShoppingTrip
             }));
             

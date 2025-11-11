@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Calculator, ShoppingCart, Search, Settings, HelpCircle } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { isSupabaseConfigured } from '@shared/api/supabaseClient';
 import { getUserName } from './Settings';
-import { toast } from 'react-toastify';
 
 const Home: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
-  const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(true);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
 
