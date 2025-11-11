@@ -461,15 +461,16 @@ const ShoppingListDetail: React.FC = () => {
             datePurchased: new Date(),
           }, {
             skipDuplicateCheck: false, // Enable duplicate detection for trip exports
+            autoMerge: true, // Allow saving price history (different dates/prices)
             fuzzyThreshold: 0.85,
           });
 
           if (result.success) {
             savedCount++;
           } else if (result.matchFound) {
-            // Item was a duplicate - count separately
+            // Item was an exact duplicate (same day + same price) - skip to avoid duplicate entry
             duplicateCount++;
-            console.log(`Duplicate detected: ${item.item_name} matched ${result.matchFound.existingItem.itemName}`);
+            console.log(`[DUPLICATE] Skipped: ${item.item_name} - exact match found for today`);
           } else {
             console.error(`Failed to save ${item.item_name}:`, result.error);
             errorCount++;
@@ -481,7 +482,7 @@ const ShoppingListDetail: React.FC = () => {
         toast.success(`Saved ${savedCount} price${savedCount !== 1 ? 's' : ''} to Price Tracker!`);
       }
       if (duplicateCount > 0) {
-        toast.info(`Skipped ${duplicateCount} duplicate item${duplicateCount !== 1 ? 's' : ''}`);
+        toast.info(`Skipped ${duplicateCount} exact duplicate${duplicateCount !== 1 ? 's' : ''} (same item/store/date/price)`);
       }
       if (errorCount > 0) {
         toast.warning(`Failed to save ${errorCount} item${errorCount !== 1 ? 's' : ''}`);
