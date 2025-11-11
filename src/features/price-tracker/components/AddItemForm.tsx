@@ -77,6 +77,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
   const watchedQuantity = watch('quantity');
   const watchedUnitType = watch('unitType');
   const watchedItemName = watch('itemName');
+  const watchedTargetPrice = watch('targetPrice');
 
   // Unit price calculator
   const calculateUnitPrice = (price: number, quantity: number): number => {
@@ -124,10 +125,16 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onSubmit, existingItems = [],
     if (watchedPrice > 0 && watchedQuantity > 0) {
       const unitPrice = calculateUnitPrice(watchedPrice, watchedQuantity);
       setCalculatedUnitPrice(unitPrice);
+      
+      // Auto-fill target price if it's empty (for new items)
+      if (!isEditMode && (!watchedTargetPrice || watchedTargetPrice === 0)) {
+        setTargetPriceDisplay(unitPrice.toFixed(2));
+        setValue('targetPrice', unitPrice);
+      }
     } else {
       setCalculatedUnitPrice(null);
     }
-  }, [watchedPrice, watchedQuantity]);
+  }, [watchedPrice, watchedQuantity, watchedTargetPrice, isEditMode, setValue]);
 
   // Auto-suggest logic
   useEffect(() => {

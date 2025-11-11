@@ -183,8 +183,8 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
           >
             <option value="date-new">Newest First</option>
             <option value="date-old">Oldest First</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
+            <option value="price-low">Price per Unit: Low to High</option>
+            <option value="price-high">Price per Unit: High to Low</option>
             <option value="name-az">Name: A-Z</option>
             <option value="name-za">Name: Z-A</option>
           </select>

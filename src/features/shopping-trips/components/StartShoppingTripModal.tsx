@@ -157,19 +157,32 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
             <label className="block text-sm font-medium mb-2">
               Sales Tax Rate
             </label>
+            {salesTaxRate === 0 && (
+              <div className="mb-2 p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  ⚠️ <strong>Tax rate not set in Settings.</strong> Please set your sales tax rate in Settings, or enter it manually below.
+                </p>
+              </div>
+            )}
             <div className="relative">
               <input
                 type="text"
                 inputMode="numeric"
                 value={salesTaxDisplay}
                 onChange={handleSalesTaxInput}
-                className="w-full pl-4 pr-8 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
+                className={`w-full pl-4 pr-8 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent ${
+                  salesTaxRate === 0 ? 'border-yellow-400 dark:border-yellow-600' : ''
+                }`}
                 placeholder="10.25"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary">%</span>
             </div>
             <p className="text-xs text-secondary mt-2">
-              Default: {salesTaxRate.toFixed(2)}% (from settings). Type {(salesTaxRate * 100).toFixed(0)} for calculator entry.
+              {salesTaxRate > 0 ? (
+                <>Default: {salesTaxRate.toFixed(2)}% (from settings). Type {(salesTaxRate * 100).toFixed(0)} for calculator entry.</>
+              ) : (
+                <>Enter your local sales tax rate (e.g., type 850 for 8.50%). Set it in Settings to use as default.</>
+              )}
             </p>
           </div>
         </div>
