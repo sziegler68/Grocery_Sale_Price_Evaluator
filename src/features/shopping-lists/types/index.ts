@@ -2,6 +2,8 @@
  * TypeScript types for Shopping Lists feature
  */
 
+import { CATEGORIES } from '@shared/constants/categories';
+
 export interface ShoppingList {
   id: string;
   name: string;
@@ -65,21 +67,12 @@ export interface UpdateItemInput {
   is_checked?: boolean;
 }
 
-// Category display names and order - now synced with price tracker
-export const SHOPPING_LIST_CATEGORIES = [
-  'Meat',
-  'Seafood',
-  'Dairy',
-  'Produce',
-  'Snacks',
-  'Drinks',
-  'Household',
-  'Other',
-] as const;
+// Use shared categories - now expanded to 17
+export const SHOPPING_LIST_CATEGORIES = [...CATEGORIES] as const;
 
 export type ShoppingListCategory = typeof SHOPPING_LIST_CATEGORIES[number];
 
-// Map grocery item categories to shopping list categories
+// Map grocery item categories to shopping list categories (includes legacy and new)
 export const CATEGORY_MAP: Record<string, ShoppingListCategory> = {
   'Meat': 'Meat',
   'Beef': 'Meat', // Legacy mapping
@@ -88,9 +81,18 @@ export const CATEGORY_MAP: Record<string, ShoppingListCategory> = {
   'Seafood': 'Seafood',
   'Dairy': 'Dairy',
   'Produce': 'Produce',
+  'Bakery': 'Bakery',
+  'Frozen': 'Frozen',
+  'Pantry': 'Pantry',
+  'Condiments': 'Condiments',
+  'Beverages': 'Beverages',
+  'Drinks': 'Beverages', // Legacy mapping - map old "Drinks" to "Beverages"
   'Snacks': 'Snacks',
-  'Drinks': 'Drinks',
   'Household': 'Household',
+  'Personal Care': 'Personal Care',
+  'Baby': 'Baby',
+  'Pet': 'Pet',
+  'Electronics': 'Electronics',
   'Other': 'Other',
 };
 

@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calculator, ShoppingCart, Search, Settings, HelpCircle } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { isSupabaseConfigured } from '@shared/api/supabaseClient';
+import { getUserName } from './Settings';
+import { toast } from 'react-toastify';
 
 const Home: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
+  const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(true);
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
 
   useEffect(() => {
     // Check connection status
@@ -17,6 +21,15 @@ const Home: React.FC = () => {
     };
     
     checkConnection();
+    
+    // Check if user name is set
+    const userName = getUserName();
+    if (!userName) {
+      // Show prompt after a short delay
+      setTimeout(() => {
+        setShowNamePrompt(true);
+      }, 2000);
+    }
   }, []);
 
   return (
@@ -42,6 +55,43 @@ const Home: React.FC = () => {
               </span>
             </div>
           </section>
+
+          {/* User Name Prompt for New Users */}
+          {showNamePrompt && (
+            <div className="max-w-2xl mx-auto mb-6 p-4 rounded-xl bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
+                    👋 Welcome! Set Your Name
+                  </h3>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
+                    Please set your name in Settings. It will be used for database entries (price checker, shopping trips) to help with sorting and tracking.
+                  </p>
+                  <div className="flex gap-3">
+                    <Link
+                      to="/settings"
+                      className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      onClick={() => setShowNamePrompt(false)}
+                    >
+                      Go to Settings
+                    </Link>
+                    <button
+                      onClick={() => setShowNamePrompt(false)}
+                      className="px-4 py-2 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Remind Me Later
+                    </button>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowNamePrompt(false)}
+                  className="ml-4 text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-200"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Quick Access Buttons */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">

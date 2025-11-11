@@ -54,6 +54,25 @@ export const saveUnitPreferences = (preferences: UnitPreferences): void => {
 };
 
 const SALES_TAX_KEY = 'grocery-sales-tax';
+const USER_NAME_KEY = 'grocery-user-name';
+
+export const getUserName = (): string => {
+  try {
+    const stored = localStorage.getItem(USER_NAME_KEY);
+    return stored || '';
+  } catch (error) {
+    console.error('Failed to load user name:', error);
+    return '';
+  }
+};
+
+export const saveUserName = (name: string): void => {
+  try {
+    localStorage.setItem(USER_NAME_KEY, name.trim());
+  } catch (error) {
+    console.error('Failed to save user name:', error);
+  }
+};
 
 export const getSalesTaxRate = (): number => {
   try {
@@ -80,6 +99,7 @@ const Settings: React.FC = () => {
   const [preferences, setPreferences] = useState<UnitPreferences>(getUnitPreferences());
   const [salesTax, setSalesTax] = useState<number>(getSalesTaxRate());
   const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(getSalesTaxRate() > 0 ? getSalesTaxRate().toFixed(2) : '');
+  const [userName, setUserName] = useState<string>(getUserName());
   const [hasNotificationPermission, setHasNotificationPermission] = useState<boolean>(isPushNotificationSupported());
   
   // Use notification store
@@ -121,6 +141,7 @@ const Settings: React.FC = () => {
     saveUnitPreferences(preferences);
     // Notification settings are saved automatically by store
     saveSalesTaxRate(salesTax);
+    saveUserName(userName);
     toast.success('Settings saved successfully!');
   };
 
@@ -306,6 +327,42 @@ const Settings: React.FC = () => {
             </p>
           </div>
 
+        </div>
+
+        {/* User Name Setting */}
+        <div className="max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 bg-card">
+          <div className="flex items-center space-x-2 mb-6">
+            <SettingsIcon className="h-6 w-6 text-purple-600" />
+            <h2 className="text-2xl font-bold">Your Name</h2>
+          </div>
+
+          <p className="text-primary mb-6">
+            Your name will be used for database entries (price checker, shopping trips) to help with sorting and tracking.
+            This is separate from list names - you can still use fun names when creating or joining lists!
+          </p>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Name
+            </label>
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="Enter your name"
+            />
+            <p className="text-xs text-secondary mt-2">
+              This name will be stored with your price database entries and shopping trip items.
+            </p>
+            {!userName && (
+              <div className="mt-3 p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-700">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  ⚠️ <strong>No name set.</strong> Please set your name to help with database organization.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Sales Tax Setting */}

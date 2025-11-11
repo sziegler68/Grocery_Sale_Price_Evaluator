@@ -3,15 +3,25 @@
  * Used across Price Tracker and Shopping Lists
  */
 
-// Main categories
+// Main categories (expanded to 17)
 export const CATEGORIES = [
+  // Food Categories
   'Meat',
   'Seafood',
   'Dairy',
   'Produce',
+  'Bakery',      // ✨ NEW
+  'Frozen',      // ✨ NEW
+  'Pantry',      // ✨ NEW
+  'Condiments',  // ✨ NEW
+  'Beverages',   // Renamed from "Drinks"
   'Snacks',
-  'Drinks',
+  // Non-Food Categories
   'Household',
+  'Personal Care', // ✨ NEW
+  'Baby',         // ✨ NEW
+  'Pet',          // ✨ NEW
+  'Electronics',  // ✨ NEW
   'Other',
 ] as const;
 

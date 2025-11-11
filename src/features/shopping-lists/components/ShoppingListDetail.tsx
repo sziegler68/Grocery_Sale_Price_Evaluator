@@ -438,13 +438,25 @@ const ShoppingListDetail: React.FC = () => {
 
       for (const item of cartItems) {
           // Map shopping list categories to grocery item categories
-          const categoryMap: Record<string, 'Beef' | 'Pork' | 'Chicken' | 'Seafood' | 'Dairy' | 'Produce' | 'Snacks' | 'Drinks' | 'Household' | 'Other'> = {
-            'Meats': 'Chicken',
+          const categoryMap: Record<string, string> = {
+            'Meats': 'Meat',
+            'Meat': 'Meat',
+            'Seafood': 'Seafood',
             'Dairy': 'Dairy',
             'Produce': 'Produce',
+            'Bakery': 'Bakery',
+            'Frozen': 'Frozen',
+            'Pantry': 'Pantry',
+            'Condiments': 'Condiments',
+            'Beverages': 'Beverages',
+            'Drinks': 'Beverages', // Legacy - map to Beverages
             'Snacks': 'Snacks',
-            'Drinks': 'Drinks',
-            'Household': 'Household'
+            'Household': 'Household',
+            'Personal Care': 'Personal Care',
+            'Baby': 'Baby',
+            'Pet': 'Pet',
+            'Electronics': 'Electronics',
+            'Other': 'Other',
           };
           const groceryCategory = item.category ? (categoryMap[item.category] || 'Other') : 'Other';
           

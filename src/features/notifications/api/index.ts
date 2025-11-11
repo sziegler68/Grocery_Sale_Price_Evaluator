@@ -66,18 +66,96 @@ export const saveNotificationSettings = (settings: NotificationSettings): void =
  */
 export const requestPushPermission = async (): Promise<boolean> => {
   if (!('Notification' in window)) {
+    debugLog('❌ Notifications not supported in this browser');
     return false;
   }
 
-  const permission = await Notification.requestPermission();
-  return permission === 'granted';
+  // Check platform
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+  
+  debugLog('📱 Requesting notification permission:', {
+    isMobile,
+    isIOS,
+    isHTTPS,
+    currentPermission: Notification.permission
+  });
+  
+  if (!isHTTPS && isMobile) {
+    console.warn('[NOTIF] ⚠️ Mobile notifications require HTTPS. Current protocol:', window.location.protocol);
+    alert('Mobile notifications require HTTPS. Please access the app via HTTPS or install as PWA.');
+    return false;
+  }
+  
+  if (isIOS) {
+    console.info('[NOTIF] 📱 iOS detected - notifications work best when app is installed as PWA');
+  }
+
+  try {
+    const permission = await Notification.requestPermission();
+    debugLog('📱 Permission result:', permission);
+    
+    if (permission === 'granted') {
+      // Test notification
+      try {
+        const testNotif = new Notification('Notifications Enabled', {
+          body: 'You will receive updates about shopping list changes.',
+          icon: '/icons/192x192.png',
+          badge: '/icons/192x192.png',
+          tag: 'test-notification'
+        });
+        setTimeout(() => testNotif.close(), 3000);
+        debugLog('✅ Test notification sent successfully');
+      } catch (testError) {
+        console.error('[NOTIF] ❌ Failed to send test notification:', testError);
+      }
+    }
+    
+    return permission === 'granted';
+  } catch (error) {
+    console.error('[NOTIF] ❌ Error requesting permission:', error);
+    return false;
+  }
 };
 
 /**
  * Check if push notifications are supported and permitted
  */
 export const isPushNotificationSupported = (): boolean => {
-  return 'Notification' in window && Notification.permission === 'granted';
+  if (!('Notification' in window)) {
+    debugLog('❌ Notifications not supported in this browser');
+    return false;
+  }
+  
+  const permission = Notification.permission;
+  debugLog('📱 Notification permission status:', permission);
+  
+  // Check if we're on mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  
+  debugLog('📱 Platform detection:', {
+    isMobile,
+    isIOS,
+    isAndroid,
+    userAgent: navigator.userAgent.substring(0, 50)
+  });
+  
+  // Check HTTPS requirement
+  const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+  debugLog('🔒 HTTPS check:', { isHTTPS, protocol: window.location.protocol, hostname: window.location.hostname });
+  
+  if (!isHTTPS && isMobile) {
+    debugLog('⚠️ Mobile notifications require HTTPS (not available on HTTP)');
+  }
+  
+  if (isIOS) {
+    debugLog('📱 iOS detected - notifications may require PWA installation');
+  }
+  
+  return permission === 'granted';
 };
 
 /**
@@ -86,20 +164,36 @@ export const isPushNotificationSupported = (): boolean => {
 export const sendPushNotification = (title: string, body: string): void => {
   const settings = getNotificationSettings();
   
+  debugLog('📤 sendPushNotification called:', { title, body, enabled: settings.enabled, pushEnabled: settings.pushEnabled });
+  
   if (!settings.enabled || !settings.pushEnabled) {
+    debugLog('⏭️ Push notifications disabled in settings');
     return;
   }
 
   if (!isPushNotificationSupported()) {
+    debugLog('⏭️ Push notifications not supported or permission not granted');
     return;
   }
 
-  new Notification(title, {
-    body,
-    icon: '/icons/512x512.png',
-    badge: '/icons/192x192.png',
-    tag: 'shopping-list-update',
-  });
+  try {
+    const notif = new Notification(title, {
+      body,
+      icon: '/icons/512x512.png',
+      badge: '/icons/192x192.png',
+      tag: 'shopping-list-update',
+    });
+    
+    debugLog('✅ Push notification sent successfully');
+    
+    // Auto-close after 5 seconds
+    setTimeout(() => {
+      notif.close();
+    }, 5000);
+  } catch (error) {
+    console.error('[NOTIF] ❌ Failed to send push notification:', error);
+    debugLog('❌ Error details:', error);
+  }
 };
 
 /**

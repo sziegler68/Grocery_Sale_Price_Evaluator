@@ -23,6 +23,7 @@ import {
 import { fetchAllItems, createGroceryItem } from '../api/groceryData';
 import { createOCRScan } from '../api/ocrScans';
 import { flagItemForReview } from '../api/moderation';
+import { getUserName } from '@shared/components/Settings';
 import type { GroceryItem } from '../types';
 
 /**
@@ -308,6 +309,16 @@ export async function ingestGroceryItem(
 
   // Step 5: Create the item
   try {
+    // Get user name from settings (hidden, for database sorting)
+    const settingsUserName = getUserName();
+    
+    // Combine notes with user name metadata (hidden from UI)
+    let finalNotes = input.notes || '';
+    if (settingsUserName) {
+      // Store user name in notes for database sorting (hidden metadata)
+      finalNotes = finalNotes ? `${finalNotes} [USER:${settingsUserName}]` : `[USER:${settingsUserName}]`;
+    }
+    
     const createdItem = await createGroceryItem({
       itemName: input.itemName, // Use original capitalization for display
       price: normalized.price,
@@ -324,7 +335,7 @@ export async function ingestGroceryItem(
       meatGrade: input.meatGrade,
       seafoodSource: input.seafoodSource,
       meatQuality: input.meatQuality as any, // Legacy
-      notes: input.notes,
+      notes: finalNotes,
       datePurchased: datePurchased,
     });
 
