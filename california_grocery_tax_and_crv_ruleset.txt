@@ -1,0 +1,100 @@
+CALIFORNIA GROCERY TAX AND CRV RULESET
+Generated: 2025-11-13
+
+------------------------------------------------------------
+OVERVIEW
+------------------------------------------------------------
+This document defines the California grocery item tax and CRV (California Redemption Value) ruleset
+for use in a shopping list or cart total calculator application.
+
+Features supported:
+- Automatically determine if an item is taxable under California law.
+- Apply CRV for qualifying beverage containers.
+- Allow manual overrides for both tax and CRV values.
+- Provide a base ruleset to expand to other states later.
+
+------------------------------------------------------------
+CALIFORNIA SALES TAX RULES
+------------------------------------------------------------
+Category | Taxable | Notes / Exceptions
+------------------------------------------------------------
+Unprepared foods (produce, meat, dairy, bread, etc.) | No | Generally exempt
+Prepared or hot foods | Yes | Includes restaurant food, deli sandwiches, hot coffee
+Candy and soda | Yes | Always taxable
+Alcoholic beverages | Yes | Always taxable
+Soft drinks (non-alcoholic, carbonated) | Yes | Taxable even if not CRV
+Non-carbonated bottled water | No | Exempt from sales tax but may have CRV
+Supplements and vitamins | Yes | Treated as non-food
+Paper goods, cleaning supplies, hygiene | Yes | General merchandise
+Pet food | Yes | Non-human consumption
+Seeds or plants for food production | No | Exempt if used to grow food for consumption
+
+------------------------------------------------------------
+CRV (CALIFORNIA REDEMPTION VALUE) RULES
+------------------------------------------------------------
+Applies to most aluminum, glass, and plastic beverage containers.
+
+Container Size | CRV Value per Unit | Examples
+------------------------------------------------------------
+Less than 24 oz | $0.05 | 12 oz soda can, small water bottle
+24 to 46 oz | $0.10 | 1L soda, 32 oz sports drink
+Greater than 46 oz | $0.00 | 64 oz juice, gallon jugs (exempt)
+
+EXEMPT ITEMS
+- Milk and milk substitutes
+- Infant formula
+- Wine, liquor, and spirits
+- 100% fruit juice over 46 oz
+- Medical or nutritional supplements
+
+------------------------------------------------------------
+SUGGESTED APP LOGIC (PSEUDOCODE)
+------------------------------------------------------------
+function suggestCRV(item) {
+    const name = item.name.toLowerCase();
+    const category = item.category.toLowerCase();
+    const oz = item.size_oz;
+    const qty = item.quantity || 1;
+
+    // Skip CRV for exempt items
+    if (name.includes("milk") || name.includes("formula") || name.includes("wine") || name.includes("liquor"))
+        return 0;
+
+    // Apply CRV if in beverage-related categories
+    if (category.includes("drink") || category.includes("beverage") || category.includes("soda") ||
+        category.includes("water") || category.includes("juice")) {
+        if (oz < 24) return 0.05 * qty;
+        if (oz >= 24 && oz <= 46) return 0.10 * qty;
+    }
+
+    return 0; // Default: No CRV
+}
+
+------------------------------------------------------------
+INTEGRATION NOTES
+------------------------------------------------------------
+- CRV field auto-suggests a value if logic matches beverage criteria.
+- Users can override CRV manually if needed.
+- CRV is not taxed and should be tracked separately from the subtotal and tax total.
+- Display a note such as: "Calculated automatically based on container size and quantity."
+
+------------------------------------------------------------
+UI BEHAVIOR (SUGGESTED)
+------------------------------------------------------------
+- If user selects a Drink/Beverage category, enable CRV logic automatically.
+- When CRV applies:
+    * Show an editable CRV field with the calculated total pre-filled.
+    * Display CRV total as a separate line item.
+- When CRV does not apply, hide CRV toggle to keep the interface clean.
+
+------------------------------------------------------------
+FUTURE EXPANSION
+------------------------------------------------------------
+This file can be expanded for multi-state support.
+Each state can have its own file with:
+- Taxable categories
+- Tax exceptions
+- Deposit or container laws (CRV equivalents)
+
+------------------------------------------------------------
+END OF CALIFORNIA GROCERY TAX AND CRV RULESET
