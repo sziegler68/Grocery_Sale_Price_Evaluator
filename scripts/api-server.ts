@@ -1,24 +1,23 @@
 
 import express from 'express';
-import { fileURLToPath } from 'url';
-import path from 'path';
+
 import handler from '../api/ocr/scan';
 import priceTagHandler from '../api/ocr/price-tag';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+
 
 const app = express();
 const PORT = 3001;
 
 // Middleware to log requests
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
     console.log(`[API] ${req.method} ${req.url}`);
     next();
 });
 
 // Mock Vercel/Next.js API helpers
-app.use((req: any, res: any, next) => {
+app.use((_req: any, res: any, next) => {
     // Add .status() if not present (Express has it, but just to be sure)
     if (!res.status) {
         res.status = (statusCode: number) => {
