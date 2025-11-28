@@ -73,15 +73,54 @@ export function parsePriceTag(ocrText: string, confidence: number = 1.0): PriceT
     const itemName = extractItemName(lines);
 
     // Extract prices
-    totalPrice,
+    const prices = extractPrices(ocrText);
+
+    // Extract required quantity (e.g. "Must Buy 3")
+    const requiredQuantity = extractQuantityRequirement(ocrText);
+
+    // Detect if on sale
+    // PRIMARY RULE: 2 prices = sale, 1 price = no sale
+    // SECONDARY: "Must Buy X" also indicates a deal/sale
+    // TERTIARY: Sale keywords (often garbled by OCR, so lowest priority)
+    const hasTwoPrices = prices.length >= 2;
+    const onSale = hasTwoPrices || !!requiredQuantity || detectSale(ocrText);
+
+    // Extract weight and unit
+    const { weight, unit } = extractWeightAndUnit(ocrText);
+
+    // Extract unit price
+    const unitPrice = extractUnitPrice(ocrText);
+
+    // Determine total price and regular price (if on sale)
+    let totalPrice: number | undefined;
+    let regularPrice: number | undefined;
+    let savingsAmount: number | undefined;
+
+    if (prices.length > 0) {
+        if (hasTwoPrices) {
+            // Two prices detected = Sale is active
+            // Higher price = regular, lower price = sale
+            const sorted = prices.sort((a, b) => b - a);
+            regularPrice = sorted[0];
+            totalPrice = sorted[1];
+            savingsAmount = regularPrice - totalPrice;
+        } else {
+            // Only one price = regular price (no sale)
+            totalPrice = prices[0];
+        }
+    }
+
+    return {
+        itemName,
+        totalPrice,
         unitPrice,
         weight: requiredQuantity || weight, // Use required quantity if found (for "Must Buy 3" deals)
-            unit: requiredQuantity ? 'ea' : unit, // Default to 'ea' for quantity deals
-                regularPrice,
-                onSale,
-                savingsAmount,
-                confidence,
-                rawText: ocrText,
+        unit: requiredQuantity ? 'ea' : unit, // Default to 'ea' for quantity deals
+        regularPrice,
+        onSale,
+        savingsAmount,
+        confidence,
+        rawText: ocrText,
     };
 }
 
