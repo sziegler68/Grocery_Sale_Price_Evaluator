@@ -41,6 +41,12 @@ const WEIGHT_PATTERNS = [
 const UNIT_PRICE_PATTERNS = [
     /\$?(\d+\.\d{2})\s*\/\s*(lb|lbs|oz|kg|g|ea|each)/gi,
     /\$?(\d+\.\d{2})\s*per\s*(lb|lbs|oz|kg|g|ea|each)/gi,
+    /(\d+\.?\d*)\s*¢\s*\/\s*(lb|lbs|oz|kg|g|ea|each)/gi, // 35.8¢ / oz
+    /(\d+\.?\d*)\s*cents\s*\/\s*(lb|lbs|oz|kg|g|ea|each)/gi,
+    /(\d+\.?\d*)\s*¢\s*per\s*(lb|lbs|oz|kg|g|ea|each)/gi,
+    /(\d+\.?\d*)\s*cents\s*per\s*(lb|lbs|oz|kg|g|ea|each)/gi,
+    // Safeway style: "35.8¢ PER OUNCE" (often appears as just "35.8¢" near unit text)
+    /(\d+\.?\d*)\s*¢/gi,
 ];
 
 // Sale indicators
@@ -67,49 +73,15 @@ export function parsePriceTag(ocrText: string, confidence: number = 1.0): PriceT
     const itemName = extractItemName(lines);
 
     // Extract prices
-    const prices = extractPrices(ocrText);
-
-    // Detect if on sale
-    const onSale = detectSale(ocrText);
-
-    // Extract weight and unit
-    const { weight, unit } = extractWeightAndUnit(ocrText);
-
-    // Extract unit price
-    const unitPrice = extractUnitPrice(ocrText);
-
-    // Extract required quantity (e.g. "Must Buy 3")
-    const requiredQuantity = extractQuantityRequirement(ocrText);
-
-    // Determine total price and regular price (if on sale)
-    let totalPrice: number | undefined;
-    let regularPrice: number | undefined;
-    let savingsAmount: number | undefined;
-
-    if (prices.length > 0) {
-        if (onSale && prices.length >= 2) {
-            // Assume higher price is regular, lower is sale
-            const sorted = prices.sort((a, b) => b - a);
-            regularPrice = sorted[0];
-            totalPrice = sorted[1];
-            savingsAmount = regularPrice - totalPrice;
-        } else {
-            // If only one price found but it's a sale tag, assume it's the sale price
-            totalPrice = prices[0];
-        }
-    }
-
-    return {
-        itemName,
-        totalPrice,
+    totalPrice,
         unitPrice,
         weight: requiredQuantity || weight, // Use required quantity if found (for "Must Buy 3" deals)
-        unit: requiredQuantity ? 'ea' : unit, // Default to 'ea' for quantity deals
-        regularPrice,
-        onSale,
-        savingsAmount,
-        confidence,
-        rawText: ocrText,
+            unit: requiredQuantity ? 'ea' : unit, // Default to 'ea' for quantity deals
+                regularPrice,
+                onSale,
+                savingsAmount,
+                confidence,
+                rawText: ocrText,
     };
 }
 
@@ -207,9 +179,16 @@ function extractWeightAndUnit(text: string): { weight?: number; unit?: string } 
  */
 function extractUnitPrice(text: string): number | undefined {
     for (const pattern of UNIT_PRICE_PATTERNS) {
-        const match = pattern.exec(text);
-        if (match) {
-            const price = parseFloat(match[1]);
+        const matches = text.matchAll(pattern);
+        for (const match of matches) {
+            let price = parseFloat(match[1]);
+
+            // Check if it's cents (contains ¢ or "cents" in the full match)
+            const fullMatch = match[0].toLowerCase();
+            if (fullMatch.includes('¢') || fullMatch.includes('cents')) {
+                price = price / 100; // Convert to dollars
+            }
+
             if (!isNaN(price) && price > 0) {
                 return price;
             }
