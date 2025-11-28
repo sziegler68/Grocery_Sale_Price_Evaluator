@@ -185,15 +185,15 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
         dataFound = true;
       }
 
-      if (priceTagData.weight) {
-        setQuantity(priceTagData.weight.toString());
-        dataFound = true;
-      }
-
-      if (priceTagData.unit) {
-        setUnitDisplay(priceTagData.unit);
-        dataFound = true;
-      }
+      // DON'T auto-fill weight/unit from OCR
+      // The "14 oz" on the tag is the container size, not the purchase quantity
+      // The user's shopping list item already has the correct unit type
+      // if (priceTagData.weight) {
+      //   setQuantity(priceTagData.weight.toString());
+      // }
+      // if (priceTagData.unit) {
+      //   setUnitDisplay(priceTagData.unit);
+      // }
 
       if (priceTagData.onSale) {
         setOnSale(true);
