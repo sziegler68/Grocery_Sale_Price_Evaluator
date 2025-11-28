@@ -24,6 +24,9 @@ const PRICE_PATTERNS = [
     /(\d+\.\d{2})\s*(?:ea|each)/gi,      // 5.99 ea
     /(\d+\.\d{2})\s*(?:lb|lbs)/gi,       // 5.99 lb
     /(\d+\.\d{2})/g,                      // 5.99 (fallback)
+    // Safeway specific: "500" -> 5.00 (when decimal is missed)
+    // Only match if it looks like a price (3 digits, usually followed by small text or end of line)
+    /\b(\d{3})\b/g,
 ];
 
 // Weight patterns
@@ -43,7 +46,15 @@ const UNIT_PRICE_PATTERNS = [
 // Sale indicators
 const SALE_KEYWORDS = [
     'sale', 'special', 'save', 'savings', 'was', 'now', 'reduced',
-    'clearance', 'discount', 'promo', 'promotion', 'deal'
+    'clearance', 'discount', 'promo', 'promotion', 'deal',
+    'member price', 'club price', 'card price' // Safeway/Vons specific
+];
+
+// Quantity requirements (Safeway "Must Buy 3")
+const QUANTITY_PATTERNS = [
+    /must\s+buy\s+(\d+)/i,
+    /buy\s+(\d+)\s+or\s+more/i,
+    /limit\s+(\d+)/i
 ];
 
 /**
@@ -67,6 +78,9 @@ export function parsePriceTag(ocrText: string, confidence: number = 1.0): PriceT
     // Extract unit price
     const unitPrice = extractUnitPrice(ocrText);
 
+    // Extract required quantity (e.g. "Must Buy 3")
+    const requiredQuantity = extractQuantityRequirement(ocrText);
+
     // Determine total price and regular price (if on sale)
     let totalPrice: number | undefined;
     let regularPrice: number | undefined;
@@ -80,6 +94,7 @@ export function parsePriceTag(ocrText: string, confidence: number = 1.0): PriceT
             totalPrice = sorted[1];
             savingsAmount = regularPrice - totalPrice;
         } else {
+            // If only one price found but it's a sale tag, assume it's the sale price
             totalPrice = prices[0];
         }
     }
@@ -88,8 +103,8 @@ export function parsePriceTag(ocrText: string, confidence: number = 1.0): PriceT
         itemName,
         totalPrice,
         unitPrice,
-        weight,
-        unit,
+        weight: requiredQuantity || weight, // Use required quantity if found (for "Must Buy 3" deals)
+        unit: requiredQuantity ? 'ea' : unit, // Default to 'ea' for quantity deals
         regularPrice,
         onSale,
         savingsAmount,
@@ -127,7 +142,13 @@ function extractPrices(text: string): number[] {
     for (const pattern of PRICE_PATTERNS) {
         const matches = text.matchAll(pattern);
         for (const match of matches) {
-            const priceStr = match[1] || match[0].replace('$', '');
+            let priceStr = match[1] || match[0].replace('$', '');
+
+            // Handle "500" -> 5.00 case
+            if (!priceStr.includes('.') && priceStr.length === 3) {
+                priceStr = (parseInt(priceStr) / 100).toFixed(2);
+            }
+
             const price = parseFloat(priceStr);
             if (!isNaN(price) && price > 0 && price < 1000) {
                 prices.push(price);
@@ -145,6 +166,22 @@ function extractPrices(text: string): number[] {
 function detectSale(text: string): boolean {
     const lowerText = text.toLowerCase();
     return SALE_KEYWORDS.some(keyword => lowerText.includes(keyword));
+}
+
+/**
+ * Extract quantity requirement (e.g. "Must Buy 3")
+ */
+function extractQuantityRequirement(text: string): number | undefined {
+    for (const pattern of QUANTITY_PATTERNS) {
+        const match = pattern.exec(text);
+        if (match) {
+            const quantity = parseInt(match[1]);
+            if (!isNaN(quantity) && quantity > 0) {
+                return quantity;
+            }
+        }
+    }
+    return undefined;
 }
 
 /**
