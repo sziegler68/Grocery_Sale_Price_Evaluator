@@ -84,6 +84,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   // OCR state
   const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
   const [isProcessingOCR, setIsProcessingOCR] = useState<boolean>(false);
+  const [lastScannedText, setLastScannedText] = useState<string>('');
 
   if (!isOpen) return null;
 
@@ -165,35 +166,47 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   // OCR handler
   const handleCameraCapture = async (imageBlob: Blob) => {
     setIsProcessingOCR(true);
+    setLastScannedText(''); // Clear previous
     toast.info('Processing price tag...');
 
     try {
       // Extract text using OCR (pass Blob directly)
       const ocrResult = await extractTextFromReceipt(imageBlob);
+      setLastScannedText(ocrResult.fullText); // Save raw text for debug
 
       // Parse price tag data
       const priceTagData = parsePriceTag(ocrResult.fullText, ocrResult.confidence);
 
+      let dataFound = false;
+
       // Auto-fill fields with parsed data
       if (priceTagData.totalPrice) {
         setPriceDisplay(priceTagData.totalPrice.toFixed(2));
+        dataFound = true;
       }
 
       if (priceTagData.weight) {
         setQuantity(priceTagData.weight.toString());
+        dataFound = true;
       }
 
       if (priceTagData.unit) {
         setUnitDisplay(priceTagData.unit);
+        dataFound = true;
       }
 
       if (priceTagData.onSale) {
         setOnSale(true);
       }
 
-      // Show success message
+      // Show success/warning message
       const confidence = Math.round(priceTagData.confidence * 100);
-      toast.success(`Scanned! Confidence: ${confidence}%`);
+
+      if (dataFound) {
+        toast.success(`Scanned! Confidence: ${confidence}%`);
+      } else {
+        toast.warning(`Scanned (Conf: ${confidence}%), but no price found. Check "Raw Text" below.`);
+      }
 
     } catch (error: any) {
       console.error('[OCR] Failed to process image:', error);
@@ -354,15 +367,25 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
 
           {/* Scan Price Tag Button */}
           {!usePackMode && (
-            <button
-              type="button"
-              onClick={() => setIsCameraOpen(true)}
-              disabled={isProcessingOCR}
-              className="w-full flex items-center justify-center space-x-2 p-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Camera className="h-5 w-5" />
-              <span>{isProcessingOCR ? 'Processing...' : 'Scan Price Tag'}</span>
-            </button>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => setIsCameraOpen(true)}
+                disabled={isProcessingOCR}
+                className="w-full flex items-center justify-center space-x-2 p-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Camera className="h-5 w-5" />
+                <span>{isProcessingOCR ? 'Processing...' : 'Scan Price Tag'}</span>
+              </button>
+
+              {/* Debug: Show last scanned text */}
+              {lastScannedText && (
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto max-h-20 border border-gray-300 dark:border-gray-700">
+                  <div className="font-bold mb-1 text-gray-500">Raw OCR Text:</div>
+                  <pre className="whitespace-pre-wrap">{lastScannedText}</pre>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Pack Mode Inputs */}
