@@ -29,13 +29,114 @@ export interface OCRExtractionResult {
 }
 
 /**
+ * Preprocess image for better OCR results
+ * - Resizes to improve text resolution
+ * - Converts to grayscale
+ * - Applies binarization (thresholding) to remove background noise
+ */
+async function preprocessImage(imageSource: Blob | string): Promise<string | Blob> {
+  // If it's a URL string, we can't easily preprocess in browser without fetching
+  // For now, return as is if string (or handle fetching if needed)
+  if (typeof imageSource === 'string') return imageSource;
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        resolve(imageSource);
+        return;
+      }
+
+      // 1. Resize (Upscale if too small, max width 2000px)
+      // Target at least 1000px width for good OCR
+      let width = img.width;
+      let height = img.height;
+      const minWidth = 1000;
+
+      if (width < minWidth) {
+        const scale = minWidth / width;
+        width = minWidth;
+        height = height * scale;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      // Draw original image
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // 2. Get pixel data
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const data = imageData.data;
+
+      // 3. Grayscale & Binarization (Thresholding)
+      // Iterate through every pixel (R, G, B, A)
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        // Standard grayscale formula (luminance)
+        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+        // Thresholding:
+        // High contrast threshold to kill yellow background (which is bright in grayscale)
+        // Yellow (255, 255, 0) -> Gray ~226. White is 255. Black text is ~0.
+        // We want to keep dark text (black) and turn everything else white.
+        // Threshold of 160-180 usually works well for black text on light backgrounds.
+        const threshold = 160;
+        const val = gray < threshold ? 0 : 255;
+
+        data[i] = val;     // R
+        data[i + 1] = val; // G
+        data[i + 2] = val; // B
+      }
+
+      // Put processed data back
+      ctx.putImageData(imageData, 0, 0);
+
+      // Return as Blob
+      canvas.toBlob((blob) => {
+        if (blob) {
+          console.log('[OCR] Image preprocessed', {
+            originalSize: imageSource instanceof Blob ? imageSource.size : 'N/A',
+            newSize: blob.size,
+            width,
+            height
+          });
+          resolve(blob);
+        } else {
+          resolve(imageSource);
+        }
+      }, 'image/png');
+    };
+
+    img.onerror = (err) => {
+      console.error('[OCR] Failed to load image for preprocessing', err);
+      resolve(imageSource);
+    };
+
+    // Create a URL for the Blob to load it into the Image object
+    if (imageSource instanceof Blob) {
+      img.src = URL.createObjectURL(imageSource);
+    } else {
+      // If it's a string (URL), load directly
+      img.src = imageSource;
+    }
+  });
+}
+
+/**
  * Extract text from receipt image using Tesseract.js
  * 
- * @param imageBuffer - Image file buffer (from uploaded file)
+ * @param imageSource - Image file (Blob) or URL string
  * @returns Extracted text and confidence scores
  */
 export async function extractTextFromReceipt(
-  imageSource: any
+  imageSource: Blob | string
 ): Promise<OCRExtractionResult> {
   console.log('[OCR] Starting Tesseract text extraction', {
     sourceType: typeof imageSource,
@@ -43,6 +144,16 @@ export async function extractTextFromReceipt(
   });
 
   try {
+    // Preprocess image if it's a Blob (browser environment)
+    let processedSource = imageSource;
+    if (typeof window !== 'undefined' && imageSource instanceof Blob) {
+      try {
+        processedSource = await preprocessImage(imageSource);
+      } catch (err) {
+        console.warn('[OCR] Preprocessing failed, using original image', err);
+      }
+    }
+
     // Initialize Tesseract worker
     const worker = await createWorker('eng', 1, {
       logger: (m) => {
@@ -52,8 +163,8 @@ export async function extractTextFromReceipt(
       },
     });
 
-    // Recognize text from image source (Blob or URL string)
-    const { data } = await worker.recognize(imageSource);
+    // Recognize text from image source
+    const { data } = await worker.recognize(processedSource);
 
     // Terminate worker
     await worker.terminate();
