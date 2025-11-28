@@ -116,8 +116,8 @@ export function parsePriceTag(ocrText: string, confidence: number = 1.0): PriceT
         itemName,
         totalPrice,
         unitPrice,
-        weight: requiredQuantity || weight, // Use required quantity if found (for "Must Buy 3" deals)
-        unit: requiredQuantity ? 'ea' : unit, // Default to 'ea' for quantity deals
+        weight, // Don't use requiredQuantity as weight - it's a sale requirement, not item quantity
+        unit,
         regularPrice,
         onSale,
         savingsAmount,
