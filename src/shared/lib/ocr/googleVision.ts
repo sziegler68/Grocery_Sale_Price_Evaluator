@@ -35,7 +35,7 @@ export interface OCRExtractionResult {
  * @returns Extracted text and confidence scores
  */
 export async function extractTextFromReceipt(
-  imageSource: Blob | string
+  imageSource: any
 ): Promise<OCRExtractionResult> {
   console.log('[OCR] Starting Tesseract text extraction', {
     sourceType: typeof imageSource,
