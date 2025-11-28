@@ -85,6 +85,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
   const [isProcessingOCR, setIsProcessingOCR] = useState<boolean>(false);
   const [lastScannedText, setLastScannedText] = useState<string>('');
+  const [ocrUnitPrice, setOcrUnitPrice] = useState<number | null>(null);
 
   if (!isOpen) return null;
 
