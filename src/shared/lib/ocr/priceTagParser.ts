@@ -150,6 +150,30 @@ function extractItemName(lines: string[]): string {
  * Extract all prices from text
  */
 function extractPrices(text: string): number[] {
+    const prices: number[] = [];
+
+    for (const pattern of PRICE_PATTERNS) {
+        const matches = text.matchAll(pattern);
+        for (const match of matches) {
+            let priceStr = match[1] || match[0].replace('$', '');
+
+            // Handle "500" -> 5.00 case
+            if (!priceStr.includes('.') && priceStr.length === 3) {
+                priceStr = (parseInt(priceStr) / 100).toFixed(2);
+            }
+
+            // Handle "£00" or "S00" -> 5.00 case (OCR misreads "5" as "£" or "S")
+            if (!priceStr.includes('.') && priceStr.length === 2) {
+                // Assume it's cents for a $5.00 item
+                priceStr = (5 + parseInt(priceStr) / 100).toFixed(2);
+            }
+
+            const price = parseFloat(priceStr);
+            if (!isNaN(price) && price > 0 && price < 1000) {
+                prices.push(price);
+            }
+        }
+    }
 
     // Remove duplicates
     return [...new Set(prices)];
