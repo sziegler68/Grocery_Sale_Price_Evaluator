@@ -179,6 +179,29 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       // Parse price tag data
       const priceTagData = parsePriceTag(ocrResult.fullText, ocrResult.confidence);
 
+      // LOG OCR DATA TO LOCALSTORAGE
+      const ocrLog = {
+        timestamp: new Date().toISOString(),
+        itemName: nameDisplay || 'Unknown Item',
+        rawOcrText: ocrResult.fullText,
+        confidence: ocrResult.confidence,
+        parsedData: {
+          totalPrice: priceTagData.totalPrice,
+          unitPrice: priceTagData.unitPrice,
+          weight: priceTagData.weight,
+          unit: priceTagData.unit,
+          onSale: priceTagData.onSale,
+          regularPrice: priceTagData.regularPrice,
+          savingsAmount: priceTagData.savingsAmount,
+        }
+      };
+
+      // Append to existing logs
+      const existingLogs = JSON.parse(localStorage.getItem('ocrScanLogs') || '[]');
+      existingLogs.push(ocrLog);
+      localStorage.setItem('ocrScanLogs', JSON.stringify(existingLogs));
+      console.log('[OCR] Logged scan data for:', nameDisplay);
+
       let dataFound = false;
 
       // Auto-fill fields with parsed data
@@ -211,7 +234,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       const confidence = Math.round(priceTagData.confidence * 100);
 
       if (dataFound) {
-        toast.success(`Scanned! Confidence: ${confidence}%`);
+        toast.success(`Scanned! Confidence: ${confidence}% (Logged)`);
       } else {
         toast.warning(`Scanned (Conf: ${confidence}%), but no price found. Check "Raw Text" below.`);
       }
@@ -396,6 +419,43 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                   <pre className="whitespace-pre-wrap">{lastScannedText}</pre>
                 </div>
               )}
+
+              {/* OCR Log Management */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const logs = localStorage.getItem('ocrScanLogs');
+                    if (!logs || logs === '[]') {
+                      toast.info('No OCR logs to export');
+                      return;
+                    }
+                    const blob = new Blob([logs], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `ocr-logs-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    toast.success('OCR logs exported!');
+                  }}
+                  className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                >
+                  📥 Export OCR Logs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm('Clear all OCR logs? This cannot be undone.')) {
+                      localStorage.removeItem('ocrScanLogs');
+                      toast.success('OCR logs cleared');
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                >
+                  🗑️ Clear Logs
+                </button>
+              </div>
             </div>
           )}
 
