@@ -167,6 +167,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   const handleCameraCapture = async (imageBlob: Blob) => {
     setIsProcessingOCR(true);
     setLastScannedText(''); // Clear previous
+    setOcrUnitPrice(null); // Clear previous OCR unit price
     toast.info('Processing price tag...');
 
     try {
@@ -183,6 +184,12 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       if (priceTagData.totalPrice) {
         setPriceDisplay(priceTagData.totalPrice.toFixed(2));
         dataFound = true;
+      }
+
+      // Store unit price from OCR if available
+      if (priceTagData.unitPrice) {
+        setOcrUnitPrice(priceTagData.unitPrice);
+        console.log('[OCR] Unit price from tag:', priceTagData.unitPrice);
       }
 
       // DON'T auto-fill weight/unit from OCR
@@ -246,7 +253,10 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   const containerCount = parseFloat(crvContainerCount) || 1;
 
   // Calculate unit price (price per item, NOT including CRV)
-  const unitPrice = totalPrice > 0 && quantityNum > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0;
+  // PREFER OCR unit price if available (from price tag), otherwise calculate from total/quantity
+  const unitPrice = ocrUnitPrice !== null
+    ? ocrUnitPrice
+    : (totalPrice > 0 && quantityNum > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0);
 
   // Calculate cart addition
   // IMPORTANT: CRV is NOT taxed! It's added AFTER sales tax
