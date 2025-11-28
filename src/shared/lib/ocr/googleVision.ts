@@ -35,12 +35,13 @@ export interface OCRExtractionResult {
  * @returns Extracted text and confidence scores
  */
 export async function extractTextFromReceipt(
-  imageBuffer: Buffer
+  imageSource: Blob | string
 ): Promise<OCRExtractionResult> {
   console.log('[OCR] Starting Tesseract text extraction', {
-    bufferSize: imageBuffer.length,
+    sourceType: typeof imageSource,
+    size: imageSource instanceof Blob ? imageSource.size : imageSource.length,
   });
-  
+
   try {
     // Initialize Tesseract worker
     const worker = await createWorker('eng', 1, {
@@ -50,31 +51,31 @@ export async function extractTextFromReceipt(
         }
       },
     });
-    
-    // Recognize text from image buffer
-    const { data } = await worker.recognize(imageBuffer);
-    
+
+    // Recognize text from image source (Blob or URL string)
+    const { data } = await worker.recognize(imageSource);
+
     // Terminate worker
     await worker.terminate();
-    
+
     console.log('[OCR] Tesseract extraction complete', {
       textLength: data.text.length,
       confidence: data.confidence,
     });
-    
+
     // For simplicity, create one text block per line
     const lines = data.text.split('\n').filter(line => line.trim());
     const textBlocks: OCRTextBlock[] = lines.map(line => ({
       text: line,
       confidence: data.confidence / 100, // Tesseract uses 0-100, normalize to 0-1
     }));
-    
+
     return {
       fullText: data.text,
       confidence: data.confidence / 100, // Normalize to 0-1
       textBlocks,
     };
-    
+
   } catch (error: any) {
     console.error('[OCR] Tesseract extraction failed:', error);
     throw new Error(`OCR extraction failed: ${error.message}`);

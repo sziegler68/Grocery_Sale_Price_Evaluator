@@ -168,12 +168,8 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     toast.info('Processing price tag...');
 
     try {
-      // Convert blob to buffer
-      const arrayBuffer = await imageBlob.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Extract text using OCR
-      const ocrResult = await extractTextFromReceipt(buffer);
+      // Extract text using OCR (pass Blob directly)
+      const ocrResult = await extractTextFromReceipt(imageBlob);
 
       // Parse price tag data
       const priceTagData = parsePriceTag(ocrResult.fullText, ocrResult.confidence);
