@@ -27,6 +27,8 @@ const PRICE_PATTERNS = [
     // Safeway specific: "500" -> 5.00 (when decimal is missed)
     // Only match if it looks like a price (3 digits, usually followed by small text or end of line)
     /\b(\d{3})\b/g,
+    // OCR often misreads "5" as "£" or "S", handle these cases
+    /[£S](\d{2})/g,  // £00 or S00 -> 5.00
 ];
 
 // Weight patterns
@@ -148,24 +150,6 @@ function extractItemName(lines: string[]): string {
  * Extract all prices from text
  */
 function extractPrices(text: string): number[] {
-    const prices: number[] = [];
-
-    for (const pattern of PRICE_PATTERNS) {
-        const matches = text.matchAll(pattern);
-        for (const match of matches) {
-            let priceStr = match[1] || match[0].replace('$', '');
-
-            // Handle "500" -> 5.00 case
-            if (!priceStr.includes('.') && priceStr.length === 3) {
-                priceStr = (parseInt(priceStr) / 100).toFixed(2);
-            }
-
-            const price = parseFloat(priceStr);
-            if (!isNaN(price) && price > 0 && price < 1000) {
-                prices.push(price);
-            }
-        }
-    }
 
     // Remove duplicates
     return [...new Set(prices)];
