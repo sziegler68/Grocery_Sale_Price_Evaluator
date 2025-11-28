@@ -150,149 +150,121 @@ function extractItemName(lines: string[]): string {
  * Extract all prices from text
  */
 function extractPrices(text: string): number[] {
-    const prices: number[] = [];
 
-    for (const pattern of PRICE_PATTERNS) {
-        const matches = text.matchAll(pattern);
-        for (const match of matches) {
-            let priceStr = match[1] || match[0].replace('$', '');
+    /**
+     * Detect if item is on sale
+     */
+    function detectSale(text: string): boolean {
+        const lowerText = text.toLowerCase();
+        return SALE_KEYWORDS.some(keyword => lowerText.includes(keyword));
+    }
 
-            // Handle "500" -> 5.00 case
-            if (!priceStr.includes('.') && priceStr.length === 3) {
-                priceStr = (parseInt(priceStr) / 100).toFixed(2);
-            }
-
-            // Handle "£00" or "S00" -> 5.00 case (OCR misreads "5" as "£" or "S")
-            if (!priceStr.includes('.') && priceStr.length === 2) {
-                // Assume it's cents for a $5.00 item
-                priceStr = (5 + parseInt(priceStr) / 100).toFixed(2);
-            }
-
-            const price = parseFloat(priceStr);
-            if (!isNaN(price) && price > 0 && price < 1000) {
-                prices.push(price);
+    /**
+     * Extract quantity requirement (e.g. "Must Buy 3")
+     */
+    function extractQuantityRequirement(text: string): number | undefined {
+        for (const pattern of QUANTITY_PATTERNS) {
+            const match = pattern.exec(text);
+            if (match) {
+                const quantity = parseInt(match[1]);
+                if (!isNaN(quantity) && quantity > 0) {
+                    return quantity;
+                }
             }
         }
+        return undefined;
     }
 
-    // Remove duplicates
-    return [...new Set(prices)];
-}
-
-/**
- * Detect if item is on sale
- */
-function detectSale(text: string): boolean {
-    const lowerText = text.toLowerCase();
-    return SALE_KEYWORDS.some(keyword => lowerText.includes(keyword));
-}
-
-/**
- * Extract quantity requirement (e.g. "Must Buy 3")
- */
-function extractQuantityRequirement(text: string): number | undefined {
-    for (const pattern of QUANTITY_PATTERNS) {
-        const match = pattern.exec(text);
-        if (match) {
-            const quantity = parseInt(match[1]);
-            if (!isNaN(quantity) && quantity > 0) {
-                return quantity;
+    /**
+     * Extract weight and unit
+     */
+    function extractWeightAndUnit(text: string): { weight?: number; unit?: string } {
+        for (const pattern of WEIGHT_PATTERNS) {
+            const match = pattern.exec(text);
+            if (match) {
+                const weight = parseFloat(match[1]);
+                const unit = normalizeUnit(match[2]);
+                if (!isNaN(weight) && weight > 0) {
+                    return { weight, unit };
+                }
             }
         }
-    }
-    return undefined;
-}
 
-/**
- * Extract weight and unit
- */
-function extractWeightAndUnit(text: string): { weight?: number; unit?: string } {
-    for (const pattern of WEIGHT_PATTERNS) {
-        const match = pattern.exec(text);
-        if (match) {
-            const weight = parseFloat(match[1]);
-            const unit = normalizeUnit(match[2]);
-            if (!isNaN(weight) && weight > 0) {
-                return { weight, unit };
+        return {};
+    }
+
+    /**
+     * Extract unit price ($/lb, $/oz, etc.)
+     */
+    function extractUnitPrice(text: string): number | undefined {
+        for (const pattern of UNIT_PRICE_PATTERNS) {
+            const matches = text.matchAll(pattern);
+            for (const match of matches) {
+                let price = parseFloat(match[1]);
+
+                // Check if it's cents (contains ¢ or "cents" in the full match)
+                const fullMatch = match[0].toLowerCase();
+                if (fullMatch.includes('¢') || fullMatch.includes('cents')) {
+                    price = price / 100; // Convert to dollars
+                }
+
+                if (!isNaN(price) && price > 0) {
+                    return price;
+                }
             }
         }
+
+        return undefined;
     }
 
-    return {};
-}
+    /**
+     * Normalize unit to standard format
+     */
+    function normalizeUnit(unit: string): string {
+        const normalized = unit.toLowerCase().trim();
 
-/**
- * Extract unit price ($/lb, $/oz, etc.)
- */
-function extractUnitPrice(text: string): number | undefined {
-    for (const pattern of UNIT_PRICE_PATTERNS) {
-        const matches = text.matchAll(pattern);
-        for (const match of matches) {
-            let price = parseFloat(match[1]);
+        // Map variations to standard units
+        const unitMap: Record<string, string> = {
+            'lb': 'pound',
+            'lbs': 'pound',
+            'pound': 'pound',
+            'pounds': 'pound',
+            'oz': 'ounce',
+            'ounce': 'ounce',
+            'ounces': 'ounce',
+            'kg': 'kilogram',
+            'kilogram': 'kilogram',
+            'kilograms': 'kilogram',
+            'g': 'gram',
+            'gram': 'gram',
+            'grams': 'gram',
+            'ea': 'each',
+            'each': 'each',
+        };
 
-            // Check if it's cents (contains ¢ or "cents" in the full match)
-            const fullMatch = match[0].toLowerCase();
-            if (fullMatch.includes('¢') || fullMatch.includes('cents')) {
-                price = price / 100; // Convert to dollars
-            }
+        return unitMap[normalized] || normalized;
+    }
 
-            if (!isNaN(price) && price > 0) {
-                return price;
-            }
+    /**
+     * Calculate unit price from total price and weight
+     */
+    export function calculateUnitPriceFromWeight(
+        totalPrice: number,
+        weight: number,
+        unit: string
+    ): number {
+        if (weight <= 0) return 0;
+
+        // Convert to pounds for standardization
+        let weightInPounds = weight;
+
+        if (unit === 'ounce') {
+            weightInPounds = weight / 16;
+        } else if (unit === 'kilogram') {
+            weightInPounds = weight * 2.20462;
+        } else if (unit === 'gram') {
+            weightInPounds = weight / 453.592;
         }
+
+        return totalPrice / weightInPounds;
     }
-
-    return undefined;
-}
-
-/**
- * Normalize unit to standard format
- */
-function normalizeUnit(unit: string): string {
-    const normalized = unit.toLowerCase().trim();
-
-    // Map variations to standard units
-    const unitMap: Record<string, string> = {
-        'lb': 'pound',
-        'lbs': 'pound',
-        'pound': 'pound',
-        'pounds': 'pound',
-        'oz': 'ounce',
-        'ounce': 'ounce',
-        'ounces': 'ounce',
-        'kg': 'kilogram',
-        'kilogram': 'kilogram',
-        'kilograms': 'kilogram',
-        'g': 'gram',
-        'gram': 'gram',
-        'grams': 'gram',
-        'ea': 'each',
-        'each': 'each',
-    };
-
-    return unitMap[normalized] || normalized;
-}
-
-/**
- * Calculate unit price from total price and weight
- */
-export function calculateUnitPriceFromWeight(
-    totalPrice: number,
-    weight: number,
-    unit: string
-): number {
-    if (weight <= 0) return 0;
-
-    // Convert to pounds for standardization
-    let weightInPounds = weight;
-
-    if (unit === 'ounce') {
-        weightInPounds = weight / 16;
-    } else if (unit === 'kilogram') {
-        weightInPounds = weight * 2.20462;
-    } else if (unit === 'gram') {
-        weightInPounds = weight / 453.592;
-    }
-
-    return totalPrice / weightInPounds;
-}
