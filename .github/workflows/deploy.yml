@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - antigravity_assisted
   workflow_dispatch:
 
 permissions:

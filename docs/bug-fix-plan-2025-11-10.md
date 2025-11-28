@@ -864,6 +864,7 @@ setDropdownPosition({
 
 #### Step 3: Fix positioning
 **Option A: Use fixed without scroll offsets**
+{% raw %}
 ```typescript
 // CORRECT for fixed positioning
 const updateDropdownPosition = () => {
@@ -886,8 +887,10 @@ const updateDropdownPosition = () => {
   zIndex: 9999 
 }}>
 ```
+{% endraw %}
 
 **Option B: Use absolute positioning with relative parent**
+{% raw %}
 ```typescript
 // Parent wrapper
 <div style={{ position: 'relative' }}>
@@ -906,6 +909,7 @@ const updateDropdownPosition = () => {
   </div>
 </div>
 ```
+{% endraw %}
 
 #### Step 4: Handle scroll and resize
 ```typescript
@@ -1096,6 +1100,7 @@ Pre-fill tax rate input with value from settings.
 - Shopping trip form: `src/features/shopping-trips/components/StartTripModal.tsx`
 
 #### Step 2: Load tax rate on component mount
+{% raw %}
 ```typescript
 import { useEffect, useState } from 'react';
 
@@ -1136,6 +1141,7 @@ const StartTripModal = () => {
   );
 };
 ```
+{% endraw %}
 
 #### Step 3: Save to settings
 **In Settings page:**
