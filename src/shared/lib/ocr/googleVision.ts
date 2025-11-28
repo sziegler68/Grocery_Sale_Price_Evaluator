@@ -39,7 +39,7 @@ async function preprocessImage(imageSource: Blob | string): Promise<string | Blo
   // For now, return as is if string (or handle fetching if needed)
   if (typeof imageSource === 'string') return imageSource;
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
@@ -136,7 +136,7 @@ async function preprocessImage(imageSource: Blob | string): Promise<string | Blo
  * @returns Extracted text and confidence scores
  */
 export async function extractTextFromReceipt(
-  imageSource: Blob | string
+  imageSource: any
 ): Promise<OCRExtractionResult> {
   console.log('[OCR] Starting Tesseract text extraction', {
     sourceType: typeof imageSource,
