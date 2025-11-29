@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { Key, ExternalLink, CheckCircle, XCircle } from 'lucide-react';
 
 export function SettingsPage() {
