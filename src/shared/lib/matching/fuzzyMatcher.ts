@@ -4,11 +4,7 @@
  * Matches scanned item names to shopping list items using fuzzy string matching.
  */
 
-export interface ShoppingListItem {
-    id: string;
-    item_name: string;
-    [key: string]: any; // Other properties
-}
+import type { ShoppingListItem } from '../../../features/shopping-lists/types';
 
 export interface MatchResult {
     item: ShoppingListItem;
