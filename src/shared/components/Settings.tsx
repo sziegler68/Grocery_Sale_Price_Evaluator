@@ -4,9 +4,9 @@ import Footer from './Footer';
 import { Settings as SettingsIcon, Save, Bell } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useDarkMode } from '../hooks/useDarkMode';
-import { 
-  requestPushPermission, 
-  isPushNotificationSupported 
+import {
+  requestPushPermission,
+  isPushNotificationSupported
 } from '../../features/notifications/api';
 import { useNotificationStore } from '../../features/notifications/store/useNotificationStore';
 
@@ -101,16 +101,16 @@ const Settings: React.FC = () => {
   const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(getSalesTaxRate() > 0 ? getSalesTaxRate().toFixed(2) : '');
   const [userName, setUserName] = useState<string>(getUserName());
   const [hasNotificationPermission, setHasNotificationPermission] = useState<boolean>(isPushNotificationSupported());
-  
+
   // Use notification store
-  const { 
-    isEnabled: notifEnabled, 
-    isPushEnabled: pushEnabled, 
+  const {
+    isEnabled: notifEnabled,
+    isPushEnabled: pushEnabled,
     types: notifTypes,
     loadSettings,
     setEnabled: setNotifEnabled,
     setPushEnabled,
-    updateTypes 
+    updateTypes
   } = useNotificationStore();
 
   // Load notification settings and check permission on mount
@@ -127,12 +127,12 @@ const Settings: React.FC = () => {
       setSalesTax(0);
       return;
     }
-    
+
     const numValue = parseInt(input, 10);
     const dollars = Math.floor(numValue / 100);
     const cents = numValue % 100;
     const formatted = `${dollars}.${cents.toString().padStart(2, '0')}`;
-    
+
     setSalesTaxDisplay(formatted);
     setSalesTax(parseFloat(formatted));
   };
@@ -166,7 +166,7 @@ const Settings: React.FC = () => {
   return (
     <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-      
+
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-2xl mx-auto p-6 rounded-xl shadow-lg bg-card">
           <div className="flex items-center space-x-2 mb-6">
@@ -318,11 +318,11 @@ const Settings: React.FC = () => {
           <div className={`mt-6 p-4 rounded-lg bg-brand-light border border-purple-200`}>
             <h3 className="font-medium text-sm mb-2">Example:</h3>
             <p className="text-sm text-primary">
-              If you set meat to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>, 
+              If you set meat to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>,
               and a $3.99 steak weighing 8 oz will show as <strong>$7.98/lb</strong> for easy comparison.
             </p>
             <p className="text-sm text-primary mt-2">
-              If you set milk to "gallon", then a $1.50 quart will show as <strong>$6.00/gallon</strong> 
+              If you set milk to "gallon", then a $1.50 quart will show as <strong>$6.00/gallon</strong>
               alongside a $4.99 gallon for easy price comparison.
             </p>
           </div>
@@ -362,6 +362,69 @@ const Settings: React.FC = () => {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Gemini API Key Setting */}
+        <div className="max-w-2xl mx-auto p-6 rounded-xl shadow-lg mt-8 bg-card">
+          <div className="flex items-center space-x-2 mb-6">
+            <SettingsIcon className="h-6 w-6 text-purple-600" />
+            <h2 className="text-2xl font-bold">AI Scanner API Key</h2>
+          </div>
+
+          <p className="text-primary mb-6">
+            Add your Google Gemini API key to enable AI-powered price tag scanning.
+            Get a free API key from Google AI Studio.
+          </p>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Gemini API Key
+            </label>
+            <input
+              type="password"
+              value={localStorage.getItem('geminiApiKey') || ''}
+              onChange={(e) => localStorage.setItem('geminiApiKey', e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent font-mono text-sm"
+              placeholder="AIza..."
+            />
+            <p className="text-xs text-secondary mt-2">
+              Your API key is stored locally in your browser and never shared.
+            </p>
+          </div>
+
+          <div className="mt-4 flex gap-3">
+            <a
+              href="https://aistudio.google.com/app/apikey"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-center font-medium"
+            >
+              Get Free API Key
+            </a>
+            <button
+              onClick={() => {
+                localStorage.removeItem('geminiApiKey');
+                toast.success('API key cleared');
+                window.location.reload();
+              }}
+              className="px-4 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors font-medium"
+            >
+              Clear Key
+            </button>
+          </div>
+
+          <div className="mt-6 p-4 rounded-lg bg-brand-light">
+            <p className="text-sm text-primary">
+              <strong>How to get your API key:</strong>
+            </p>
+            <ol className="text-sm text-primary mt-2 space-y-1 list-decimal list-inside">
+              <li>Click "Get Free API Key" above</li>
+              <li>Sign in with your Google account</li>
+              <li>Click "Create API Key"</li>
+              <li>Copy the key and paste it above</li>
+              <li>Click "Save All Settings" at the bottom</li>
+            </ol>
           </div>
         </div>
 
@@ -442,7 +505,7 @@ const Settings: React.FC = () => {
                         onChange={(e) => {
                           const newValue = e.target.checked;
                           setPushEnabled(newValue);
-                          
+
                           // If enabling and permission not granted, auto-request
                           if (newValue && !hasNotificationPermission) {
                             handleRequestPushPermission();
