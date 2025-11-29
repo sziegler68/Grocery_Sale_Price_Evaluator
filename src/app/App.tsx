@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Home from '@shared/components/Home';
+import { Dashboard } from '../features/dashboard/components/Dashboard';
 import AddItem from '@features/price-tracker/components/AddItem';
 import EditItem from '@features/price-tracker/components/EditItem';
 import Items from '@features/price-tracker/components/Items';
@@ -15,7 +15,9 @@ import Settings from '@shared/components/Settings';
 import ShoppingLists from '@features/shopping-lists/components/ShoppingLists';
 import ShoppingListDetail from '@features/shopping-lists/components/ShoppingListDetail';
 import Help from '@shared/components/Help';
+import Help from '@shared/components/Help';
 import NotFound from '@shared/components/NotFound';
+import { OnboardingWizard } from '../features/onboarding/components/OnboardingWizard';
 
 declare const __APP_NAME__: string;
 
@@ -23,19 +25,38 @@ const App: React.FC = () => {
   console.log('🚀 Grocery App Started - Version 1.0');
   console.log('📝 Debug Mode: ENABLED');
   console.log('🔍 Check console for [NOTIF] and [CHECKBOX] logs');
-  
+
   useEffect(() => {
     if (__APP_NAME__) {
       document.title = `${__APP_NAME__} - LunaCart Preview`;
     }
   }, []);
 
+  const [showOnboarding, setShowOnboarding] = React.useState(false);
+
+  useEffect(() => {
+    // Check if user has completed onboarding
+    const hasCompleted = localStorage.getItem('hasCompletedOnboarding');
+    if (!hasCompleted) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  if (showOnboarding) {
+    return (
+      <Theme appearance="inherit" radius="large" scaling="100%">
+        <OnboardingWizard onComplete={() => setShowOnboarding(false)} />
+        <ToastContainer position="top-right" autoClose={3000} />
+      </Theme>
+    );
+  }
+
   return (
     <Theme appearance="inherit" radius="large" scaling="100%">
       <Router>
         <main className="min-h-screen font-inter">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/add-item" element={<AddItem />} />
             <Route path="/edit-item/:id" element={<EditItem />} />
             <Route path="/items" element={<Items />} />

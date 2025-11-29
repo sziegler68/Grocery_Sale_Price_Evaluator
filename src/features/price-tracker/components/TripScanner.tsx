@@ -103,8 +103,9 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
             ...firstItem,
             memberPrice: totalMemberPrice,
             regularPrice: totalRegularPrice,
-            // Keep unit price from first item as representative, or calculate average if needed
-            // For now, we'll use the first item's unit price as the "price per pound" usually doesn't change
+            // Keep unit price from first item as representative
+            memberUnitPrice: firstItem.memberUnitPrice,
+            unitPriceUnit: firstItem.unitPriceUnit
         };
 
         setShowMultiScanModal(false);
@@ -155,8 +156,8 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
                     setScanSession([]); // Reset session when toggling
                 }}
                 className={`fixed bottom-36 right-4 z-40 flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition-all font-medium text-sm ${multiScanMode
-                        ? 'bg-purple-600 text-white hover:bg-purple-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'bg-purple-600 text-white hover:bg-purple-700'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
                     }`}
             >
                 <Layers className="h-4 w-4" />
@@ -246,17 +247,25 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
                         <div className="p-4 bg-secondary border-b border-primary">
                             <h3 className="font-semibold text-primary mb-2">{scanResult.priceData.itemName}</h3>
                             <div className="grid grid-cols-2 gap-2 text-sm">
-                                {scanResult.priceData.totalPrice && (
+                                {scanResult.priceData.memberPrice && (
                                     <div>
-                                        <span className="text-gray-500">Price:</span>
-                                        <span className="ml-2 font-semibold">${scanResult.priceData.totalPrice.toFixed(2)}</span>
+                                        <span className="text-gray-500">Member Price:</span>
+                                        <span className="ml-2 font-semibold text-green-600">${scanResult.priceData.memberPrice.toFixed(2)}</span>
                                     </div>
                                 )}
-                                {scanResult.priceData.unitPrice && scanResult.priceData.unitPriceUnit && (
+                                {scanResult.priceData.regularPrice && (
+                                    <div>
+                                        <span className="text-gray-500">Reg. Price:</span>
+                                        <span className={`ml-2 ${scanResult.priceData.memberPrice ? 'line-through text-gray-400' : 'font-semibold'}`}>
+                                            ${scanResult.priceData.regularPrice.toFixed(2)}
+                                        </span>
+                                    </div>
+                                )}
+                                {scanResult.priceData.memberUnitPrice && scanResult.priceData.unitPriceUnit && (
                                     <div>
                                         <span className="text-gray-500">Unit Price:</span>
                                         <span className="ml-2 font-semibold">
-                                            ${scanResult.priceData.unitPrice.toFixed(3)}/{scanResult.priceData.unitPriceUnit}
+                                            ${scanResult.priceData.memberUnitPrice.toFixed(3)}/{scanResult.priceData.unitPriceUnit}
                                         </span>
                                     </div>
                                 )}

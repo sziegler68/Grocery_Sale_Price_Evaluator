@@ -6,8 +6,11 @@
 
 export interface PriceTagData {
     itemName: string;
-    totalPrice?: number;
-    unitPrice?: number;
+    totalPrice?: number; // Deprecated: use memberPrice or regularPrice
+    memberPrice?: number;
+    regularPrice?: number;
+    unitPrice?: number; // Deprecated: use memberUnitPrice
+    memberUnitPrice?: number;
     unitPriceUnit?: string; // "ounce", "pound", "gram", etc.
     containerSize?: string; // "14 oz", "1 lb", etc.
     onSale: boolean;
@@ -23,8 +26,9 @@ const EXTRACTION_PROMPT = `You are a grocery price tag data extractor. Analyze t
 Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
 {
   "itemName": "Product name from the tag",
-  "totalPrice": 5.99,
-  "unitPrice": 0.358,
+  "memberPrice": 5.99,
+  "regularPrice": 7.99,
+  "memberUnitPrice": 0.358,
   "unitPriceUnit": "ounce",
   "containerSize": "14 oz",
   "onSale": true,
@@ -34,8 +38,9 @@ Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
 
 Rules:
 - itemName: The product name (e.g., "Guacamole Mild", "Milk")
-- totalPrice: Price per item as a number (e.g., 5.99, not "$5.99")
-- unitPrice: Price per unit if shown (e.g., 0.358 for 35.8¢)
+- memberPrice: The price for members/sale price (e.g., 5.99). If no member price, use the main price.
+- regularPrice: The regular/non-member price (e.g., 7.99). If only one price, set same as memberPrice.
+- memberUnitPrice: Price per unit for members (e.g., 0.358 for 35.8¢).
 - unitPriceUnit: Unit for unitPrice ("ounce", "pound", "gram", "kilogram", "each")
 - containerSize: Container size if shown (e.g., "14 oz", "1 lb")
 - onSale: true if "Member Price", "Sale", "SAVE", or similar indicator

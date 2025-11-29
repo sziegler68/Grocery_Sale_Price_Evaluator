@@ -1,6 +1,6 @@
 import React from 'react';
-import { Trash2, Edit2 } from 'lucide-react';
-import { PriceTagData } from '../../../shared/lib/ai/geminiVision';
+import { Trash2 } from 'lucide-react';
+import type { PriceTagData } from '../../../shared/lib/ai/geminiVision';
 
 interface MultiScanTableProps {
     scans: PriceTagData[];
