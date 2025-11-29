@@ -2,7 +2,7 @@
  * Camera Capture Component
  * 
  * Mobile-optimized camera interface for capturing price tag photos.
- * Supports live preview and image compression.
+ * Supports live preview, autofocus, and image compression.
  */
 
 import React, { useRef, useState, useEffect } from 'react';
@@ -48,6 +48,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     facingMode,
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
+                    // @ts-ignore - Advanced camera constraints for autofocus
+                    focusMode: 'continuous',
+                    advanced: [{ focusMode: 'continuous' }]
                 },
             });
 

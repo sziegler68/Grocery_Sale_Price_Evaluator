@@ -16,7 +16,7 @@ export interface PriceTagData {
     rawResponse?: string; // For debugging
 }
 
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
 const EXTRACTION_PROMPT = `You are a grocery price tag data extractor. Analyze this price tag image and extract structured data.
 
