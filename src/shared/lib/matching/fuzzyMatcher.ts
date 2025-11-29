@@ -1,20 +1,3 @@
-/**
- * Fuzzy Item Matcher
- * 
- * Matches scanned item names to shopping list items using fuzzy string matching.
- */
-
-import type { ShoppingListItem } from '../../../features/shopping-lists/types';
-
-export interface MatchResult {
-    item: ShoppingListItem;
-    score: number; // 0-1, where 1 is perfect match
-}
-
-/**
- * Calculate Levenshtein distance between two strings
- * (minimum number of edits to transform one string into another)
- */
 function levenshteinDistance(str1: string, str2: string): number {
     const len1 = str1.length;
     const len2 = str2.length;
