@@ -1,19 +1,4 @@
 /**
- * Fuzzy Item Matcher
- * 
- * Matches scanned item names to shopping list items using fuzzy string matching.
- */
-
-export interface ShoppingListItem {
-    id: string;
-    name: string;
-    [key: string]: any; // Other properties
-}
-
-export interface MatchResult {
-    item: ShoppingListItem;
-    score: number; // 0-1, where 1 is perfect match
-}
 
 /**
  * Calculate Levenshtein distance between two strings
@@ -104,60 +89,26 @@ export function findBestMatch(
     threshold: number = 0.7
 ): MatchResult | null {
     if (!scannedName || !shoppingList || shoppingList.length === 0) {
-        return null;
-    }
-
-    let bestMatch: MatchResult | null = null;
-
-    for (const item of shoppingList) {
-        const score = calculateSimilarity(scannedName, item.name);
-
-        if (score >= threshold && (!bestMatch || score > bestMatch.score)) {
-            bestMatch = { item, score };
-        }
-    }
-
-    return bestMatch;
-}
-
-/**
  * Find all potential matches above a threshold
- * 
+            * 
  * @param scannedName - Name extracted from price tag
- * @param shoppingList - List of items in shopping list
- * @param threshold - Minimum score to include (default: 0.5)
- * @returns Array of matches sorted by score (highest first)
- */
-export function findAllMatches(
-    scannedName: string,
-    shoppingList: ShoppingListItem[],
-    threshold: number = 0.5
-): MatchResult[] {
-    if (!scannedName || !shoppingList || shoppingList.length === 0) {
-        return [];
-    }
-
-    const matches: MatchResult[] = [];
-
-    for (const item of shoppingList) {
-        const score = calculateSimilarity(scannedName, item.name);
-
-        if (score >= threshold) {
-            matches.push({ item, score });
-        }
-    }
-
-    // Sort by score (highest first)
-    return matches.sort((a, b) => b.score - a.score);
-}
-
-/**
- * Get match quality label based on score
- */
-export function getMatchQuality(score: number): 'perfect' | 'excellent' | 'good' | 'fair' | 'poor' {
-    if (score >= 0.95) return 'perfect';
-    if (score >= 0.85) return 'excellent';
-    if (score >= 0.70) return 'good';
-    if (score >= 0.50) return 'fair';
-    return 'poor';
-}
+            * @param shoppingList - List of items in shopping list
+                * @param threshold - Minimum score to include(default: 0.5)
+                    * @returns Array of matches sorted by score(highest first)
+                        */
+        export function findAllMatches(
+            scannedName: string,
+            shoppingList: ShoppingListItem[],
+            threshold: number = 0.5
+        ): MatchResult[] {
+            if (!scannedName || !shoppingList || shoppingList.length === 0) {
+                /**
+                 * Get match quality label based on score
+                 */
+                export function getMatchQuality(score: number): 'perfect' | 'excellent' | 'good' | 'fair' | 'poor' {
+                    if (score >= 0.95) return 'perfect';
+                    if (score >= 0.85) return 'excellent';
+                    if (score >= 0.70) return 'good';
+                    if (score >= 0.50) return 'fair';
+                    return 'poor';
+                }
