@@ -10,6 +10,8 @@ export const CATEGORIES = [
   'Seafood',
   'Dairy',
   'Produce',
+  'Deli',          // ✨ NEW
+  'Prepared Food', // ✨ NEW
   'Bakery',      // ✨ NEW
   'Frozen',      // ✨ NEW
   'Pantry',      // ✨ NEW
@@ -30,6 +32,7 @@ export const TAX_EXEMPT_CATEGORIES = [
   'Seafood',
   'Dairy',
   'Produce',
+  'Deli',          // Deli meats/cheeses are usually exempt
   'Bakery',
   'Frozen',
   'Pantry',

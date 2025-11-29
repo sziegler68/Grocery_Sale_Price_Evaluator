@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Key, ExternalLink, CheckCircle, XCircle } from 'lucide-react';
+import { WeightPreferences } from './components/WeightPreferences';
 
 export function SettingsPage() {
     const [apiKey, setApiKey] = useState('');
@@ -158,6 +159,11 @@ export function SettingsPage() {
                             </p>
                         </div>
                     )}
+                </div>
+
+                {/* Weight Preferences Section */}
+                <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
+                    <WeightPreferences />
                 </div>
 
                 {/* Info Section */}

@@ -4,6 +4,8 @@ import { Camera, X, Check, AlertCircle } from 'lucide-react';
 import { CameraCapture } from '../../shopping-trips/components/CameraCapture';
 import { extractPriceTagData, type PriceTagData } from '../../../shared/lib/ai/geminiVision';
 import { findBestMatch, findAllMatches, type ShoppingListItem, type MatchResult } from '../../../shared/lib/matching/fuzzyMatcher';
+import { MultiScanTable } from './MultiScanTable';
+import { Layers, ArrowRight } from 'lucide-react';
 
 interface TripScannerProps {
     shoppingList: ShoppingListItem[];
@@ -14,6 +16,12 @@ interface TripScannerProps {
 export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: TripScannerProps) {
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Multi-scan state
+    const [multiScanMode, setMultiScanMode] = useState(false);
+    const [scanSession, setScanSession] = useState<PriceTagData[]>([]);
+    const [showMultiScanModal, setShowMultiScanModal] = useState(false);
+
     const [scanResult, setScanResult] = useState<{
         priceData: PriceTagData;
         bestMatch: MatchResult | null;
@@ -45,19 +53,15 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
                 toast.warning('Low confidence scan. Please verify data.');
             }
 
-            // Find matching items
-            const bestMatch = findBestMatch(priceData.itemName, shoppingList, 0.7);
-            const allMatches = findAllMatches(priceData.itemName, shoppingList, 0.5);
-
-            setScanResult({ priceData, bestMatch, allMatches });
-
-            // Auto-select if high confidence match
-            if (bestMatch && bestMatch.score >= 0.9) {
-                toast.success(`Matched: ${bestMatch.item.item_name} (${Math.round(bestMatch.score * 100)}%)`);
-            } else if (bestMatch) {
-                toast.info(`Possible match: ${bestMatch.item.item_name} (${Math.round(bestMatch.score * 100)}%)`);
+            if (multiScanMode) {
+                // Add to session and show session modal
+                const newSession = [...scanSession, priceData];
+                setScanSession(newSession);
+                setShowMultiScanModal(true);
+                toast.success(`Scanned item ${newSession.length}`);
             } else {
-                toast.info('No match found. Create new item or select manually.');
+                // Single scan flow
+                processScanResult(priceData);
             }
 
         } catch (error: any) {
@@ -67,6 +71,57 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const processScanResult = (priceData: PriceTagData) => {
+        // Find matching items
+        const bestMatch = findBestMatch(priceData.itemName, shoppingList, 0.7);
+        const allMatches = findAllMatches(priceData.itemName, shoppingList, 0.5);
+
+        setScanResult({ priceData, bestMatch, allMatches });
+
+        // Auto-select if high confidence match
+        if (bestMatch && bestMatch.score >= 0.9) {
+            toast.success(`Matched: ${bestMatch.item.item_name} (${Math.round(bestMatch.score * 100)}%)`);
+        } else if (bestMatch) {
+            toast.info(`Possible match: ${bestMatch.item.item_name} (${Math.round(bestMatch.score * 100)}%)`);
+        } else {
+            toast.info('No match found. Create new item or select manually.');
+        }
+    };
+
+    const handleFinishMultiScan = () => {
+        if (scanSession.length === 0) return;
+
+        // Aggregate results
+        const firstItem = scanSession[0];
+        const totalMemberPrice = scanSession.reduce((sum, item) => sum + (item.memberPrice || 0), 0);
+        const totalRegularPrice = scanSession.reduce((sum, item) => sum + (item.regularPrice || 0), 0);
+
+        // Create aggregated price data
+        const aggregatedData: PriceTagData = {
+            ...firstItem,
+            memberPrice: totalMemberPrice,
+            regularPrice: totalRegularPrice,
+            // Keep unit price from first item as representative, or calculate average if needed
+            // For now, we'll use the first item's unit price as the "price per pound" usually doesn't change
+        };
+
+        setShowMultiScanModal(false);
+        setScanSession([]);
+        setMultiScanMode(false); // Exit multi-scan mode
+        processScanResult(aggregatedData);
+    };
+
+    const handleRemoveScan = (index: number) => {
+        const newSession = [...scanSession];
+        newSession.splice(index, 1);
+        setScanSession(newSession);
+    };
+
+    const handleScanNext = () => {
+        setShowMultiScanModal(false);
+        setIsCameraOpen(true);
     };
 
     const handleSelectMatch = (match: MatchResult) => {
@@ -93,6 +148,21 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
 
     return (
         <>
+            {/* Multi-Scan Toggle */}
+            <button
+                onClick={() => {
+                    setMultiScanMode(!multiScanMode);
+                    setScanSession([]); // Reset session when toggling
+                }}
+                className={`fixed bottom-36 right-4 z-40 flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition-all font-medium text-sm ${multiScanMode
+                        ? 'bg-purple-600 text-white hover:bg-purple-700'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+            >
+                <Layers className="h-4 w-4" />
+                <span>{multiScanMode ? 'Multi-Scan On' : 'Multi-Scan Off'}</span>
+            </button>
+
             {/* Floating Scan Button */}
             <button
                 onClick={() => {
@@ -106,7 +176,7 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
                 className="fixed bottom-20 right-4 z-40 flex items-center gap-2 px-6 py-4 bg-brand text-white rounded-full shadow-lg hover:bg-brand-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
                 <Camera className="h-6 w-6" />
-                <span>{isProcessing ? 'Scanning...' : 'Scan Item'}</span>
+                <span>{isProcessing ? 'Scanning...' : multiScanMode ? `Scan Item ${scanSession.length + 1}` : 'Scan Item'}</span>
             </button>
 
             {/* Camera Modal */}
@@ -116,6 +186,45 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
                     onCapture={handleCapture}
                     onClose={() => setIsCameraOpen(false)}
                 />
+            )}
+
+            {/* Multi-Scan Session Modal */}
+            {showMultiScanModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="w-full max-w-md bg-card rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="p-4 border-b border-primary flex items-center justify-between">
+                            <h2 className="text-lg font-bold text-primary">Multi-Scan Session</h2>
+                            <button
+                                onClick={() => setShowMultiScanModal(false)}
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <div className="p-4">
+                            <MultiScanTable scans={scanSession} onRemove={handleRemoveScan} />
+                        </div>
+
+                        <div className="p-4 space-y-2 border-t border-primary">
+                            <button
+                                onClick={handleScanNext}
+                                className="w-full px-4 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors font-medium flex items-center justify-center gap-2"
+                            >
+                                <Camera className="h-5 w-5" />
+                                Scan Next Item
+                            </button>
+                            <button
+                                onClick={handleFinishMultiScan}
+                                disabled={scanSession.length === 0}
+                                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ArrowRight className="h-5 w-5" />
+                                Finish & Match
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Match Results Modal */}

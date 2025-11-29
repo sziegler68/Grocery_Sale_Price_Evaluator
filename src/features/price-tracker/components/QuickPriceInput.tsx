@@ -6,6 +6,8 @@ import { UNIT_TYPES } from '../../../shared/constants/categories';
 import { CameraCapture } from '../../shopping-trips/components/CameraCapture';
 import { extractTextFromReceipt } from '../../../shared/lib/ocr/googleVision';
 import { parsePriceTag } from '../../../shared/lib/ocr/priceTagParser';
+import { WeightInputModal } from './WeightInputModal';
+import { getAverageWeight, calculateTotalPrice } from '../../../shared/lib/weights/weightLookup';
 import { toast } from 'react-toastify';
 
 interface QuickPriceInputProps {
@@ -86,6 +88,11 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   const [isProcessingOCR, setIsProcessingOCR] = useState<boolean>(false);
   const [lastScannedText, setLastScannedText] = useState<string>('');
   const [ocrUnitPrice, setOcrUnitPrice] = useState<number | null>(null);
+
+  // Weight conversion state
+  const [showWeightModal, setShowWeightModal] = useState(false);
+  const [pendingWeightItem, setPendingWeightItem] = useState<{ name: string, unitPrice: number } | null>(null);
+  const [averageWeight, setAverageWeight] = useState<number | null>(null);
 
   if (!isOpen) return null;
 
@@ -169,6 +176,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     setIsProcessingOCR(true);
     setLastScannedText(''); // Clear previous
     setOcrUnitPrice(null); // Clear previous OCR unit price
+    setAverageWeight(null); // Clear previous average weight
     toast.info('Processing price tag...');
 
     try {
@@ -214,17 +222,43 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       if (priceTagData.unitPrice) {
         setOcrUnitPrice(priceTagData.unitPrice);
         console.log('[OCR] Unit price from tag:', priceTagData.unitPrice);
-      }
 
-      // DON'T auto-fill weight/unit from OCR
-      // The "14 oz" on the tag is the container size, not the purchase quantity
-      // The user's shopping list item already has the correct unit type
-      // if (priceTagData.weight) {
-      //   setQuantity(priceTagData.weight.toString());
-      // }
-      // if (priceTagData.unit) {
-      //   setUnitDisplay(priceTagData.unit);
-      // }
+        // Check for unit mismatch (e.g. tag is /lb but list item is 'each' or undefined)
+        const tagUnit = priceTagData.unit?.toLowerCase();
+        const listUnit = unitType?.toLowerCase();
+
+        // If tag is weight-based (lb/oz) but list is count-based (each/empty)
+        if ((tagUnit === 'lb' || tagUnit === 'oz' || tagUnit === 'pound') &&
+          (!listUnit || listUnit === 'each' || listUnit === 'count')) {
+
+          console.log('[QuickPriceInput] Detected unit mismatch. Tag:', tagUnit, 'List:', listUnit);
+
+          // 1. Try to find average weight
+          // Fetch user overrides
+          const storedOverrides = localStorage.getItem('userWeightOverrides');
+          const userOverrides = storedOverrides ? JSON.parse(storedOverrides) : [];
+
+          const weightInfo = getAverageWeight(itemName, userOverrides);
+
+          if (weightInfo) {
+            console.log('[QuickPriceInput] Found average weight:', weightInfo.averageWeight);
+            setAverageWeight(weightInfo.averageWeight);
+
+            // Calculate estimated total based on 1 item (user can change qty)
+            const estimatedTotal = calculateTotalPrice(priceTagData.unitPrice, 1, weightInfo.averageWeight);
+            setPriceDisplay(estimatedTotal.toFixed(2));
+            toast.info(`Using average weight for ${itemName}: ${weightInfo.averageWeight} lb`);
+          } else {
+            // 2. Prompt user for weight
+            console.log('[QuickPriceInput] No average weight found. Prompting user.');
+            setPendingWeightItem({
+              name: itemName,
+              unitPrice: priceTagData.unitPrice
+            });
+            setShowWeightModal(true);
+          }
+        }
+      }
 
       if (priceTagData.onSale) {
         setOnSale(true);
@@ -233,7 +267,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       // Show success/warning message
       const confidence = Math.round(priceTagData.confidence * 100);
 
-      if (dataFound) {
+      if (dataFound || priceTagData.unitPrice) {
         toast.success(`Scanned! Confidence: ${confidence}% (Logged)`);
       } else {
         toast.warning(`Scanned (Conf: ${confidence}%), but no price found. Check "Raw Text" below.`);
@@ -319,12 +353,73 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       setUsePackMode(false);
       setPacks([{ price: '', weight: '' }]);
       setOnSale(false);
+      setAverageWeight(null); // Reset average weight
       onClose();
     }
   };
 
+  // Weight Modal Handlers
+  const handleWeigh = (weight: number) => {
+    if (pendingWeightItem) {
+      // User weighed the items, so we have exact total weight
+      // Calculate total price: unit price * total weight
+      const total = pendingWeightItem.unitPrice * weight;
+      setPriceDisplay(total.toFixed(2));
+      // Set quantity to 1 (since we used total weight) or maybe keep it as is?
+      // Actually, if they weighed "3 onions" and got "1.5 lbs", 
+      // the price is 1.5 * price/lb.
+      // We can set priceDisplay to that.
+      // And we should probably clear averageWeight since we have exacts.
+      setAverageWeight(null);
+      setShowWeightModal(false);
+      setPendingWeightItem(null);
+    }
+  };
+
+  const handleSetAverage = (avgWeight: number, saveToProfile: boolean) => {
+    if (pendingWeightItem) {
+      setAverageWeight(avgWeight);
+      const currentQty = parseFloat(quantity) || 1;
+      const total = calculateTotalPrice(pendingWeightItem.unitPrice, currentQty, avgWeight);
+      setPriceDisplay(total.toFixed(2));
+
+      if (saveToProfile) {
+        // TODO: Save to user profile via API
+        toast.success(`Saved average weight for ${itemName}`);
+      }
+
+      setShowWeightModal(false);
+      setPendingWeightItem(null);
+    }
+  };
+
+  const handleSkipTotal = () => {
+    setShowWeightModal(false);
+    setPendingWeightItem(null);
+    // Just keep the unit price, user will enter total manually
+  };
+
+  // Update total price when quantity changes if we have an average weight
+  React.useEffect(() => {
+    if (averageWeight && ocrUnitPrice) {
+      const qty = parseFloat(quantity) || 0;
+      const total = calculateTotalPrice(ocrUnitPrice, qty, averageWeight);
+      setPriceDisplay(total.toFixed(2));
+    }
+  }, [quantity, averageWeight, ocrUnitPrice]);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Weight Input Modal */}
+      <WeightInputModal
+        isOpen={showWeightModal}
+        itemName={pendingWeightItem?.name || itemName}
+        onClose={() => setShowWeightModal(false)}
+        onWeigh={handleWeigh}
+        onSkipTotal={handleSkipTotal}
+        onSetAverage={handleSetAverage}
+      />
+
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl shadow-2xl bg-card text-primary">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-primary">

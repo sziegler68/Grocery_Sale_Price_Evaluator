@@ -48,9 +48,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     facingMode,
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
-                    // @ts-ignore - Advanced camera constraints for autofocus
-                    focusMode: 'continuous',
-                    advanced: [{ focusMode: 'continuous' }]
                 },
             });
 
