@@ -400,7 +400,38 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       />
 
       {/* Trip Scanner (AI-powered price tag scanning) */}
-      <TripScanner />
+      <TripScanner
+        shoppingList={availableItems}
+        onItemScanned={(item, priceData) => {
+          // Auto-populate QuickPriceInput with scanned data
+          setSelectedItem(item);
+          setEditingCartItem(null);
+          setShowPriceInput(true);
+
+          toast.info(`Scanned: ${priceData.itemName} - $${priceData.totalPrice?.toFixed(2)}`);
+        }}
+        onCreateNewItem={(priceData) => {
+          // Create new item from scanned data
+          setSelectedItem({
+            id: '',
+            list_id: trip.list_id,
+            item_name: priceData.itemName,
+            category: 'Other',
+            quantity: 1,
+            unit_type: priceData.unitPriceUnit || null,
+            target_price: priceData.unitPrice || null,
+            is_checked: false,
+            checked_at: null,
+            notes: null,
+            added_by: 'user',
+            added_at: new Date().toISOString()
+          });
+          setEditingCartItem(null);
+          setIsAddingNewItem(true);
+          setShowPriceInput(true);
+          toast.info(`Creating new item: ${priceData.itemName}`);
+        }}
+      />
     </div>
   );
 };
