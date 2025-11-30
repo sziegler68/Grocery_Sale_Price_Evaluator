@@ -127,14 +127,31 @@ export async function extractPriceTagData(
 
         console.log('[Gemini] Raw response:', rawText);
 
-        // Parse JSON response
-        // Remove markdown code blocks if present
-        const cleanedText = rawText
-            .replace(/```json\n?/g, '')
-            .replace(/```\n?/g, '')
-            .trim();
+        // Parse JSON response with robust cleaning
+        let cleanedText = rawText;
 
-        const parsedData: PriceTagData = JSON.parse(cleanedText);
+        // Remove markdown code blocks
+        cleanedText = cleanedText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+
+        // Remove any leading/trailing whitespace
+        cleanedText = cleanedText.trim();
+
+        // Try to extract JSON if there's extra text
+        const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            cleanedText = jsonMatch[0];
+        }
+
+        console.log('[Gemini] Cleaned JSON:', cleanedText);
+
+        let parsedData: PriceTagData;
+        try {
+            parsedData = JSON.parse(cleanedText);
+        } catch (parseError: any) {
+            console.error('[Gemini] JSON parse error:', parseError);
+            console.error('[Gemini] Failed to parse:', cleanedText);
+            throw new Error(`Invalid JSON from Gemini: ${parseError.message}. Raw: ${cleanedText.substring(0, 200)}`);
+        }
 
         // Validate required fields
         if (!parsedData.itemName || typeof parsedData.onSale !== 'boolean' || typeof parsedData.confidence !== 'number') {
