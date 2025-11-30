@@ -6,7 +6,6 @@ import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
 import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
 import { getShoppingListsByCodes, getItemsForList } from '../../shopping-lists/api';
-import type { ShoppingList } from '../../shopping-lists/types';
 
 export const Dashboard: React.FC = () => {
     const navigate = useNavigate();
