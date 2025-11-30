@@ -8,7 +8,7 @@ import { updateItem as updateListItem } from '../../shopping-lists/api';
 import { SHOPPING_LIST_CATEGORIES } from '../../shopping-lists/types';
 import QuickPriceInput from '../../price-tracker/components/QuickPriceInput';
 import { toast } from 'react-toastify';
-import { getSalesTaxRate } from '../../../shared/components/Settings';
+import { getSalesTaxRate } from '../../../shared/utils/settings';
 import { BudgetMeter } from './BudgetMeter';
 import { TripHeader } from './TripHeader';
 import { CartItemCard } from './CartItemCard';

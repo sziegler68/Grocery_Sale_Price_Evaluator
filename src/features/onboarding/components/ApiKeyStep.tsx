@@ -18,7 +18,7 @@ export const ApiKeyStep: React.FC<ApiKeyStepProps> = ({ onNext }) => {
                 `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`
             );
             return response.ok;
-        } catch (error) {
+        } catch {
             return false;
         }
     };
@@ -112,8 +112,8 @@ export const ApiKeyStep: React.FC<ApiKeyStepProps> = ({ onNext }) => {
                 <button
                     onClick={handleContinue}
                     className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors mt-4 ${apiKey && isValid
-                            ? 'bg-brand text-white hover:bg-brand-dark'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        ? 'bg-brand text-white hover:bg-brand-dark'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                         }`}
                 >
                     {apiKey && isValid ? 'Continue' : 'Skip for now'}

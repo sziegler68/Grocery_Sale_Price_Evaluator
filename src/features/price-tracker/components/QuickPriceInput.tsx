@@ -94,6 +94,22 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   const [pendingWeightItem, setPendingWeightItem] = useState<{ name: string, unitPrice: number } | null>(null);
   const [averageWeight, setAverageWeight] = useState<number | null>(null);
 
+  // Update container count when quantity changes
+  React.useEffect(() => {
+    if (crvEnabled && quantity) {
+      setCrvContainerCount(quantity);
+    }
+  }, [quantity, crvEnabled]);
+
+  // Update total price when quantity changes if we have an average weight
+  React.useEffect(() => {
+    if (averageWeight && ocrUnitPrice) {
+      const qty = parseFloat(quantity) || 0;
+      const total = calculateTotalPrice(ocrUnitPrice, qty, averageWeight);
+      setPriceDisplay(total.toFixed(2));
+    }
+  }, [quantity, averageWeight, ocrUnitPrice]);
+
   if (!isOpen) return null;
 
   // Handle price input - calculator style
@@ -121,13 +137,6 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     const cents = numValue % 100;
     setCrvPerContainerDisplay(`${dollars}.${cents.toString().padStart(2, '0')}`);
   };
-
-  // Update container count when quantity changes
-  React.useEffect(() => {
-    if (crvEnabled && quantity) {
-      setCrvContainerCount(quantity);
-    }
-  }, [quantity, crvEnabled]);
 
   // Handle container price input
   const handleContainerPriceInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -398,15 +407,6 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     setPendingWeightItem(null);
     // Just keep the unit price, user will enter total manually
   };
-
-  // Update total price when quantity changes if we have an average weight
-  React.useEffect(() => {
-    if (averageWeight && ocrUnitPrice) {
-      const qty = parseFloat(quantity) || 0;
-      const total = calculateTotalPrice(ocrUnitPrice, qty, averageWeight);
-      setPriceDisplay(total.toFixed(2));
-    }
-  }, [quantity, averageWeight, ocrUnitPrice]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">

@@ -13,7 +13,7 @@ import ShoppingTripView from '../../shopping-trips/components/ShoppingTripView';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { getUserNameForList, setUserNameForList, removeUserNameForList } from '../../../shared/utils/listUserNames';
 import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from '../../notifications/api';
-import { getSalesTaxRate } from '../../../shared/components/Settings';
+import { getSalesTaxRate } from '../../../shared/utils/settings';
 import { useShoppingListStore } from '../store/useShoppingListStore';
 import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
 import { ingestGroceryItem } from '../../price-tracker/services/itemIngestion';
@@ -27,13 +27,13 @@ const ShoppingListDetail: React.FC = () => {
   const { shareCode } = useParams<{ shareCode: string }>();
   const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useDarkMode();
-  
+
   // Debug: Verify component is loading
   console.log('🏁 ShoppingListDetail component loaded. Share code:', shareCode);
-  
+
   // Use store for ALL list data - no local state duplication
-  const { 
-    currentList: list, 
+  const {
+    currentList: list,
     items, // Use store items directly
     isLoading,
     loadListByShareCode,
@@ -53,25 +53,25 @@ const ShoppingListDetail: React.FC = () => {
   const [viewingTrip, setViewingTrip] = useState(false);
   const loadDataTimeoutRef = useRef<number | null>(null);
   const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
-  
+
   // Batched checkbox sync queue
   const checkboxSyncQueueRef = useRef<Map<string, boolean>>(new Map()); // itemId -> newCheckedState
   const checkboxSyncTimeoutRef = useRef<number | null>(null);
-  const notificationBatchRef = useRef<{count: number, lastUpdate: number}>({count: 0, lastUpdate: 0});
+  const notificationBatchRef = useRef<{ count: number, lastUpdate: number }>({ count: 0, lastUpdate: 0 });
 
   const loadListData = useCallback(async () => {
     if (!shareCode) return;
-    
+
     try {
       // Use store action to load list by share code
       const loadedList = await loadListByShareCode(shareCode);
-      
+
       if (!loadedList) {
         toast.error('Shopping list not found');
         navigate('/shopping-lists');
         return;
       }
-      
+
       // Try to load active trip, but don't fail if tables don't exist yet
       let trip: ShoppingTrip | null = null;
       try {
@@ -94,7 +94,7 @@ const ShoppingListDetail: React.FC = () => {
     if (loadDataTimeoutRef.current !== null) {
       clearTimeout(loadDataTimeoutRef.current);
     }
-    
+
     // Schedule a new reload
     loadDataTimeoutRef.current = window.setTimeout(() => {
       loadListData();
@@ -109,48 +109,48 @@ const ShoppingListDetail: React.FC = () => {
   // Sync batched checkbox changes to Supabase
   const syncCheckboxChanges = useCallback(async () => {
     if (checkboxSyncQueueRef.current.size === 0) return;
-    
+
     const updates = new Map(checkboxSyncQueueRef.current);
     checkboxSyncQueueRef.current.clear();
-    
+
     console.log('[CHECKBOX] Syncing', updates.size, 'checkbox changes to Supabase');
-    
+
     // Batch update to Supabase in background using store action
     try {
       const promises = Array.from(updates.entries()).map(([itemId, isChecked]) => {
         return toggleItem(itemId, isChecked);
       });
-      
+
       await Promise.all(promises);
       console.log('[CHECKBOX] ✅ Synced to database via store');
-      
+
       // Send notification for first checkbox activity in 1 hour window
       const checkedCount = Array.from(updates.values()).filter(v => v).length;
       if (checkedCount > 0 && list && shareCode) {
         const userName = getUserNameForList(shareCode);
         console.log('[CHECKBOX] Checked count:', checkedCount, 'User:', userName);
-        
+
         if (userName) {
           // Check if we should send notification (1 hour throttle for checkbox activity)
           const now = Date.now();
           const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
           const timeSinceLast = now - notificationBatchRef.current.lastUpdate;
-          
-          console.log('[CHECKBOX] Last notification:', 
-            notificationBatchRef.current.lastUpdate === 0 
-              ? 'Never' 
+
+          console.log('[CHECKBOX] Last notification:',
+            notificationBatchRef.current.lastUpdate === 0
+              ? 'Never'
               : `${Math.round(timeSinceLast / 1000)}s ago`);
-          
+
           // Only send if first activity or more than 1 hour since last notification
-          if (notificationBatchRef.current.lastUpdate === 0 || 
-              now - notificationBatchRef.current.lastUpdate > oneHour) {
-            
+          if (notificationBatchRef.current.lastUpdate === 0 ||
+            now - notificationBatchRef.current.lastUpdate > oneHour) {
+
             console.log('[CHECKBOX] ✅ Sending notification (1 hour passed or first activity)');
-            notificationBatchRef.current = {count: checkedCount, lastUpdate: now};
-            
+            notificationBatchRef.current = { count: checkedCount, lastUpdate: now };
+
             // Send notification: "User started shopping" (first check) or "User is shopping"
             const message = `${userName} started checking items off ${list.name}`;
-            
+
             // Fire and forget - don't block
             notifyItemsPurchased(list.id, list.name, checkedCount, userName, message).catch((err) => {
               console.error('[CHECKBOX] ❌ Failed to send notification:', err);
@@ -163,7 +163,7 @@ const ShoppingListDetail: React.FC = () => {
           console.log('[CHECKBOX] ⚠️ No user name set - cannot send notification');
         }
       }
-      
+
       // Clear optimistic flags
       updates.forEach((_, itemId) => {
         optimisticUpdatesRef.current.delete(itemId);
@@ -177,18 +177,18 @@ const ShoppingListDetail: React.FC = () => {
   const handleOptimisticCheck = useCallback((itemId: string, newCheckedState: boolean) => {
     // Mark this item as having a pending optimistic update
     optimisticUpdatesRef.current.add(itemId);
-    
+
     // Immediately update UI using store (optimistic) - instant response!
     optimisticToggleItem(itemId, newCheckedState);
-    
+
     // Queue for batched background sync
     checkboxSyncQueueRef.current.set(itemId, newCheckedState);
-    
+
     // Clear any existing sync timeout
     if (checkboxSyncTimeoutRef.current !== null) {
       clearTimeout(checkboxSyncTimeoutRef.current);
     }
-    
+
     // Schedule batched sync (1 second delay to batch multiple rapid clicks)
     checkboxSyncTimeoutRef.current = window.setTimeout(() => {
       syncCheckboxChanges();
@@ -197,7 +197,7 @@ const ShoppingListDetail: React.FC = () => {
 
   useEffect(() => {
     loadListData();
-    
+
     // Check if user has set their name for this list
     if (shareCode) {
       const savedName = getUserNameForList(shareCode);
@@ -245,9 +245,9 @@ const ShoppingListDetail: React.FC = () => {
         triggeredBy: notification.triggered_by,
         message: notification.message
       });
-      
+
       console.log('[NOTIF] 🎉 Showing notification to user');
-      
+
       // Show toast notification
       toast.info(notification.message, {
         position: 'top-center',
@@ -291,7 +291,7 @@ const ShoppingListDetail: React.FC = () => {
 
   const handleClearAll = async () => {
     if (!list) return;
-    
+
     if (!window.confirm('Clear all items from this list? This cannot be undone.')) {
       return;
     }
@@ -369,7 +369,7 @@ const ShoppingListDetail: React.FC = () => {
     if (!list || !userName) return;
 
     const allChecked = items.every(item => item.is_checked);
-    
+
     try {
       await notifyShoppingComplete(list.id, list.name, userName, allChecked);
       toast.success('Shopping marked as complete!');
@@ -383,7 +383,7 @@ const ShoppingListDetail: React.FC = () => {
     if (!list || !userName) return;
 
     const uncheckedCount = items.filter(item => !item.is_checked).length;
-    
+
     if (uncheckedCount === 0) {
       toast.info('All items have been purchased!');
       return;
@@ -408,12 +408,12 @@ const ShoppingListDetail: React.FC = () => {
         store_name: storeName,
         sales_tax_rate: salesTaxRate
       });
-      
+
       setActiveTrip(trip);
       setViewingTrip(true);
       setShowStartTripModal(false);
       toast.success('Shopping trip started!');
-      
+
       // Send notification that shopping trip started
       if (userName && shareCode) {
         const message = `${userName} started a shopping trip at ${storeName} (Budget: $${Math.round(budget)})`;
@@ -437,57 +437,57 @@ const ShoppingListDetail: React.FC = () => {
       let duplicateCount = 0;
 
       for (const item of cartItems) {
-          // Map shopping list categories to grocery item categories
-          const categoryMap: Record<string, string> = {
-            'Meats': 'Meat',
-            'Meat': 'Meat',
-            'Seafood': 'Seafood',
-            'Dairy': 'Dairy',
-            'Produce': 'Produce',
-            'Bakery': 'Bakery',
-            'Frozen': 'Frozen',
-            'Pantry': 'Pantry',
-            'Condiments': 'Condiments',
-            'Beverages': 'Beverages',
-            'Drinks': 'Beverages', // Legacy - map to Beverages
-            'Snacks': 'Snacks',
-            'Household': 'Household',
-            'Personal Care': 'Personal Care',
-            'Baby': 'Baby',
-            'Pet': 'Pet',
-            'Electronics': 'Electronics',
-            'Other': 'Other',
-          };
-          const groceryCategory = item.category ? (categoryMap[item.category] || 'Other') : 'Other';
-          
-          // Use ingestion service for validation, normalization, and duplicate detection
-          const result = await ingestGroceryItem({
-            itemName: item.item_name,
-            price: item.price_paid,
-            quantity: item.quantity,
-            unitType: item.unit_type || 'each',
-            storeName: completedTrip.store_name,
-            category: groceryCategory,
-            targetPrice: item.target_price || undefined,
-            notes: undefined,
-            datePurchased: new Date(),
-          }, {
-            skipDuplicateCheck: false, // Enable duplicate detection for trip exports
-            autoMerge: true, // Allow saving price history (different dates/prices)
-            fuzzyThreshold: 0.85,
-          });
+        // Map shopping list categories to grocery item categories
+        const categoryMap: Record<string, string> = {
+          'Meats': 'Meat',
+          'Meat': 'Meat',
+          'Seafood': 'Seafood',
+          'Dairy': 'Dairy',
+          'Produce': 'Produce',
+          'Bakery': 'Bakery',
+          'Frozen': 'Frozen',
+          'Pantry': 'Pantry',
+          'Condiments': 'Condiments',
+          'Beverages': 'Beverages',
+          'Drinks': 'Beverages', // Legacy - map to Beverages
+          'Snacks': 'Snacks',
+          'Household': 'Household',
+          'Personal Care': 'Personal Care',
+          'Baby': 'Baby',
+          'Pet': 'Pet',
+          'Electronics': 'Electronics',
+          'Other': 'Other',
+        };
+        const groceryCategory = item.category ? (categoryMap[item.category] || 'Other') : 'Other';
 
-          if (result.success) {
-            savedCount++;
-          } else if (result.matchFound) {
-            // Item was an exact duplicate (same day + same price) - skip to avoid duplicate entry
-            duplicateCount++;
-            console.log(`[DUPLICATE] Skipped: ${item.item_name} - exact match found for today`);
-          } else {
-            console.error(`Failed to save ${item.item_name}:`, result.error);
-            errorCount++;
-          }
+        // Use ingestion service for validation, normalization, and duplicate detection
+        const result = await ingestGroceryItem({
+          itemName: item.item_name,
+          price: item.price_paid,
+          quantity: item.quantity,
+          unitType: item.unit_type || 'each',
+          storeName: completedTrip.store_name,
+          category: groceryCategory,
+          targetPrice: item.target_price || undefined,
+          notes: undefined,
+          datePurchased: new Date(),
+        }, {
+          skipDuplicateCheck: false, // Enable duplicate detection for trip exports
+          autoMerge: true, // Allow saving price history (different dates/prices)
+          fuzzyThreshold: 0.85,
+        });
+
+        if (result.success) {
+          savedCount++;
+        } else if (result.matchFound) {
+          // Item was an exact duplicate (same day + same price) - skip to avoid duplicate entry
+          duplicateCount++;
+          console.log(`[DUPLICATE] Skipped: ${item.item_name} - exact match found for today`);
+        } else {
+          console.error(`Failed to save ${item.item_name}:`, result.error);
+          errorCount++;
         }
+      }
 
       // Show summary with duplicate info
       if (savedCount > 0) {
@@ -504,11 +504,11 @@ const ShoppingListDetail: React.FC = () => {
     // Show trip summary
     const overBudget = completedTrip.total_spent > completedTrip.budget;
     const difference = Math.abs(completedTrip.total_spent - completedTrip.budget);
-    
-    const summaryMessage = overBudget 
+
+    const summaryMessage = overBudget
       ? `$${difference.toFixed(2)} over budget`
       : `Saved $${difference.toFixed(2)}!`;
-    
+
     toast.success(
       `Trip complete! Spent $${completedTrip.total_spent.toFixed(2)}. ${summaryMessage} Prices saved to database.`,
       { autoClose: 5000 }
@@ -617,11 +617,10 @@ const ShoppingListDetail: React.FC = () => {
             </div>
             <button
               onClick={handleCopyCode}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                copied
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${copied
                   ? 'bg-green-600 text-white'
                   : 'bg-purple-600 hover:bg-purple-700 text-white'
-              }`}
+                }`}
             >
               {copied ? (
                 <Check className="h-5 w-5" />
@@ -651,7 +650,7 @@ const ShoppingListDetail: React.FC = () => {
               <Plus className="h-5 w-5" />
               <span>Add Item to List</span>
             </button>
-            
+
             {activeTrip ? (
               <button
                 onClick={() => setViewingTrip(true)}
@@ -664,11 +663,10 @@ const ShoppingListDetail: React.FC = () => {
               <button
                 onClick={() => setShowStartTripModal(true)}
                 disabled={items.length === 0}
-                className={`flex items-center justify-center space-x-2 px-6 py-4 rounded-xl font-medium transition-colors shadow-lg ${
-                  items.length === 0
+                className={`flex items-center justify-center space-x-2 px-6 py-4 rounded-xl font-medium transition-colors shadow-lg ${items.length === 0
                     ? 'bg-gray-400 cursor-not-allowed text-white'
                     : 'bg-green-600 hover:bg-green-700 text-white'
-                }`}
+                  }`}
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span>Start Shopping Trip</span>
