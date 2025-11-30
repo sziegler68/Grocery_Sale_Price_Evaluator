@@ -99,7 +99,7 @@ export async function extractPriceTagData(
             ],
             generationConfig: {
                 temperature: 0.1, // Low temperature for consistent structured output
-                maxOutputTokens: 500
+                maxOutputTokens: 1000 // Increased to prevent JSON truncation
             }
         };
 
