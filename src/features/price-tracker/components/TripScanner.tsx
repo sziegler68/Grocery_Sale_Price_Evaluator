@@ -9,7 +9,7 @@ import { Layers, ArrowRight } from 'lucide-react';
 
 interface TripScannerProps {
     shoppingList: ShoppingListItem[];
-    onItemScanned: (item: ShoppingListItem, priceData: PriceTagData) => void;
+    onItemScanned: (item: ShoppingListItem, priceData: PriceTagData, allScans?: PriceTagData[]) => void;
     onCreateNewItem: (priceData: PriceTagData) => void;
 }
 
@@ -127,9 +127,29 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
 
     const handleSelectMatch = (match: MatchResult) => {
         if (scanResult) {
-            onItemScanned(match.item, scanResult.priceData);
+            // Check if we have multi-scan data
+            if (multiScanMode && scanSession.length > 0) {
+                // Pass all scans to parent (first scan + additional scans)
+                const allScans = [scanResult.priceData, ...scanSession];
+                onItemScanned(match.item, scanResult.priceData, allScans);
+                // Reset multi-scan state
+                setMultiScanMode(false);
+                setScanSession([]);
+            } else {
+                onItemScanned(match.item, scanResult.priceData);
+            }
             setScanResult(null);
             toast.success(`Added to ${match.item.item_name}`);
+        }
+    };
+
+    const handleStartMultiScan = () => {
+        if (scanResult) {
+            // Enable multi-scan mode and keep current scan result
+            setMultiScanMode(true);
+            setScanResult(null);
+            setIsCameraOpen(true);
+            toast.info('Scan additional items for this list entry');
         }
     };
 
@@ -142,6 +162,8 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
 
     const handleCancel = () => {
         setScanResult(null);
+        setMultiScanMode(false);
+        setScanSession([]);
     };
 
     // Check if API key exists
@@ -150,19 +172,7 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
     return (
         <>
             {/* Multi-Scan Toggle */}
-            <button
-                onClick={() => {
-                    setMultiScanMode(!multiScanMode);
-                    setScanSession([]); // Reset session when toggling
-                }}
-                className={`fixed bottom-36 right-4 z-40 flex items-center gap-2 px-4 py-2 rounded-full shadow-lg transition-all font-medium text-sm ${multiScanMode
-                    ? 'bg-purple-600 text-white hover:bg-purple-700'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-            >
-                <Layers className="h-4 w-4" />
-                <span>{multiScanMode ? 'Multi-Scan On' : 'Multi-Scan Off'}</span>
-            </button>
+            {/* Multi-Scan Toggle Removed - using new workflow */}
 
             {/* Floating Scan Button */}
             <button
@@ -308,6 +318,13 @@ export function TripScanner({ shoppingList, onItemScanned, onCreateNewItem }: Tr
                                     className="w-full p-3 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors font-medium"
                                 >
                                     Add to "{scanResult.bestMatch.item.item_name}"
+                                </button>
+                                <button
+                                    onClick={handleStartMultiScan}
+                                    className="w-full p-3 mt-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center gap-2"
+                                >
+                                    <Layers className="h-5 w-5" />
+                                    Scan More for "{scanResult.bestMatch.item.item_name}"
                                 </button>
                             </div>
                         )}

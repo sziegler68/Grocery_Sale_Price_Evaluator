@@ -49,6 +49,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   const [showPriceInput, setShowPriceInput] = useState(false);
   const [isAddingNewItem, setIsAddingNewItem] = useState(false);
   const [showEditBudget, setShowEditBudget] = useState(false);
+  const [scannedData, setScannedData] = useState<{ price: number; quantity: number } | null>(null);
 
   const budgetStatus = calculateBudgetStatus(trip.total_spent, trip.budget);
 
@@ -372,6 +373,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             setShowPriceInput(false);
             setSelectedItem(null);
             setEditingCartItem(null);
+            setScannedData(null);
           }}
           onConfirm={handleAddPrice}
           itemName={selectedItem.item_name}
@@ -379,8 +381,8 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           targetPrice={selectedItem.target_price || undefined}
           salesTaxRate={trip.sales_tax_rate || getSalesTaxRate()}
           category={selectedItem.category || undefined}
-          initialPrice={editingCartItem?.price_paid}
-          initialQuantity={editingCartItem?.quantity}
+          initialPrice={scannedData?.price ?? editingCartItem?.price_paid}
+          initialQuantity={scannedData?.quantity ?? editingCartItem?.quantity}
           initialCrv={editingCartItem?.crv_amount}
           isEditable={isAddingNewItem || !!editingCartItem}
           initialOnSale={editingCartItem?.on_sale}
@@ -402,13 +404,51 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
       {/* Trip Scanner (AI-powered price tag scanning) */}
       <TripScanner
         shoppingList={availableItems}
-        onItemScanned={(item, priceData) => {
+        onItemScanned={(item, priceData, allScans) => {
           // Auto-populate QuickPriceInput with scanned data
           setSelectedItem(item);
           setEditingCartItem(null);
+
+          // Calculate totals from scans
+          let totalPrice = 0;
+          let totalQuantity = 1;
+
+          if (allScans && allScans.length > 0) {
+            // Multi-scan: sum up prices and quantities
+            totalPrice = allScans.reduce((sum, scan) => sum + (scan.memberPrice || scan.regularPrice || 0), 0);
+
+            // For quantity, we need to check if it's weight-based or count-based
+            // If unit is 'lb', 'kg', etc, sum the weights (implied from price/unitPrice)
+            // If unit is 'each', 'count', etc, sum the count (allScans.length)
+
+            // Simple heuristic: if we have unit price, try to calculate weight
+            const firstScan = allScans[0];
+            if (firstScan.memberUnitPrice) {
+              // Sum up calculated weights/quantities
+              totalQuantity = allScans.reduce((sum, scan) => {
+                const price = scan.memberPrice || scan.regularPrice || 0;
+                const unitPrice = scan.memberUnitPrice || 0;
+                return sum + (unitPrice > 0 ? price / unitPrice : 1);
+              }, 0);
+            } else {
+              // Default to count
+              totalQuantity = allScans.length;
+            }
+          } else {
+            // Single scan
+            totalPrice = priceData.memberPrice || priceData.regularPrice || 0;
+            // Try to infer quantity from price and unit price if available
+            const unitPrice = priceData.memberUnitPrice;
+            if (unitPrice && unitPrice > 0 && totalPrice > 0) {
+              totalQuantity = totalPrice / unitPrice;
+            }
+          }
+
+          setScannedData({ price: totalPrice, quantity: totalQuantity });
           setShowPriceInput(true);
 
-          toast.info(`Scanned: ${priceData.itemName} - $${priceData.totalPrice?.toFixed(2)}`);
+          const count = allScans ? allScans.length : 1;
+          toast.info(`Scanned ${count} item(s) - Total: $${totalPrice.toFixed(2)}`);
         }}
         onCreateNewItem={(priceData) => {
           // Create new item from scanned data
@@ -419,7 +459,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             category: 'Other',
             quantity: 1,
             unit_type: priceData.unitPriceUnit || null,
-            target_price: priceData.unitPrice || null,
+            target_price: priceData.memberUnitPrice || null,
             is_checked: false,
             checked_at: null,
             notes: null,
@@ -427,6 +467,11 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             added_at: new Date().toISOString()
           });
           setEditingCartItem(null);
+
+          // Set initial price data for new item too
+          const price = priceData.memberPrice || priceData.regularPrice || 0;
+          setScannedData({ price, quantity: 1 });
+
           setIsAddingNewItem(true);
           setShowPriceInput(true);
           toast.info(`Creating new item: ${priceData.itemName}`);

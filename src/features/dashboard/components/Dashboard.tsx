@@ -14,7 +14,6 @@ export const Dashboard: React.FC = () => {
 
     // Load real shopping lists
     const [recentLists, setRecentLists] = useState<Array<{ id: string; name: string; itemCount: number; sharedWith: string[] }>>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadLists = async () => {
@@ -22,7 +21,6 @@ export const Dashboard: React.FC = () => {
                 const shareCodes = getStoredShareCodes();
                 if (shareCodes.length === 0) {
                     setRecentLists([]);
-                    setIsLoading(false);
                     return;
                 }
 
@@ -45,8 +43,6 @@ export const Dashboard: React.FC = () => {
             } catch (error) {
                 console.error('Failed to load shopping lists:', error);
                 setRecentLists([]);
-            } finally {
-                setIsLoading(false);
             }
         };
 
