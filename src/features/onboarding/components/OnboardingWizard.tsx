@@ -5,19 +5,6 @@ import { ApiKeyStep } from './ApiKeyStep';
 import { WalkthroughStep } from './WalkthroughStep';
 import { toast } from 'react-toastify';
 
-interface OnboardingWizardProps {
-    onComplete: () => void;
-}
-
-type Step = 'welcome' | 'profile' | 'apikey' | 'walkthrough';
-
-const [currentStep, setCurrentStep] = useState<Step>('welcome');
-
-const handleProfileSubmit = (data: { name: string; taxRate: number }) => {
-    // Save to local storage
-    localStorage.setItem('userProfile', JSON.stringify(data));
-    setCurrentStep('apikey');
-};
 
 const handleApiKeySubmit = (apiKey: string | null) => {
     if (apiKey) {
