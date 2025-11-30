@@ -15,7 +15,6 @@ import Settings from '@shared/components/Settings';
 import ShoppingLists from '@features/shopping-lists/components/ShoppingLists';
 import ShoppingListDetail from '@features/shopping-lists/components/ShoppingListDetail';
 import Help from '@shared/components/Help';
-import Help from '@shared/components/Help';
 import NotFound from '@shared/components/NotFound';
 import { OnboardingWizard } from '../features/onboarding/components/OnboardingWizard';
 

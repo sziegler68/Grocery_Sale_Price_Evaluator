@@ -1,5 +1,5 @@
-import { DEFAULT_WEIGHTS, ItemWeight } from '../../constants/averageWeights';
-import { UserWeightOverride } from '../../../features/settings/types/userWeights';
+import { DEFAULT_WEIGHTS, type ItemWeight } from '../../constants/averageWeights';
+import type { UserWeightOverride } from '../../../features/settings/types/userWeights';
 
 // Helper to normalize strings for comparison
 const normalizeItemName = (name: string): string => {

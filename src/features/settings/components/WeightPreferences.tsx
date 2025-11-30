@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Trash2, Plus, Scale } from 'lucide-react';
-import { DEFAULT_WEIGHTS, ItemWeight } from '../../../shared/constants/averageWeights';
-import { UserWeightOverride } from '../types/userWeights';
+import { Trash2, Plus, Scale } from 'lucide-react';
+import { DEFAULT_WEIGHTS } from '../../../shared/constants/averageWeights';
+import type { UserWeightOverride } from '../types/userWeights';
 import { toast } from 'react-toastify';
 
 export const WeightPreferences: React.FC = () => {
