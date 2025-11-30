@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { TrendingDown, Target, Calendar, Store, AlertTriangle, Flag } from 'lucide-react';
 import { format } from 'date-fns';
 import type { GroceryItem } from '../api/groceryData';
-import { getUnitPreferences } from '../../../shared/components/Settings';
+import { getUnitPreferences } from '../../../shared/utils/settings';
 import { normalizePrice } from '../../../shared/utils/unitConversion';
 
 interface ItemCardProps {
@@ -16,7 +16,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
   const [showEstimateTooltip, setShowEstimateTooltip] = useState(false);
   const preferences = getUnitPreferences();
   const normalized = normalizePrice(item.price, item.quantity, item.unitType, preferences, item.category, item.itemName);
-  
+
   // Price comparisons
   const isAboveTarget = item.targetPrice && item.unitPrice > item.targetPrice; // Above target - HIGHEST PRIORITY
   const isBestPriceAndGoodDeal = bestPrice && item.unitPrice === bestPrice && !isAboveTarget; // Lowest ever AND at/below target
@@ -25,11 +25,9 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
 
   return (
     <Link to={`/item/${item.id}`}>
-      <div className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
-        darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
-      } border-l-4 ${
-        isAboveTarget ? 'border-red-500' : isBestPriceAndGoodDeal ? 'border-green-500' : isGreatDeal ? 'border-cyan-500' : isAtTarget ? 'border-yellow-500' : 'border-brand'
-      }`}>
+      <div className={`p-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
+        } border-l-4 ${isAboveTarget ? 'border-red-500' : isBestPriceAndGoodDeal ? 'border-green-500' : isGreatDeal ? 'border-cyan-500' : isAtTarget ? 'border-yellow-500' : 'border-brand'
+        }`}>
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-semibold text-lg">{item.itemName}</h3>
@@ -62,9 +60,8 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, bestPrice, darkMode }) => {
                     <Flag className="h-4 w-4" />
                   </button>
                   {showEstimateTooltip && (
-                    <div className={`absolute right-0 top-6 z-50 w-64 p-3 rounded-lg shadow-xl border ${
-                      darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-200'
-                    }`}>
+                    <div className={`absolute right-0 top-6 z-50 w-64 p-3 rounded-lg shadow-xl border ${darkMode ? 'bg-zinc-700 border-zinc-600' : 'bg-white border-gray-200'
+                      }`}>
                       <div className="flex items-start space-x-2">
                         <Flag className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
                         <div className="text-xs">

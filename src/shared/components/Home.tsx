@@ -5,7 +5,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { isSupabaseConfigured } from '@shared/api/supabaseClient';
-import { getUserName } from './Settings';
+import { getUserName } from '../utils/settings';
 
 const Home: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -17,9 +17,9 @@ const Home: React.FC = () => {
     const checkConnection = async () => {
       setIsOnline(isSupabaseConfigured);
     };
-    
+
     checkConnection();
-    
+
     // Check if user name is set
     const userName = getUserName();
     if (!userName) {
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
   return (
     <div className={`min-h-screen flex flex-col ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-gray-50'}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-      
+
       <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
         <div className="w-full max-w-4xl">
           {/* Hero Section */}
@@ -44,7 +44,7 @@ const Home: React.FC = () => {
             <p className="text-lg text-primary mb-4 max-w-2xl mx-auto">
               Illuminate the Best Deals
             </p>
-            
+
             {/* Connection Status */}
             <div className="flex items-center justify-center space-x-2 text-sm">
               <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-orange-500'}`}></div>
@@ -96,9 +96,8 @@ const Home: React.FC = () => {
             {/* Price Checker */}
             <Link
               to="/add-item"
-              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${
-                darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
-              }`}
+              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
+                }`}
             >
               <Calculator className="h-10 w-10 text-brand mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Price Checker</h3>
@@ -110,9 +109,8 @@ const Home: React.FC = () => {
             {/* Shopping Lists */}
             <Link
               to="/shopping-lists"
-              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${
-                darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
-              }`}
+              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
+                }`}
             >
               <ShoppingCart className="h-10 w-10 text-green-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Shopping Lists</h3>
@@ -124,9 +122,8 @@ const Home: React.FC = () => {
             {/* Search Database */}
             <Link
               to="/items"
-              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${
-                darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
-              }`}
+              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
+                }`}
             >
               <Search className="h-10 w-10 text-cyan-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Search Database</h3>
@@ -138,9 +135,8 @@ const Home: React.FC = () => {
             {/* Settings */}
             <Link
               to="/settings"
-              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${
-                darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
-              }`}
+              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
+                }`}
             >
               <Settings className="h-10 w-10 text-orange-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Settings</h3>
@@ -152,9 +148,8 @@ const Home: React.FC = () => {
             {/* Help */}
             <Link
               to="/help"
-              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${
-                darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
-              }`}
+              className={`p-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-center ${darkMode ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-white hover:bg-gray-50'
+                }`}
             >
               <HelpCircle className="h-10 w-10 text-blue-600 mx-auto mb-3" />
               <h3 className="font-bold text-lg mb-1">Help</h3>

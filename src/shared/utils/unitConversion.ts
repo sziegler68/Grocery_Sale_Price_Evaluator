@@ -1,4 +1,4 @@
-import type { UnitPreferences } from '../components/Settings';
+import type { UnitPreferences } from './settings';
 import { getItemWeightEstimate, type ItemWeightEstimate } from './itemWeightEstimates';
 
 // Unit conversion factors
@@ -50,11 +50,11 @@ export const convertUnit = (
   if (WEIGHT_UNITS.includes(fromUnit) && WEIGHT_UNITS.includes(toUnit)) {
     const fromFactor = WEIGHT_CONVERSIONS[fromUnit as keyof typeof WEIGHT_CONVERSIONS];
     const toFactor = WEIGHT_CONVERSIONS[toUnit as keyof typeof WEIGHT_CONVERSIONS];
-    
+
     // Convert to base unit (pounds), then to target unit
     const baseQuantity = quantity / fromFactor;
     const targetQuantity = baseQuantity * toFactor;
-    
+
     return { price, quantity: targetQuantity };
   }
 
@@ -62,11 +62,11 @@ export const convertUnit = (
   if (VOLUME_UNITS.includes(fromUnit) && VOLUME_UNITS.includes(toUnit)) {
     const fromFactor = VOLUME_CONVERSIONS[fromUnit as keyof typeof VOLUME_CONVERSIONS];
     const toFactor = VOLUME_CONVERSIONS[toUnit as keyof typeof VOLUME_CONVERSIONS];
-    
+
     // Convert to base unit (gallons), then to target unit
     const baseQuantity = quantity / fromFactor;
     const targetQuantity = baseQuantity * toFactor;
-    
+
     return { price, quantity: targetQuantity };
   }
 
@@ -79,7 +79,7 @@ export const convertUnit = (
  */
 const getCategoryPreferredUnit = (category: string, preferences: UnitPreferences): string | null => {
   const categoryLower = category.toLowerCase();
-  
+
   // Map categories to preference keys
   if (categoryLower === 'beef' || categoryLower === 'pork' || categoryLower === 'chicken' || categoryLower === 'seafood') {
     return preferences.meat;
@@ -94,7 +94,7 @@ const getCategoryPreferredUnit = (category: string, preferences: UnitPreferences
   } else if (categoryLower === 'snacks' || categoryLower === 'soda') {
     return preferences.soda;
   }
-  
+
   // Default fallback
   return null;
 };
@@ -111,13 +111,13 @@ export const normalizePrice = (
   itemName?: string
 ): NormalizedPrice => {
   const originalPricePerUnit = price / quantity;
-  
+
   // Determine preferred unit based on category if provided
   let preferredUnit: string | null = null;
   if (category) {
     preferredUnit = getCategoryPreferredUnit(category, preferences);
   }
-  
+
   // If no category-based preference, use unit type
   if (!preferredUnit) {
     if (WEIGHT_UNITS.includes(unitType)) {
@@ -133,7 +133,7 @@ export const normalizePrice = (
     if (estimate) {
       // We have an estimate! Convert "each" to pounds first
       const pricePerPound = originalPricePerUnit / estimate.weight;
-      
+
       // Now convert to preferred unit if needed
       if (preferredUnit === 'pound') {
         return {
@@ -181,7 +181,7 @@ export const normalizePrice = (
   }
 
   const normalizedPricePerUnit = converted.price / converted.quantity;
-  
+
   return {
     price: normalizedPricePerUnit,
     unit: preferredUnit,

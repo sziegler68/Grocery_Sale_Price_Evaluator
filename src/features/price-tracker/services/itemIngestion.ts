@@ -23,7 +23,7 @@ import {
 import { fetchAllItems, createGroceryItem } from '../api/groceryData';
 import { createOCRScan } from '../api/ocrScans';
 import { flagItemForReview } from '../api/moderation';
-import { getUserName } from '@shared/components/Settings';
+import { getUserName } from '@shared/utils/settings';
 import type { GroceryItem } from '../types';
 
 /**
@@ -37,7 +37,7 @@ export interface IngestItemInput {
   unitType?: string;
   category?: string;
   targetPrice?: number | string;
-  
+
   // Phase 3: Quality fields
   organic?: boolean;
   grassFed?: boolean;
@@ -45,16 +45,16 @@ export interface IngestItemInput {
   meatGrade?: 'Choice' | 'Prime' | 'Wagyu';
   seafoodSource?: 'Wild' | 'Farm Raised';
   meatQuality?: string; // Legacy - kept for backwards compatibility
-  
+
   notes?: string;
   datePurchased?: Date;
-  
+
   // Phase 4: OCR metadata (optional)
   ocr_source?: 'manual_entry' | 'google_vision' | 'tesseract' | 'aws_textract' | 'azure_ocr' | 'other';
   ocr_confidence?: number;
   ocr_raw_text?: string;
   receipt_url?: string;
-  
+
   // Phase 4: Auto-flagging (optional, for suspicious data)
   auto_flag_if_suspicious?: boolean;
 }
@@ -81,8 +81,8 @@ function normalizeAndValidateInput(input: IngestItemInput): {
   validation: ValidationResult;
 } {
   // Normalize numeric inputs
-  const price = typeof input.price === 'string' 
-    ? normalizeNumericInput(input.price) 
+  const price = typeof input.price === 'string'
+    ? normalizeNumericInput(input.price)
     : input.price;
   const quantity = typeof input.quantity === 'string'
     ? normalizeNumericInput(input.quantity)
@@ -128,12 +128,12 @@ function isExactDuplicate(
 ): boolean {
   const today = new Date(newItem.datePurchased).toISOString().split('T')[0]; // YYYY-MM-DD
   const existingDate = new Date(existingItem.datePurchased).toISOString().split('T')[0];
-  
+
   const isSameDay = existingDate === today;
   const isSameItem = existingItem.itemName.toLowerCase() === newItem.itemName.toLowerCase();
   const isSameStore = existingItem.storeName.toLowerCase() === newItem.storeName.toLowerCase();
   const isSamePrice = Math.abs(existingItem.unitPrice - newItem.unitPrice) < 0.01; // Within 1 cent
-  
+
   // Only consider duplicate if ALL match (same item, store, day, price)
   return isSameDay && isSameItem && isSameStore && isSamePrice;
 }
@@ -148,7 +148,7 @@ async function findSimilarItems(
   try {
     // Fetch all existing items
     const result = await fetchAllItems();
-    
+
     if (result.source === 'mock' || !result.items.length) {
       return null;
     }
@@ -209,9 +209,9 @@ export async function ingestGroceryItem(
   if (!skipDuplicateCheck) {
     // First, check for exact duplicates (same item + store + date + price)
     const result = await fetchAllItems();
-    
+
     if (result.source !== 'mock' && result.items.length > 0) {
-      const exactDuplicate = result.items.find(existingItem => 
+      const exactDuplicate = result.items.find(existingItem =>
         isExactDuplicate(
           {
             itemName: normalized.itemName,
@@ -250,7 +250,7 @@ export async function ingestGroceryItem(
         const existingDate = new Date(existingItem.datePurchased).toISOString().split('T')[0];
         const newDate = datePurchased.toISOString().split('T')[0];
         const priceDifference = Math.abs(existingItem.unitPrice - unitPrice);
-        
+
         if (existingDate !== newDate || priceDifference >= 0.01) {
           // Different date or price - this is price history, allow saving
           console.log(`[PRICE_HISTORY] Saving: ${normalized.itemName} - new price point for ${normalized.storeName} (${existingDate !== newDate ? 'different date' : 'different price'})`);
@@ -286,20 +286,20 @@ export async function ingestGroceryItem(
   // Step 4: Phase 4 - Check for suspicious data (auto-flagging)
   let shouldFlag = false;
   let flagReason: string | undefined;
-  
+
   if (input.auto_flag_if_suspicious) {
     // Auto-flag if price is suspiciously low/high
     if (normalized.price < 0.01 || normalized.price > 10000) {
       shouldFlag = true;
       flagReason = 'Suspicious price detected';
     }
-    
+
     // Auto-flag if OCR confidence is low
     if (input.ocr_confidence !== undefined && input.ocr_confidence < 0.5) {
       shouldFlag = true;
       flagReason = flagReason ? `${flagReason}; Low OCR confidence` : 'Low OCR confidence';
     }
-    
+
     // Auto-flag if quantity is suspicious
     if (normalized.quantity > 1000) {
       shouldFlag = true;
@@ -311,14 +311,14 @@ export async function ingestGroceryItem(
   try {
     // Get user name from settings (hidden, for database sorting)
     const settingsUserName = getUserName();
-    
+
     // Combine notes with user name metadata (hidden from UI)
     let finalNotes = input.notes || '';
     if (settingsUserName) {
       // Store user name in notes for database sorting (hidden metadata)
       finalNotes = finalNotes ? `${finalNotes} [USER:${settingsUserName}]` : `[USER:${settingsUserName}]`;
     }
-    
+
     const createdItem = await createGroceryItem({
       itemName: input.itemName, // Use original capitalization for display
       price: normalized.price,
@@ -356,7 +356,7 @@ export async function ingestGroceryItem(
         // Don't fail the whole operation if OCR record creation fails
       }
     }
-    
+
     // Step 7: Phase 4 - Flag item if suspicious
     if (shouldFlag && flagReason) {
       try {
