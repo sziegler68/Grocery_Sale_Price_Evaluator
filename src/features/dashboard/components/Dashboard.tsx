@@ -1,9 +1,13 @@
 import React from 'react';
 import { ShoppingCart, List, Search, Camera, Plus, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
+import Header from '../../../shared/components/Header';
+import Footer from '../../../shared/components/Footer';
 
 export const Dashboard: React.FC = () => {
     const navigate = useNavigate();
+    const { darkMode, toggleDarkMode } = useDarkMode();
     const userName = JSON.parse(localStorage.getItem('userProfile') || '{}').name || 'Shopper';
 
     // Mock data for now
@@ -14,25 +18,27 @@ export const Dashboard: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-background pb-20">
-            {/* Header */}
-            <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-                <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-bold text-primary">Grocery Evaluator</h1>
-                        <p className="text-sm text-gray-500">Welcome back, {userName}</p>
-                    </div>
-                    <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold">
-                        {userName[0]}
-                    </div>
-                </div>
-            </header>
+        <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
+            <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
             <main className="max-w-4xl mx-auto px-4 py-6 space-y-8">
+                {/* Welcome Header */}
+                <section className="bg-card rounded-2xl p-6 shadow-lg border border-primary">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold text-primary">Welcome back, {userName}!</h1>
+                            <p className="text-secondary mt-1">Ready to find the best deals?</p>
+                        </div>
+                        <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-xl">
+                            {userName[0]}
+                        </div>
+                    </div>
+                </section>
+
                 {/* Hero Section: Active Trip or Start New */}
                 <section>
                     {activeTrip ? (
-                        <div className="bg-gradient-to-br from-brand to-brand-dark rounded-2xl p-6 text-white shadow-lg">
+                        <div className="bg-gradient-to-br from-brand to-purple-700 rounded-2xl p-6 text-white shadow-lg">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="font-bold text-lg flex items-center gap-2">
                                     <ShoppingCart className="h-5 w-5" />
@@ -44,7 +50,7 @@ export const Dashboard: React.FC = () => {
                             </div>
                             <div className="space-y-4">
                                 <div>
-                                    <div className="flex justify-between text-sm mb-1 text-blue-100">
+                                    <div className="flex justify-between text-sm mb-1 text-purple-100">
                                         <span>Spent: $45.50</span>
                                         <span>Budget: $100.00</span>
                                     </div>
@@ -54,19 +60,19 @@ export const Dashboard: React.FC = () => {
                                 </div>
                                 <button
                                     onClick={() => navigate('/trip/1')}
-                                    className="w-full py-3 bg-white text-brand font-bold rounded-xl shadow hover:bg-blue-50 transition-colors"
+                                    className="w-full py-3 bg-white text-brand font-bold rounded-xl shadow hover:bg-purple-50 transition-colors"
                                 >
                                     Resume Shopping
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+                        <div className="bg-gradient-to-br from-brand to-purple-700 rounded-2xl p-6 text-white shadow-lg">
                             <h2 className="font-bold text-xl mb-2">Ready to shop?</h2>
-                            <p className="text-blue-100 mb-6">Start a new trip to track your budget and scan deals.</p>
+                            <p className="text-purple-100 mb-6">Start a new trip to track your budget and scan deals.</p>
                             <button
                                 onClick={() => navigate('/start-trip')}
-                                className="w-full py-3 bg-white text-blue-600 font-bold rounded-xl shadow hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-white text-brand font-bold rounded-xl shadow hover:bg-purple-50 transition-colors flex items-center justify-center gap-2"
                             >
                                 <Plus className="h-5 w-5" />
                                 Start New Trip
@@ -141,7 +147,7 @@ export const Dashboard: React.FC = () => {
             </main>
 
             {/* Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pb-safe">
+            <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-primary pb-safe shadow-lg">
                 <div className="max-w-4xl mx-auto flex justify-around p-2">
                     <NavButton icon={<TrendingUp />} label="Home" active />
                     <NavButton icon={<List />} label="Lists" onClick={() => navigate('/shopping-lists')} />
@@ -149,6 +155,8 @@ export const Dashboard: React.FC = () => {
                     <NavButton icon={<SettingsIcon />} label="Settings" onClick={() => navigate('/settings')} />
                 </div>
             </nav>
+
+            <Footer />
         </div>
     );
 };
@@ -156,7 +164,7 @@ export const Dashboard: React.FC = () => {
 const NavButton: React.FC<{ icon: React.ReactElement; label: string; active?: boolean; onClick?: () => void }> = ({ icon, label, active, onClick }) => (
     <button
         onClick={onClick}
-        className={`flex flex-col items-center gap-1 p-2 rounded-lg w-16 transition-colors ${active ? 'text-brand' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
+        className={`flex flex-col items-center gap-1 p-2 rounded-lg w-16 transition-colors ${active ? 'text-brand' : 'text-secondary hover:text-brand'
             }`}
     >
         {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: 'h-6 w-6' })}

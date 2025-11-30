@@ -4,6 +4,7 @@ import { ProfileSetupStep } from './ProfileSetupStep';
 import { ApiKeyStep } from './ApiKeyStep';
 import { WalkthroughStep } from './WalkthroughStep';
 import { toast } from 'react-toastify';
+import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 
 interface OnboardingWizardProps {
     onComplete: () => void;
@@ -13,6 +14,7 @@ type Step = 'welcome' | 'profile' | 'apikey' | 'walkthrough';
 
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }) => {
     const [currentStep, setCurrentStep] = useState<Step>('welcome');
+    const { darkMode } = useDarkMode();
 
     const handleProfileSubmit = (data: { name: string; taxRate: number }) => {
         // Save to local storage
@@ -34,14 +36,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
     };
 
     return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className={`min-h-screen bg-secondary flex items-center justify-center p-4 ${darkMode ? 'dark' : ''}`}>
             <div className="w-full max-w-4xl bg-card rounded-2xl shadow-2xl overflow-hidden min-h-[600px] flex">
                 {/* Left Side - Image/Decoration (Hidden on mobile) */}
-                <div className="hidden md:flex w-1/3 bg-brand-dark text-white p-8 flex-col justify-between relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-brand to-brand-dark opacity-90"></div>
+                <div className="hidden md:flex w-1/3 bg-brand text-white p-8 flex-col justify-between relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand to-purple-700 opacity-90"></div>
                     <div className="relative z-10">
                         <h2 className="text-2xl font-bold mb-2">Grocery Evaluator</h2>
-                        <p className="text-blue-100">Smart shopping made simple.</p>
+                        <p className="text-purple-100">Smart shopping made simple.</p>
                     </div>
 
                     {/* Step Indicators */}
@@ -68,8 +70,8 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ onComplete }
                         />
                     </div>
 
-                    <div className="relative z-10 text-sm text-blue-200">
-                        © 2024 Grocery Evaluator
+                    <div className="relative z-10 text-sm text-purple-200">
+                        © 2025 Grocery Evaluator
                     </div>
                 </div>
 
@@ -100,9 +102,9 @@ const StepIndicator: React.FC<{ active: boolean; completed: boolean; label: stri
     <div className={`flex items-center gap-3 transition-opacity duration-300 ${active || completed ? 'opacity-100' : 'opacity-50'}`}>
         <div className={`
             w-8 h-8 rounded-full flex items-center justify-center border-2 
-            ${completed ? 'bg-white border-white text-brand' : active ? 'bg-transparent border-white text-white' : 'border-blue-300 text-blue-300'}
+            ${completed ? 'bg-white border-white text-brand' : active ? 'bg-transparent border-white text-white' : 'border-purple-300 text-purple-300'}
         `}>
-            {completed ? '✓' : <div className={`w-2 h-2 rounded-full ${active ? 'bg-white' : 'bg-blue-300'}`} />}
+            {completed ? '✓' : <div className={`w-2 h-2 rounded-full ${active ? 'bg-white' : 'bg-purple-300'}`} />}
         </div>
         <span className="font-medium">{label}</span>
     </div>

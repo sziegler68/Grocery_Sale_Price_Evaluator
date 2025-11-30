@@ -110,6 +110,7 @@
   
   .bg-input {
     background-color: rgb(var(--color-bg-input));
+    color: rgb(var(--color-text-primary));
   }
   
   /* === BORDERS === */
