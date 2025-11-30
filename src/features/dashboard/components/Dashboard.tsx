@@ -1,21 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, List, Search, Camera, Plus, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
+import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
+import { getShoppingListsByCodes, getItemsForList } from '../../shopping-lists/api';
+import type { ShoppingList } from '../../shopping-lists/types';
 
 export const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const { darkMode, toggleDarkMode } = useDarkMode();
     const userName = JSON.parse(localStorage.getItem('userProfile') || '{}').name || 'Shopper';
 
-    // Mock data for now
-    const activeTrip = null; // { id: '1', store: 'Safeway', total: 45.50, budget: 100.00, itemCount: 12 };
-    const recentLists = [
-        { id: '1', name: 'Weekly Groceries', itemCount: 15, sharedWith: ['Alice'] },
-        { id: '2', name: 'BBQ Party', itemCount: 8, sharedWith: [] },
-    ];
+    // Load real shopping lists
+    const [recentLists, setRecentLists] = useState<Array<{ id: string; name: string; itemCount: number; sharedWith: string[] }>>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadLists = async () => {
+            try {
+                const shareCodes = getStoredShareCodes();
+                if (shareCodes.length === 0) {
+                    setRecentLists([]);
+                    setIsLoading(false);
+                    return;
+                }
+
+                const lists = await getShoppingListsByCodes(shareCodes);
+
+                // Load item counts for each list
+                const listsWithCounts = await Promise.all(
+                    lists.slice(0, 3).map(async (list) => {
+                        const items = await getItemsForList(list.id);
+                        return {
+                            id: list.share_code,
+                            name: list.name,
+                            itemCount: items.length,
+                            sharedWith: [] // TODO: Get actual shared users if needed
+                        };
+                    })
+                );
+
+                setRecentLists(listsWithCounts);
+            } catch (error) {
+                console.error('Failed to load shopping lists:', error);
+                setRecentLists([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadLists();
+    }, []);
+
+    // Mock data for active trip (TODO: implement trip tracking)
+    const activeTrip = null;
 
     return (
         <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>

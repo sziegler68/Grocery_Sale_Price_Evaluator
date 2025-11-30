@@ -63,6 +63,7 @@ const App: React.FC = () => {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/shopping-lists" element={<ShoppingLists />} />
             <Route path="/shopping-lists/:shareCode" element={<ShoppingListDetail />} />
+            <Route path="/scan" element={<ShoppingLists />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
             <Route path="*" element={<NotFound />} />
