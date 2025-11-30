@@ -44,6 +44,25 @@ export const getActiveTrip = async (listId: string): Promise<ShoppingTrip | null
   return data as ShoppingTrip | null;
 };
 
+// Get any active trip (not specific to a list)
+export const getAnyActiveTrip = async (): Promise<ShoppingTrip | null> => {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from('shopping_trips')
+    .select('*')
+    .is('completed_at', null)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching any active trip:', error);
+    throw error;
+  }
+
+  return data as ShoppingTrip | null;
+};
+
 // Get trip by ID
 export const getTripById = async (tripId: string): Promise<ShoppingTrip | null> => {
   const supabase = getSupabaseClient();
