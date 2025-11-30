@@ -17,6 +17,7 @@ import ShoppingListDetail from '@features/shopping-lists/components/ShoppingList
 import Help from '@shared/components/Help';
 import NotFound from '@shared/components/NotFound';
 import { OnboardingWizard } from '../features/onboarding/components/OnboardingWizard';
+import StandaloneScanner from '@features/price-tracker/components/StandaloneScanner';
 
 declare const __APP_NAME__: string;
 
@@ -63,7 +64,7 @@ const App: React.FC = () => {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/shopping-lists" element={<ShoppingLists />} />
             <Route path="/shopping-lists/:shareCode" element={<ShoppingListDetail />} />
-            <Route path="/scan" element={<ShoppingLists />} />
+            <Route path="/scan" element={<StandaloneScanner />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
             <Route path="*" element={<NotFound />} />
