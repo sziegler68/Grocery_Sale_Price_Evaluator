@@ -85,6 +85,12 @@ const ShoppingListDetail: React.FC = () => {
       }
 
       setActiveTrip(trip);
+
+      // Check for view=trip query param
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get('view') === 'trip' && trip) {
+        setViewingTrip(true);
+      }
     } catch (error) {
       console.error('Failed to load shopping list:', error);
       toast.error('Failed to load shopping list');

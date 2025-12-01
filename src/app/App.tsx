@@ -20,6 +20,7 @@ import { OnboardingWizard } from '../features/onboarding/components/OnboardingWi
 import StandaloneScanner from '@features/price-tracker/components/StandaloneScanner';
 import { BottomNav } from '@shared/components/BottomNav';
 import { useLocation } from 'react-router-dom';
+import { ActiveTripRedirect } from '../features/shopping-trips/components/ActiveTripRedirect';
 
 declare const __APP_NAME__: string;
 
@@ -86,6 +87,12 @@ const AppContent: React.FC = () => {
         <Route path="/scan" element={<StandaloneScanner />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/help" element={<Help />} />
+
+        {/* Trip Routes */}
+        <Route path="/active-trip" element={<ActiveTripRedirect />} />
+        <Route path="/trip/:id" element={<ActiveTripRedirect />} />
+        <Route path="/start-trip" element={<ShoppingLists />} /> {/* Fallback to lists for now */}
+
         <Route path="*" element={<NotFound />} />
       </Routes>
 

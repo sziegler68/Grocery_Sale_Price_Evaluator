@@ -61,14 +61,9 @@ export const Dashboard: React.FC = () => {
             <main className="max-w-4xl mx-auto px-4 py-6 space-y-8">
                 {/* Welcome Header */}
                 <section className="bg-card rounded-2xl p-6 shadow-lg border border-primary">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold text-primary">Welcome back, {userName}!</h1>
-                            <p className="text-secondary mt-1">Ready to find the best deals?</p>
-                        </div>
-                        <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-xl">
-                            {userName[0]}
-                        </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-primary">Welcome back, {userName}!</h1>
+                        <p className="text-secondary mt-1">Ready to find the best deals?</p>
                     </div>
                 </section>
 

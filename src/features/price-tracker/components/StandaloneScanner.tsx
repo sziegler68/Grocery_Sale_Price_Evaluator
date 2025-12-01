@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 export const StandaloneScanner: React.FC = () => {
     const navigate = useNavigate();
     const { darkMode, toggleDarkMode } = useDarkMode();
-    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const [isCameraOpen, setIsCameraOpen] = useState(true); // Auto-start camera
     const [isProcessing, setIsProcessing] = useState(false);
     const [scannedData, setScannedData] = useState<PriceTagData | null>(null);
     const [showPriceInput, setShowPriceInput] = useState(false);
