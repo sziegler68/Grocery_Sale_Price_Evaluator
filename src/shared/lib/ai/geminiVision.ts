@@ -7,10 +7,11 @@
 export interface PriceTagData {
     itemName: string;
     totalPrice?: number; // Deprecated: use memberPrice or regularPrice
-    memberPrice?: number;
-    regularPrice?: number;
-    unitPrice?: number; // Deprecated: use memberUnitPrice
-    memberUnitPrice?: number;
+    memberPrice?: number; // Sale/member price (if on sale)
+    regularPrice?: number; // Regular/non-member price
+    unitPrice?: number; // Deprecated: use memberUnitPrice or regularUnitPrice
+    memberUnitPrice?: number; // Price per unit for member/sale price
+    regularUnitPrice?: number; // Price per unit for regular price
     unitPriceUnit?: string; // "ounce", "pound", "gram", etc.
     containerSize?: string; // "14 oz", "1 lb", etc.
     onSale: boolean;
@@ -29,6 +30,7 @@ Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
   "memberPrice": 5.99,
   "regularPrice": 7.99,
   "memberUnitPrice": 0.358,
+  "regularUnitPrice": 0.475,
   "unitPriceUnit": "ounce",
   "containerSize": "14 oz",
   "onSale": true,
@@ -38,10 +40,11 @@ Return ONLY valid JSON (no markdown, no code blocks) with this exact structure:
 
 Rules:
 - itemName: The product name (e.g., "Guacamole Mild", "Milk")
-- memberPrice: The price for members/sale price (e.g., 5.99). If no member price, use the main price.
+- memberPrice: The sale/member price (e.g., 5.99). If no member price, use the main price.
 - regularPrice: The regular/non-member price (e.g., 7.99). If only one price, set same as memberPrice.
-- memberUnitPrice: Price per unit for members (e.g., 0.358 for 35.8¢).
-- unitPriceUnit: Unit for unitPrice ("ounce", "pound", "gram", "kilogram", "each")
+- memberUnitPrice: Price per unit for member/sale price (e.g., 0.358 for 35.8¢).
+- regularUnitPrice: Price per unit for regular price (e.g., 0.475 for 47.5¢). If only one unit price, set same as memberUnitPrice.
+- unitPriceUnit: Unit for unit prices ("ounce", "pound", "gram", "kilogram", "each")
 - containerSize: Container size if shown (e.g., "14 oz", "1 lb")
 - onSale: true if "Member Price", "Sale", "SAVE", or similar indicator
 - saleRequirement: Any quantity requirements (e.g., "Must Buy 3", "Buy 2 Get 1 Free")
