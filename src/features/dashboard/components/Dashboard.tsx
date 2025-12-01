@@ -69,7 +69,7 @@ export const Dashboard: React.FC = () => {
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Make a List */}
                     <button
-                        onClick={() => navigate('/shopping-lists/new')}
+                        onClick={() => navigate('/shopping-lists')}
                         className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
                     >
                         <div className="h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
