@@ -181,6 +181,15 @@ export const StandaloneScanner: React.FC = () => {
                     initialPrice={scannedData.memberPrice || scannedData.regularPrice}
                     initialOnSale={scannedData.onSale}
                     isEditable={true}
+                    scannedData={{
+                        regularPrice: scannedData.regularPrice || 0,
+                        regularUnitPrice: scannedData.regularUnitPrice,
+                        salePrice: scannedData.memberPrice,
+                        saleUnitPrice: scannedData.memberUnitPrice,
+                        saleRequirement: scannedData.saleRequirement,
+                        containerSize: scannedData.containerSize,
+                        onSale: scannedData.onSale
+                    }}
                 />
             )}
         </div>

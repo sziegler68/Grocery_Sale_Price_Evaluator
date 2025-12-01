@@ -49,7 +49,17 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   const [showPriceInput, setShowPriceInput] = useState(false);
   const [isAddingNewItem, setIsAddingNewItem] = useState(false);
   const [showEditBudget, setShowEditBudget] = useState(false);
-  const [scannedData, setScannedData] = useState<{ price: number; quantity: number } | null>(null);
+  const [scannedData, setScannedData] = useState<{
+    price: number;
+    quantity: number;
+    regularPrice?: number;
+    regularUnitPrice?: number;
+    salePrice?: number;
+    saleUnitPrice?: number;
+    saleRequirement?: string;
+    containerSize?: string;
+    onSale?: boolean;
+  } | null>(null);
 
   const budgetStatus = calculateBudgetStatus(trip.total_spent, trip.budget);
 
@@ -417,47 +427,67 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
             // Multi-scan: sum up prices and quantities
             totalPrice = allScans.reduce((sum, scan) => sum + (scan.memberPrice || scan.regularPrice || 0), 0);
 
-            // For quantity, we need to check if it's weight-based or count-based
-            // If unit is 'lb', 'kg', etc, sum the weights (implied from price/unitPrice)
-            // If unit is 'each', 'count', etc, sum the count (allScans.length)
-
-            // Simple heuristic: if we have unit price, try to calculate weight
-            const firstScan = allScans[0];
-            if (firstScan.memberUnitPrice) {
-              // Sum up calculated weights/quantities
-              totalQuantity = allScans.reduce((sum, scan) => {
-                const price = scan.memberPrice || scan.regularPrice || 0;
-                const unitPrice = scan.memberUnitPrice || 0;
-                return sum + (unitPrice > 0 ? price / unitPrice : 1);
-              }, 0);
-              toast.info(`Scanned ${count} item(s) - Total: $${totalPrice.toFixed(2)}`);
-            }
+            // Default to count for multi-scan unless we have better logic later
+            totalQuantity = allScans.length;
+          } else {
+            // Single scan - always default quantity to 1
+            totalPrice = priceData.memberPrice || priceData.regularPrice || 0;
+            totalQuantity = 1;
           }
-          onCreateNewItem = {(priceData) => {
-        // Create new item from scanned data
-        setSelectedItem({
-          id: '',
-          list_id: trip.list_id,
-          item_name: priceData.itemName,
-          category: 'Other',
-          quantity: 1,
-          unit_type: priceData.unitPriceUnit || null,
-          target_price: priceData.memberUnitPrice || null,
-          is_checked: false,
-          checked_at: null,
-          notes: null,
-          added_by: 'user',
-          added_at: new Date().toISOString()
-        });
-      setEditingCartItem(null);
 
-      // Set initial price data for new item too
-      const price = priceData.memberPrice || priceData.regularPrice || 0;
-      setScannedData({price, quantity: 1 });
+          // Pass full priceData as scannedData for the new QuickPriceInput logic
+          const scannedData = {
+            regularPrice: priceData.regularPrice || 0,
+            regularUnitPrice: priceData.regularUnitPrice,
+            salePrice: priceData.memberPrice,
+            saleUnitPrice: priceData.memberUnitPrice,
+            saleRequirement: priceData.saleRequirement,
+            containerSize: priceData.containerSize,
+            onSale: priceData.onSale
+          };
 
-      setIsAddingNewItem(true);
-      setShowPriceInput(true);
-      toast.info(`Creating new item: ${priceData.itemName}`);
+          setScannedData({ price: totalPrice, quantity: totalQuantity, ...scannedData });
+          setShowPriceInput(true);
+
+          const count = allScans ? allScans.length : 1;
+          toast.info(`Scanned ${count} item(s) - Total: $${totalPrice.toFixed(2)}`);
+        }}
+        onCreateNewItem={(priceData) => {
+          // Create new item from scanned data
+          setSelectedItem({
+            id: '',
+            list_id: trip.list_id,
+            item_name: priceData.itemName,
+            category: 'Other',
+            quantity: 1,
+            unit_type: priceData.unitPriceUnit || null,
+            target_price: priceData.memberUnitPrice || null,
+            is_checked: false,
+            checked_at: null,
+            notes: null,
+            added_by: 'user',
+            added_at: new Date().toISOString()
+          });
+          setEditingCartItem(null);
+
+          // Set initial price data for new item too
+          const price = priceData.memberPrice || priceData.regularPrice || 0;
+
+          const scannedData = {
+            regularPrice: priceData.regularPrice || 0,
+            regularUnitPrice: priceData.regularUnitPrice,
+            salePrice: priceData.memberPrice,
+            saleUnitPrice: priceData.memberUnitPrice,
+            saleRequirement: priceData.saleRequirement,
+            containerSize: priceData.containerSize,
+            onSale: priceData.onSale
+          };
+
+          setScannedData({ price, quantity: 1, ...scannedData });
+
+          setIsAddingNewItem(true);
+          setShowPriceInput(true);
+          toast.info(`Creating new item: ${priceData.itemName}`);
         }}
       />
     </div>

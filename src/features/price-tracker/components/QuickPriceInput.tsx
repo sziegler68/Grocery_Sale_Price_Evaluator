@@ -9,6 +9,12 @@ import { parsePriceTag } from '../../../shared/lib/ocr/priceTagParser';
 import { WeightInputModal } from './WeightInputModal';
 import { getAverageWeight, calculateTotalPrice } from '../../../shared/lib/weights/weightLookup';
 import { toast } from 'react-toastify';
+import {
+  getMinimumQuantity,
+  calculateScannerTotal,
+  getDealStatus,
+  getEffectiveUnitPrice
+} from '../../../shared/utils/scannerHelpers';
 
 interface QuickPriceInputProps {
   isOpen: boolean;
@@ -34,6 +40,17 @@ interface QuickPriceInputProps {
   initialCrv?: number; // Total CRV
   isEditable?: boolean; // Allow editing name/unit
   initialOnSale?: boolean;
+
+  // Scanned price data
+  scannedData?: {
+    regularPrice: number;
+    regularUnitPrice?: number;
+    salePrice?: number;
+    saleUnitPrice?: number;
+    saleRequirement?: string;
+    containerSize?: string;
+    onSale?: boolean;
+  };
 }
 
 const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
@@ -49,7 +66,8 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   initialQuantity,
   initialCrv,
   isEditable = false,
-  initialOnSale = false
+  initialOnSale = false,
+  scannedData
 }) => {
   const [nameDisplay, setNameDisplay] = useState(itemName);
   const [unitDisplay, setUnitDisplay] = useState(unitType);
@@ -59,7 +77,9 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     initialPrice ? initialPrice.toFixed(2) : ''
   );
   const [quantity, setQuantity] = useState<string>(
-    initialQuantity ? initialQuantity.toString() : '1'
+    initialQuantity
+      ? initialQuantity.toString()
+      : (scannedData ? getMinimumQuantity(scannedData.saleRequirement).toString() : '1')
   );
   const [crvEnabled, setCrvEnabled] = useState<boolean>(!!initialCrv && initialCrv > 0);
   const [crvPerContainerDisplay, setCrvPerContainerDisplay] = useState<string>(
@@ -100,6 +120,29 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       setCrvContainerCount(quantity);
     }
   }, [quantity, crvEnabled]);
+
+  // Update quantity when scannedData changes (smart default)
+  React.useEffect(() => {
+    if (scannedData && !initialQuantity) {
+      const minQty = getMinimumQuantity(scannedData.saleRequirement);
+      setQuantity(minQty.toString());
+    }
+  }, [scannedData, initialQuantity]);
+
+  // Calculate total price based on scanner data or manual input
+  const calculatedTotal = React.useMemo(() => {
+    if (scannedData) {
+      const qty = parseFloat(quantity) || 1;
+      return calculateScannerTotal(
+        qty,
+        scannedData.regularPrice,
+        scannedData.salePrice,
+        scannedData.saleRequirement
+      );
+    }
+    // Fallback to manual input
+    return parseFloat(priceDisplay) || 0;
+  }, [scannedData, quantity, priceDisplay]);
 
   // Update total price when quantity changes if we have an average weight
   React.useEffect(() => {
@@ -294,7 +337,11 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   let totalPrice = 0;
   let quantityNum = 1;
 
-  if (usePackMode && isMeatItem) {
+  if (scannedData) {
+    // Scanner mode: use calculatedTotal
+    totalPrice = calculatedTotal;
+    quantityNum = parseFloat(quantity) || 1;
+  } else if (usePackMode && isMeatItem) {
     // Pack mode: sum all packs
     totalPrice = packs.reduce((sum, pack) => {
       const packPrice = pack.price ? parseFloat(pack.price) : 0;
@@ -320,10 +367,17 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
   const containerCount = parseFloat(crvContainerCount) || 1;
 
   // Calculate unit price (price per item, NOT including CRV)
-  // PREFER OCR unit price if available (from price tag), otherwise calculate from total/quantity
-  const unitPrice = ocrUnitPrice !== null
-    ? ocrUnitPrice
-    : (totalPrice > 0 && quantityNum > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0);
+  // PREFER scanner data, then OCR unit price, then calculate from total/quantity
+  const unitPrice = scannedData
+    ? getEffectiveUnitPrice(
+      quantityNum,
+      scannedData.regularUnitPrice || 0,
+      scannedData.saleUnitPrice,
+      scannedData.saleRequirement
+    )
+    : (ocrUnitPrice !== null
+      ? ocrUnitPrice
+      : (totalPrice > 0 && quantityNum > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0));
 
   // Calculate cart addition
   // IMPORTANT: CRV is NOT taxed! It's added AFTER sales tax
@@ -473,6 +527,81 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
         </div>
 
         <div className="p-4 space-y-4">
+          {/* Scanner Data Display */}
+          {scannedData && (
+            <div className="space-y-3 mb-4">
+              {/* Deal Indicator */}
+              {(() => {
+                const status = getDealStatus(
+                  getEffectiveUnitPrice(
+                    parseFloat(quantity) || 1,
+                    scannedData.regularUnitPrice || 0,
+                    scannedData.saleUnitPrice,
+                    scannedData.saleRequirement
+                  ),
+                  targetPrice
+                );
+                return (
+                  <div className={`p-3 rounded-lg flex items-center justify-between ${status.color === 'green' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                    status.color === 'red' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                      'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+                    }`}>
+                    <div className="flex items-center space-x-2 font-medium">
+                      {status.color === 'green' ? <TrendingDown className="h-5 w-5" /> :
+                        status.color === 'red' ? <TrendingUp className="h-5 w-5" /> :
+                          <div className="h-5 w-5" />}
+                      <span>{status.message}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Price Details Card */}
+              <div className="bg-card border border-primary rounded-lg p-3 text-sm space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-secondary">Regular Price:</span>
+                  <div className="text-right">
+                    <span className={scannedData.onSale ? 'line-through text-secondary mr-2' : 'font-bold'}>
+                      ${scannedData.regularPrice.toFixed(2)}
+                    </span>
+                    {scannedData.regularUnitPrice && (
+                      <span className="text-xs text-secondary">
+                        (${scannedData.regularUnitPrice.toFixed(3)}/{unitType || 'unit'})
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {scannedData.onSale && scannedData.salePrice && (
+                  <div className="flex justify-between items-center text-red-600 dark:text-red-400 font-bold">
+                    <span>Sale Price:</span>
+                    <div className="text-right">
+                      <span>${scannedData.salePrice.toFixed(2)}</span>
+                      {scannedData.saleUnitPrice && (
+                        <span className="text-xs ml-1 opacity-80">
+                          (${scannedData.saleUnitPrice.toFixed(3)}/{unitType || 'unit'})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {scannedData.saleRequirement && (
+                  <div className="flex justify-between items-center text-amber-600 dark:text-amber-400 text-xs font-medium bg-amber-50 dark:bg-amber-900/20 p-1.5 rounded">
+                    <span>Condition:</span>
+                    <span>{scannedData.saleRequirement}</span>
+                  </div>
+                )}
+
+                {scannedData.containerSize && (
+                  <div className="flex justify-between items-center text-xs text-secondary pt-1 border-t border-primary/10">
+                    <span>Size:</span>
+                    <span>{scannedData.containerSize}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           {/* Pack Mode Toggle (Meat items only) */}
           {isMeatItem && (
             <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
@@ -702,9 +831,11 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
                       <input
                         type="text"
                         inputMode="numeric"
-                        value={priceDisplay}
-                        onChange={handlePriceInput}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border bg-input border-input text-xl font-semibold focus:ring-2 focus:ring-brand"
+                        value={scannedData ? calculatedTotal.toFixed(2) : priceDisplay}
+                        onChange={scannedData ? undefined : handlePriceInput}
+                        readOnly={!!scannedData}
+                        className={`w-full pl-10 pr-4 py-3 rounded-lg border border-input text-xl font-semibold focus:ring-2 focus:ring-brand ${scannedData ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : 'bg-input'
+                          }`}
                         placeholder="0.00"
                       />
                     </div>
