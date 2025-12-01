@@ -88,8 +88,13 @@ const ShoppingListDetail: React.FC = () => {
 
       // Check for view=trip query param
       const searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.get('view') === 'trip' && trip) {
+      const viewParam = searchParams.get('view');
+      console.log('[TRIP] Query params:', { view: viewParam, hasTrip: !!trip });
+      if (viewParam === 'trip' && trip) {
+        console.log('[TRIP] ✅ Switching to trip view from query param');
         setViewingTrip(true);
+      } else if (viewParam === 'trip' && !trip) {
+        console.log('[TRIP] ⚠️ view=trip param present but no active trip found');
       }
     } catch (error) {
       console.error('Failed to load shopping list:', error);
