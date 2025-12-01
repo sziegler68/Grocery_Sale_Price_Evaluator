@@ -18,6 +18,8 @@ import Help from '@shared/components/Help';
 import NotFound from '@shared/components/NotFound';
 import { OnboardingWizard } from '../features/onboarding/components/OnboardingWizard';
 import StandaloneScanner from '@features/price-tracker/components/StandaloneScanner';
+import { BottomNav } from '@shared/components/BottomNav';
+import { useLocation } from 'react-router-dom';
 
 declare const __APP_NAME__: string;
 
@@ -54,31 +56,49 @@ const App: React.FC = () => {
   return (
     <Theme appearance="inherit" radius="large" scaling="100%">
       <Router>
-        <main className="min-h-screen font-inter">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/add-item" element={<AddItem />} />
-            <Route path="/edit-item/:id" element={<EditItem />} />
-            <Route path="/items" element={<Items />} />
-            <Route path="/item/:id" element={<ItemDetail />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/shopping-lists" element={<ShoppingLists />} />
-            <Route path="/shopping-lists/:shareCode" element={<ShoppingListDetail />} />
-            <Route path="/scan" element={<StandaloneScanner />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/help" element={<Help />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            newestOnTop
-            closeOnClick
-            pauseOnHover
-          />
-        </main>
+        <AppContent />
       </Router>
     </Theme>
+  );
+}
+
+const AppContent: React.FC = () => {
+  const location = useLocation();
+
+  // Hide bottom nav on specific routes
+  const hideBottomNav =
+    location.pathname.startsWith('/shopping-lists/') && location.pathname.split('/').length > 2 || // Active trip view
+    location.pathname === '/scan' || // Standalone scanner
+    location.pathname === '/add-item' ||
+    location.pathname.startsWith('/edit-item/');
+
+  return (
+    <main className="min-h-screen font-inter pb-20"> {/* Add padding for bottom nav */}
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/add-item" element={<AddItem />} />
+        <Route path="/edit-item/:id" element={<EditItem />} />
+        <Route path="/items" element={<Items />} />
+        <Route path="/item/:id" element={<ItemDetail />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/shopping-lists" element={<ShoppingLists />} />
+        <Route path="/shopping-lists/:shareCode" element={<ShoppingListDetail />} />
+        <Route path="/scan" element={<StandaloneScanner />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+
+      {!hideBottomNav && <BottomNav />}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
+    </main>
   );
 }
 

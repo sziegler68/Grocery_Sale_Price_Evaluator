@@ -15,7 +15,8 @@ import { getUserNameForList, setUserNameForList, removeUserNameForList } from '.
 import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from '../../notifications/api';
 import { getSalesTaxRate } from '../../../shared/utils/settings';
 import { useShoppingListStore } from '../store/useShoppingListStore';
-import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
+import { useShoppingTripStore } from '../../shopping-trips/store/useShoppingTripStore';
+import { getActiveTrip, createShoppingTrip, getAnyActiveTrip } from '../../shopping-trips/api';
 import { ingestGroceryItem } from '../../price-tracker/services/itemIngestion';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from '../types';
@@ -51,6 +52,8 @@ const ShoppingListDetail: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null);
   const [activeTrip, setActiveTrip] = useState<ShoppingTrip | null>(null);
   const [viewingTrip, setViewingTrip] = useState(false);
+  const [conflictingTrip, setConflictingTrip] = useState<ShoppingTrip | null>(null);
+  const [showTripConflictModal, setShowTripConflictModal] = useState(false);
   const loadDataTimeoutRef = useRef<number | null>(null);
   const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
 
@@ -402,6 +405,18 @@ const ShoppingListDetail: React.FC = () => {
     if (!list) return;
 
     try {
+      // Check if there's already an active trip (for any list)
+      const existingTrip = await getAnyActiveTrip();
+
+      if (existingTrip && existingTrip.list_id !== list.id) {
+        // There's an active trip for a different list
+        setConflictingTrip(existingTrip);
+        setShowTripConflictModal(true);
+        setShowStartTripModal(false);
+        return;
+      }
+
+      // No conflict, proceed with creating the trip
       const trip = await createShoppingTrip({
         list_id: list.id,
         budget,
@@ -424,6 +439,23 @@ const ShoppingListDetail: React.FC = () => {
     } catch (error) {
       console.error('Failed to start trip:', error);
       toast.error('Failed to start trip. Make sure you\'ve run the database migration (shopping_trip_schema.sql)');
+    }
+  };
+
+  const handleEndConflictingTrip = async () => {
+    if (!conflictingTrip || !list) return;
+
+    try {
+      // End the conflicting trip using the store action
+      await useShoppingTripStore.getState().finishTrip(conflictingTrip.id);
+      toast.success('Previous trip ended');
+      setShowTripConflictModal(false);
+      setConflictingTrip(null);
+      // Show start trip modal again
+      setShowStartTripModal(true);
+    } catch (error) {
+      console.error('Failed to end conflicting trip:', error);
+      toast.error('Failed to end previous trip');
     }
   };
 
@@ -618,8 +650,8 @@ const ShoppingListDetail: React.FC = () => {
             <button
               onClick={handleCopyCode}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${copied
-                  ? 'bg-green-600 text-white'
-                  : 'bg-purple-600 hover:bg-purple-700 text-white'
+                ? 'bg-green-600 text-white'
+                : 'bg-purple-600 hover:bg-purple-700 text-white'
                 }`}
             >
               {copied ? (
@@ -664,8 +696,8 @@ const ShoppingListDetail: React.FC = () => {
                 onClick={() => setShowStartTripModal(true)}
                 disabled={items.length === 0}
                 className={`flex items-center justify-center space-x-2 px-6 py-4 rounded-xl font-medium transition-colors shadow-lg ${items.length === 0
-                    ? 'bg-gray-400 cursor-not-allowed text-white'
-                    : 'bg-green-600 hover:bg-green-700 text-white'
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
               >
                 <ShoppingCart className="h-5 w-5" />
@@ -833,6 +865,63 @@ const ShoppingListDetail: React.FC = () => {
           defaultStore=""
           salesTaxRate={getSalesTaxRate()}
         />
+      )}
+
+      {/* Trip Conflict Modal */}
+      {showTripConflictModal && conflictingTrip && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-xl shadow-2xl max-w-md w-full p-6 border border-primary">
+            <div className="flex items-start space-x-3 mb-4">
+              <AlertCircle className="h-6 w-6 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-lg text-primary">Active Trip in Progress</h3>
+                <p className="text-secondary text-sm mt-1">
+                  You already have an active shopping trip at <span className="font-semibold">{conflictingTrip.store_name}</span>.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-secondary rounded-lg p-3 mb-4">
+              <p className="text-xs text-secondary mb-2">Current Trip:</p>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-secondary">Store:</span>
+                  <span className="font-medium text-primary">{conflictingTrip.store_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-secondary">Budget:</span>
+                  <span className="font-medium text-primary">${conflictingTrip.budget.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-secondary">Spent:</span>
+                  <span className="font-medium text-primary">${conflictingTrip.total_spent.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-sm text-secondary mb-6">
+              You can only have one active trip at a time. Would you like to end the current trip and start a new one?
+            </p>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowTripConflictModal(false);
+                  setConflictingTrip(null);
+                }}
+                className="flex-1 px-4 py-2 rounded-lg border border-primary hover:bg-secondary transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEndConflictingTrip}
+                className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors font-medium"
+              >
+                End & Start New
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Shopping Trip View (full screen overlay) */}
