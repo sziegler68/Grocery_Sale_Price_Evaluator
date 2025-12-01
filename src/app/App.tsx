@@ -65,15 +65,15 @@ const App: React.FC = () => {
 const AppContent: React.FC = () => {
   const location = useLocation();
 
-  // Hide bottom nav on specific routes
+  // Hide bottom nav only on full-screen views (not on shopping list detail)
   const hideBottomNav =
-    location.pathname.startsWith('/shopping-lists/') && location.pathname.split('/').length > 2 || // Active trip view
     location.pathname === '/scan' || // Standalone scanner
     location.pathname === '/add-item' ||
-    location.pathname.startsWith('/edit-item/');
+    location.pathname.startsWith('/edit-item/') ||
+    location.pathname.startsWith('/trip/'); // Active trip view (if using /trip/:id route)
 
   return (
-    <main className="min-h-screen font-inter pb-20"> {/* Add padding for bottom nav */}
+    <main className="min-h-screen font-inter pb-14"> {/* Reduced padding to match new nav height */}
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/add-item" element={<AddItem />} />
