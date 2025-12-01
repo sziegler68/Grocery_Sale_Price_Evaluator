@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, List, Search, Plus } from 'lucide-react';
+import { ShoppingCart, List, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import Header from '../../../shared/components/Header';
@@ -51,9 +51,6 @@ export const Dashboard: React.FC = () => {
         loadLists();
     }, []);
 
-    // Mock data for active trip (TODO: implement trip tracking)
-    const activeTrip = null;
-
     return (
         <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
             <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
@@ -67,68 +64,49 @@ export const Dashboard: React.FC = () => {
                     </div>
                 </section>
 
-                {/* Hero Section: Active Trip or Start New */}
-                <section>
-                    {activeTrip ? (
-                        <div className="bg-gradient-to-br from-brand to-purple-700 rounded-2xl p-6 text-white shadow-lg">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="font-bold text-lg flex items-center gap-2">
-                                    <ShoppingCart className="h-5 w-5" />
-                                    Active Trip: Safeway
-                                </h2>
-                                <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                                    In Progress
-                                </span>
-                            </div>
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="flex justify-between text-sm mb-1 text-purple-100">
-                                        <span>Spent: $45.50</span>
-                                        <span>Budget: $100.00</span>
-                                    </div>
-                                    <div className="h-2 bg-black/20 rounded-full overflow-hidden">
-                                        <div className="h-full bg-white w-[45%] rounded-full" />
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => navigate('/trip/1')}
-                                    className="w-full py-3 bg-white text-brand font-bold rounded-xl shadow hover:bg-purple-50 transition-colors"
-                                >
-                                    Resume Shopping
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="bg-gradient-to-br from-brand to-purple-700 rounded-2xl p-6 text-white shadow-lg">
-                            <h2 className="font-bold text-xl mb-2">Ready to shop?</h2>
-                            <p className="text-purple-100 mb-6">Start a new trip to track your budget and scan deals.</p>
-                            <button
-                                onClick={() => navigate('/start-trip')}
-                                className="w-full py-3 bg-white text-brand font-bold rounded-xl shadow hover:bg-purple-50 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Plus className="h-5 w-5" />
-                                Start New Trip
-                            </button>
-                        </div>
-                    )}
-                </section>
 
-                {/* Quick Actions */}
-                <section>
+                {/* Main Actions */}
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Make a List */}
+                    <button
+                        onClick={() => navigate('/shopping-lists/new')}
+                        className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
+                    >
+                        <div className="h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
+                            <List className="h-8 w-8" />
+                        </div>
+                        <div className="text-center">
+                            <h3 className="font-bold text-primary text-lg">Make a List</h3>
+                            <p className="text-sm text-secondary mt-1">Create a new shopping list</p>
+                        </div>
+                    </button>
+
+                    {/* Price Check */}
                     <button
                         onClick={() => setShowPriceCheck(true)}
-                        className="w-full p-4 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex items-center justify-between group"
+                        className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
                     >
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center text-brand group-hover:scale-110 transition-transform">
-                                <Search className="h-6 w-6" />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="font-bold text-primary text-lg">Price Check</h3>
-                                <p className="text-sm text-secondary">Scan a tag or search manually</p>
-                            </div>
+                        <div className="h-16 w-16 rounded-full bg-brand/10 flex items-center justify-center text-brand group-hover:scale-110 transition-transform">
+                            <Search className="h-8 w-8" />
                         </div>
-                        <ArrowRightIcon className="h-5 w-5 text-secondary group-hover:text-brand transition-colors" />
+                        <div className="text-center">
+                            <h3 className="font-bold text-primary text-lg">Price Check</h3>
+                            <p className="text-sm text-secondary mt-1">Scan or search for prices</p>
+                        </div>
+                    </button>
+
+                    {/* Shopping Trip */}
+                    <button
+                        onClick={() => navigate('/shopping-lists')}
+                        className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
+                    >
+                        <div className="h-16 w-16 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
+                            <ShoppingCart className="h-8 w-8" />
+                        </div>
+                        <div className="text-center">
+                            <h3 className="font-bold text-primary text-lg">Shopping Trip</h3>
+                            <p className="text-sm text-secondary mt-1">Start or resume a trip</p>
+                        </div>
                     </button>
                 </section>
 
@@ -168,7 +146,6 @@ export const Dashboard: React.FC = () => {
                             onClick={() => navigate('/shopping-lists/new')}
                             className="w-full p-4 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-500 hover:border-brand hover:text-brand transition-colors flex items-center justify-center gap-2 font-medium"
                         >
-                            <Plus className="h-5 w-5" />
                             Create New List
                         </button>
                     </div>
