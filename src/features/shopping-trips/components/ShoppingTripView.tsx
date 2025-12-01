@@ -430,51 +430,34 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
                 const unitPrice = scan.memberUnitPrice || 0;
                 return sum + (unitPrice > 0 ? price / unitPrice : 1);
               }, 0);
-            } else {
-              // Default to count
-              totalQuantity = allScans.length;
-            }
-          } else {
-            // Single scan
-            totalPrice = priceData.memberPrice || priceData.regularPrice || 0;
-            // Try to infer quantity from price and unit price if available
-            const unitPrice = priceData.memberUnitPrice;
-            if (unitPrice && unitPrice > 0 && totalPrice > 0) {
-              totalQuantity = totalPrice / unitPrice;
+              toast.info(`Scanned ${count} item(s) - Total: $${totalPrice.toFixed(2)}`);
             }
           }
+          onCreateNewItem = {(priceData) => {
+        // Create new item from scanned data
+        setSelectedItem({
+          id: '',
+          list_id: trip.list_id,
+          item_name: priceData.itemName,
+          category: 'Other',
+          quantity: 1,
+          unit_type: priceData.unitPriceUnit || null,
+          target_price: priceData.memberUnitPrice || null,
+          is_checked: false,
+          checked_at: null,
+          notes: null,
+          added_by: 'user',
+          added_at: new Date().toISOString()
+        });
+      setEditingCartItem(null);
 
-          setScannedData({ price: totalPrice, quantity: totalQuantity });
-          setShowPriceInput(true);
+      // Set initial price data for new item too
+      const price = priceData.memberPrice || priceData.regularPrice || 0;
+      setScannedData({price, quantity: 1 });
 
-          const count = allScans ? allScans.length : 1;
-          toast.info(`Scanned ${count} item(s) - Total: $${totalPrice.toFixed(2)}`);
-        }}
-        onCreateNewItem={(priceData) => {
-          // Create new item from scanned data
-          setSelectedItem({
-            id: '',
-            list_id: trip.list_id,
-            item_name: priceData.itemName,
-            category: 'Other',
-            quantity: 1,
-            unit_type: priceData.unitPriceUnit || null,
-            target_price: priceData.memberUnitPrice || null,
-            is_checked: false,
-            checked_at: null,
-            notes: null,
-            added_by: 'user',
-            added_at: new Date().toISOString()
-          });
-          setEditingCartItem(null);
-
-          // Set initial price data for new item too
-          const price = priceData.memberPrice || priceData.regularPrice || 0;
-          setScannedData({ price, quantity: 1 });
-
-          setIsAddingNewItem(true);
-          setShowPriceInput(true);
-          toast.info(`Creating new item: ${priceData.itemName}`);
+      setIsAddingNewItem(true);
+      setShowPriceInput(true);
+      toast.info(`Creating new item: ${priceData.itemName}`);
         }}
       />
     </div>
