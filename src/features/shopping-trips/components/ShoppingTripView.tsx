@@ -15,6 +15,8 @@ import { CartItemCard } from './CartItemCard';
 import EditBudgetModal from './EditBudgetModal';
 import { TripScanner } from '../../price-tracker/components/TripScanner';
 
+import type { PriceTagData } from '../../../shared/lib/ai/geminiVision';
+
 interface ShoppingTripViewProps {
   trip: ShoppingTrip;
   listItems: ShoppingListItem[];
@@ -52,13 +54,7 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
   const [scannedData, setScannedData] = useState<{
     price: number;
     quantity: number;
-    regularPrice?: number;
-    regularUnitPrice?: number;
-    salePrice?: number;
-    saleUnitPrice?: number;
-    saleRequirement?: string;
-    containerSize?: string;
-    onSale?: boolean;
+    data: PriceTagData;
   } | null>(null);
 
   const budgetStatus = calculateBudgetStatus(trip.total_spent, trip.budget);
@@ -396,6 +392,10 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           initialCrv={editingCartItem?.crv_amount}
           isEditable={isAddingNewItem || !!editingCartItem}
           initialOnSale={editingCartItem?.on_sale}
+          scannedData={scannedData?.data ? {
+            ...scannedData.data,
+            regularPrice: scannedData.data.regularPrice || 0
+          } : undefined}
         />
       )}
 
@@ -436,17 +436,14 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           }
 
           // Pass full priceData as scannedData for the new QuickPriceInput logic
-          const scannedData = {
-            regularPrice: priceData.regularPrice || 0,
-            regularUnitPrice: priceData.regularUnitPrice,
-            salePrice: priceData.memberPrice,
-            saleUnitPrice: priceData.memberUnitPrice,
-            saleRequirement: priceData.saleRequirement,
-            containerSize: priceData.containerSize,
-            onSale: priceData.onSale
-          };
-
-          setScannedData({ price: totalPrice, quantity: totalQuantity, ...scannedData });
+          setScannedData({
+            price: totalPrice,
+            quantity: totalQuantity,
+            data: {
+              ...priceData,
+              regularPrice: priceData.regularPrice || 0
+            }
+          });
           setShowPriceInput(true);
 
           const count = allScans ? allScans.length : 1;
@@ -473,18 +470,14 @@ const ShoppingTripView: React.FC<ShoppingTripViewProps> = ({
           // Set initial price data for new item too
           const price = priceData.memberPrice || priceData.regularPrice || 0;
 
-          const scannedData = {
-            regularPrice: priceData.regularPrice || 0,
-            regularUnitPrice: priceData.regularUnitPrice,
-            salePrice: priceData.memberPrice,
-            saleUnitPrice: priceData.memberUnitPrice,
-            saleRequirement: priceData.saleRequirement,
-            containerSize: priceData.containerSize,
-            onSale: priceData.onSale
-          };
-
-          setScannedData({ price, quantity: 1, ...scannedData });
-
+          setScannedData({
+            price: price,
+            quantity: 1,
+            data: {
+              ...priceData,
+              regularPrice: priceData.regularPrice || 0
+            }
+          });
           setIsAddingNewItem(true);
           setShowPriceInput(true);
           toast.info(`Creating new item: ${priceData.itemName}`);

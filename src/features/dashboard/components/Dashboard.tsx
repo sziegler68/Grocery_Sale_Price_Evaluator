@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, List, Search, Camera, Plus, TrendingUp } from 'lucide-react';
+import { ShoppingCart, List, Search, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
 import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
 import { getShoppingListsByCodes, getItemsForList } from '../../shopping-lists/api';
+import { PriceCheckModal } from '../../price-tracker/components/PriceCheckModal';
 
 export const Dashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ export const Dashboard: React.FC = () => {
 
     // Load real shopping lists
     const [recentLists, setRecentLists] = useState<Array<{ id: string; name: string; itemCount: number; sharedWith: string[] }>>([]);
+    const [showPriceCheck, setShowPriceCheck] = useState(false);
 
     useEffect(() => {
         const loadLists = async () => {
@@ -117,24 +119,21 @@ export const Dashboard: React.FC = () => {
                 </section>
 
                 {/* Quick Actions */}
-                <section className="grid grid-cols-2 gap-4">
+                <section>
                     <button
-                        onClick={() => navigate('/scan')}
-                        className="p-4 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center gap-2"
+                        onClick={() => setShowPriceCheck(true)}
+                        className="w-full p-4 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex items-center justify-between group"
                     >
-                        <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                            <Camera className="h-6 w-6" />
+                        <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-full bg-brand/10 flex items-center justify-center text-brand group-hover:scale-110 transition-transform">
+                                <Search className="h-6 w-6" />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="font-bold text-primary text-lg">Price Check</h3>
+                                <p className="text-sm text-secondary">Scan a tag or search manually</p>
+                            </div>
                         </div>
-                        <span className="font-medium text-primary">Scan Item</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/items')}
-                        className="p-4 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center gap-2"
-                    >
-                        <div className="h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
-                            <Search className="h-6 w-6" />
-                        </div>
-                        <span className="font-medium text-primary">Price Check</span>
+                        <ArrowRightIcon className="h-5 w-5 text-secondary group-hover:text-brand transition-colors" />
                     </button>
                 </section>
 
@@ -181,31 +180,16 @@ export const Dashboard: React.FC = () => {
                 </section>
             </main>
 
-            {/* Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-primary pb-safe shadow-lg">
-                <div className="max-w-4xl mx-auto flex justify-around p-2">
-                    <NavButton icon={<TrendingUp />} label="Home" active />
-                    <NavButton icon={<List />} label="Lists" onClick={() => navigate('/shopping-lists')} />
-                    <NavButton icon={<Search />} label="Items" onClick={() => navigate('/items')} />
-                    <NavButton icon={<SettingsIcon />} label="Settings" onClick={() => navigate('/settings')} />
-                </div>
-            </nav>
-
             <Footer />
+
+            <PriceCheckModal
+                isOpen={showPriceCheck}
+                onClose={() => setShowPriceCheck(false)}
+                darkMode={darkMode}
+            />
         </div>
     );
 };
 
-const NavButton: React.FC<{ icon: React.ReactElement; label: string; active?: boolean; onClick?: () => void }> = ({ icon, label, active, onClick }) => (
-    <button
-        onClick={onClick}
-        className={`flex flex-col items-center gap-1 p-2 rounded-lg w-16 transition-colors ${active ? 'text-brand' : 'text-secondary hover:text-brand'
-            }`}
-    >
-        {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: 'h-6 w-6' })}
-        <span className="text-[10px] font-medium">{label}</span>
-    </button>
-);
-
 // Icons
-import { ArrowRight as ArrowRightIcon, Settings as SettingsIcon } from 'lucide-react';
+import { ArrowRight as ArrowRightIcon } from 'lucide-react';

@@ -15,12 +15,12 @@ export const PriceCheckModal: React.FC<PriceCheckModalProps> = ({ isOpen, onClos
 
     const handleScanPriceTag = () => {
         onClose();
-        navigate('/price-check?mode=scan');
+        navigate('/scan');
     };
 
     const handleManualSearch = () => {
         onClose();
-        navigate('/items?focus=search');
+        navigate('/items');
     };
 
     return (
@@ -62,8 +62,8 @@ export const PriceCheckModal: React.FC<PriceCheckModalProps> = ({ isOpen, onClos
                     <button
                         onClick={handleManualSearch}
                         className={`w-full p-6 ${darkMode
-                                ? 'bg-zinc-800 hover:bg-zinc-700 text-white'
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                            ? 'bg-zinc-800 hover:bg-zinc-700 text-white'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                             } rounded-xl transition-colors flex items-center gap-4 group`}
                     >
                         <div className={`h-12 w-12 rounded-full ${darkMode ? 'bg-zinc-700 group-hover:bg-zinc-600' : 'bg-white group-hover:bg-gray-50'
