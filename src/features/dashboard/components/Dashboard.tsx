@@ -97,7 +97,7 @@ export const Dashboard: React.FC = () => {
 
                     {/* Shopping Trip */}
                     <button
-                        onClick={() => navigate('/shopping-lists')}
+                        onClick={() => navigate('/active-trip')}
                         className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
                     >
                         <div className="h-16 w-16 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">

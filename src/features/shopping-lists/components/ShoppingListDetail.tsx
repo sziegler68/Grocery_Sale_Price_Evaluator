@@ -219,6 +219,15 @@ const ShoppingListDetail: React.FC = () => {
     }
   }, [shareCode, loadListData]);
 
+  // Handle view=trip query parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('view') === 'trip' && activeTrip) {
+      console.log('[TRIP] Query param view=trip detected, switching to trip view');
+      setViewingTrip(true);
+    }
+  }, [activeTrip]);
+
   // Real-time subscription for list items using store
   useEffect(() => {
     if (!list) return;
