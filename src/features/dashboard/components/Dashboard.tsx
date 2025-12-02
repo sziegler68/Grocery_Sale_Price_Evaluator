@@ -70,42 +70,48 @@ export const Dashboard: React.FC = () => {
                     {/* Make a List */}
                     <button
                         onClick={() => navigate('/shopping-lists')}
-                        className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
+                        className="relative overflow-hidden p-6 rounded-2xl border border-purple-100 dark:border-purple-900/50 bg-gradient-to-br from-white to-purple-50/50 dark:from-gray-800 dark:to-purple-900/10 shadow-sm hover:shadow-purple-200/50 dark:hover:shadow-purple-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
                     >
-                        <div className="h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
-                            <List className="h-8 w-8" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-500"></div>
+
+                        <div className="h-14 w-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-300 group-hover:rotate-6 transition-transform duration-300 shadow-inner">
+                            <List className="h-7 w-7" />
                         </div>
-                        <div className="text-center">
-                            <h3 className="font-bold text-primary text-lg">Make a List</h3>
-                            <p className="text-sm text-secondary mt-1">Create a new shopping list</p>
+                        <div className="text-center relative z-10">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">Make a List</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Create a new shopping list</p>
                         </div>
                     </button>
 
                     {/* Price Check */}
                     <button
                         onClick={() => setShowPriceCheck(true)}
-                        className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
+                        className="relative overflow-hidden p-6 rounded-2xl border border-blue-100 dark:border-blue-900/50 bg-gradient-to-br from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/10 shadow-sm hover:shadow-blue-200/50 dark:hover:shadow-blue-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
                     >
-                        <div className="h-16 w-16 rounded-full bg-brand/10 flex items-center justify-center text-brand group-hover:scale-110 transition-transform">
-                            <Search className="h-8 w-8" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-500"></div>
+
+                        <div className="h-14 w-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-300 group-hover:rotate-6 transition-transform duration-300 shadow-inner">
+                            <Search className="h-7 w-7" />
                         </div>
-                        <div className="text-center">
-                            <h3 className="font-bold text-primary text-lg">Price Check</h3>
-                            <p className="text-sm text-secondary mt-1">Scan or search for prices</p>
+                        <div className="text-center relative z-10">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">Price Check</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Scan or search for prices</p>
                         </div>
                     </button>
 
                     {/* Shopping Trip */}
                     <button
                         onClick={() => navigate('/active-trip')}
-                        className="p-6 bg-card rounded-xl border border-primary shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-3 group"
+                        className="relative overflow-hidden p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 bg-gradient-to-br from-white to-emerald-50/50 dark:from-gray-800 dark:to-emerald-900/10 shadow-sm hover:shadow-emerald-200/50 dark:hover:shadow-emerald-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
                     >
-                        <div className="h-16 w-16 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
-                            <ShoppingCart className="h-8 w-8" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-500"></div>
+
+                        <div className="h-14 w-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-300 group-hover:rotate-6 transition-transform duration-300 shadow-inner">
+                            <ShoppingCart className="h-7 w-7" />
                         </div>
-                        <div className="text-center">
-                            <h3 className="font-bold text-primary text-lg">Shopping Trip</h3>
-                            <p className="text-sm text-secondary mt-1">Start or resume a trip</p>
+                        <div className="text-center relative z-10">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-lg">Shopping Trip</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Start or resume a trip</p>
                         </div>
                     </button>
                 </section>
