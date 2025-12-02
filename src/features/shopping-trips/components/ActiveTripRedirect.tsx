@@ -30,17 +30,29 @@ export const ActiveTripRedirect: React.FC = () => {
                             const trip = await getActiveTrip(list.id);
                             if (trip) {
                                 // Found an active trip for one of the user's lists!
-                                console.log('[ACTIVE_TRIP] Found active trip, navigating to list with viewTrip state');
-                                navigate(`/shopping-lists/${shareCode}`, {
-                                    replace: true,
-                                    state: { viewTrip: true }
+                                console.log('[ACTIVE_TRIP] Found active trip:', {
+                                    listName: list.name,
+                                    shareCode,
+                                    tripId: trip.id,
+                                    storeName: trip.store_name
                                 });
-                                setIsChecking(false);
-                                return;
+
+                                // Verify the list is still accessible before navigating
+                                if (shareCodes.includes(shareCode)) {
+                                    console.log('[ACTIVE_TRIP] Navigating to list with viewTrip state');
+                                    navigate(`/shopping-lists/${shareCode}`, {
+                                        replace: true,
+                                        state: { viewTrip: true }
+                                    });
+                                    setIsChecking(false);
+                                    return;
+                                } else {
+                                    console.warn('[ACTIVE_TRIP] List not in stored codes, skipping');
+                                }
                             }
                         }
                     } catch (error) {
-                        console.warn(`Failed to check list ${shareCode}:`, error);
+                        console.warn(`[ACTIVE_TRIP] Failed to check list ${shareCode}:`, error);
                         // Continue checking other lists
                     }
                 }

@@ -16,8 +16,10 @@ import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendL
 import { getSalesTaxRate } from '../../../shared/utils/settings';
 import { useShoppingListStore } from '../store/useShoppingListStore';
 import { useShoppingTripStore } from '../../shopping-trips/store/useShoppingTripStore';
-import { getActiveTrip, createShoppingTrip, getAnyActiveTrip } from '../../shopping-trips/api';
+import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
 import { ingestGroceryItem } from '../../price-tracker/services/itemIngestion';
+import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
+import { getShoppingListByCode } from '../api';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from '../types';
 import type { ShoppingListItem as ShoppingListItemType } from '../types';
@@ -437,11 +439,27 @@ const ShoppingListDetail: React.FC = () => {
     if (!list) return;
 
     try {
-      // Check if there's already an active trip (for any list)
-      const existingTrip = await getAnyActiveTrip();
+      // Check if there's already an active trip for any of the user's lists
+      const shareCodes = getStoredShareCodes();
+      let existingTrip: ShoppingTrip | null = null;
 
-      if (existingTrip && existingTrip.list_id !== list.id) {
-        // There's an active trip for a different list
+      for (const code of shareCodes) {
+        try {
+          const userList = await getShoppingListByCode(code);
+          if (userList && userList.id !== list.id) {
+            const trip = await getActiveTrip(userList.id);
+            if (trip) {
+              existingTrip = trip;
+              break;
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to check trip for list ${code}:`, error);
+        }
+      }
+
+      if (existingTrip) {
+        // There's an active trip for a different list (but still one of the user's lists)
         setConflictingTrip(existingTrip);
         setShowTripConflictModal(true);
         setShowStartTripModal(false);
