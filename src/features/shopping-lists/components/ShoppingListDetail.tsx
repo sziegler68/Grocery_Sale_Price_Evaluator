@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt, CheckSquare, Square } from 'lucide-react';
 import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
@@ -27,6 +27,7 @@ import { toast } from 'react-toastify';
 const ShoppingListDetail: React.FC = () => {
   const { shareCode } = useParams<{ shareCode: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { darkMode, toggleDarkMode } = useDarkMode();
 
   // Debug: Verify component is loading
@@ -87,10 +88,11 @@ const ShoppingListDetail: React.FC = () => {
       setActiveTrip(trip);
 
       // Check for viewTrip in location state (passed from ActiveTripRedirect)
-      const viewTripFromState = (window.history.state?.usr?.viewTrip) || false;
+      const viewTripFromState = (location.state as any)?.viewTrip || false;
       console.log('[TRIP] Checking for trip view trigger:', {
         viewTripFromState,
         hasTrip: !!trip,
+        locationState: location.state,
         currentURL: window.location.href
       });
 
@@ -105,7 +107,7 @@ const ShoppingListDetail: React.FC = () => {
       console.error('Failed to load shopping list:', error);
       toast.error('Failed to load shopping list');
     }
-  }, [shareCode, navigate, loadListByShareCode]);
+  }, [shareCode, navigate, loadListByShareCode, location.state]);
 
   // Debug: Log when viewingTrip changes
   useEffect(() => {
