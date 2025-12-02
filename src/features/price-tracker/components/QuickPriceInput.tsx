@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
-import { X, Check, TrendingUp, TrendingDown, Plus, Trash2, Camera } from 'lucide-react';
+import { X, Check, TrendingUp, TrendingDown, Plus, Trash2 } from 'lucide-react';
 import { formatPrice, calculateUnitPrice } from '../../../shared/utils/priceUtils';
 import { calculateItemTax } from '../../shopping-trips/services/tripService';
 import { UNIT_TYPES } from '../../../shared/constants/categories';
-import { CameraCapture } from '../../shopping-trips/components/CameraCapture';
-import { extractTextFromReceipt } from '../../../shared/lib/ocr/googleVision';
-import { parsePriceTag } from '../../../shared/lib/ocr/priceTagParser';
-import { WeightInputModal } from './WeightInputModal';
-import { getAverageWeight, calculateTotalPrice } from '../../../shared/lib/weights/weightLookup';
-import { toast } from 'react-toastify';
 import {
   getMinimumQuantity,
   calculateScannerTotal,
@@ -103,16 +97,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     { price: '', weight: '' }
   ]);
 
-  // OCR state
-  const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
-  const [isProcessingOCR, setIsProcessingOCR] = useState<boolean>(false);
-  const [lastScannedText, setLastScannedText] = useState<string>('');
-  const [ocrUnitPrice, setOcrUnitPrice] = useState<number | null>(null);
 
-  // Weight conversion state
-  const [showWeightModal, setShowWeightModal] = useState(false);
-  const [pendingWeightItem, setPendingWeightItem] = useState<{ name: string, unitPrice: number } | null>(null);
-  const [averageWeight, setAverageWeight] = useState<number | null>(null);
 
   // Update container count when quantity changes
   React.useEffect(() => {
@@ -144,14 +129,14 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     return parseFloat(priceDisplay) || 0;
   }, [scannedData, quantity, priceDisplay]);
 
-  // Update total price when quantity changes if we have an average weight
+
+
+  // Update price display when calculated total changes (for scanner mode)
   React.useEffect(() => {
-    if (averageWeight && ocrUnitPrice) {
-      const qty = parseFloat(quantity) || 0;
-      const total = calculateTotalPrice(ocrUnitPrice, qty, averageWeight);
-      setPriceDisplay(total.toFixed(2));
+    if (scannedData) {
+      setPriceDisplay(calculatedTotal.toFixed(2));
     }
-  }, [quantity, averageWeight, ocrUnitPrice]);
+  }, [calculatedTotal, scannedData]);
 
   if (!isOpen) return null;
 
@@ -223,115 +208,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
     setPacks(newPacks);
   };
 
-  // OCR handler
-  const handleCameraCapture = async (imageBlob: Blob) => {
-    setIsProcessingOCR(true);
-    setLastScannedText(''); // Clear previous
-    setOcrUnitPrice(null); // Clear previous OCR unit price
-    setAverageWeight(null); // Clear previous average weight
-    toast.info('Processing price tag...');
 
-    try {
-      // Extract text using OCR (pass Blob directly)
-      const ocrResult = await extractTextFromReceipt(imageBlob);
-      setLastScannedText(ocrResult.fullText); // Save raw text for debug
-
-      // Parse price tag data
-      const priceTagData = parsePriceTag(ocrResult.fullText, ocrResult.confidence);
-
-      // LOG OCR DATA TO LOCALSTORAGE
-      const ocrLog = {
-        timestamp: new Date().toISOString(),
-        itemName: nameDisplay || 'Unknown Item',
-        rawOcrText: ocrResult.fullText,
-        confidence: ocrResult.confidence,
-        parsedData: {
-          totalPrice: priceTagData.totalPrice,
-          unitPrice: priceTagData.unitPrice,
-          weight: priceTagData.weight,
-          unit: priceTagData.unit,
-          onSale: priceTagData.onSale,
-          regularPrice: priceTagData.regularPrice,
-          savingsAmount: priceTagData.savingsAmount,
-        }
-      };
-
-      // Append to existing logs
-      const existingLogs = JSON.parse(localStorage.getItem('ocrScanLogs') || '[]');
-      existingLogs.push(ocrLog);
-      localStorage.setItem('ocrScanLogs', JSON.stringify(existingLogs));
-      console.log('[OCR] Logged scan data for:', nameDisplay);
-
-      let dataFound = false;
-
-      // Auto-fill fields with parsed data
-      if (priceTagData.totalPrice) {
-        setPriceDisplay(priceTagData.totalPrice.toFixed(2));
-        dataFound = true;
-      }
-
-      // Store unit price from OCR if available
-      if (priceTagData.unitPrice) {
-        setOcrUnitPrice(priceTagData.unitPrice);
-        console.log('[OCR] Unit price from tag:', priceTagData.unitPrice);
-
-        // Check for unit mismatch (e.g. tag is /lb but list item is 'each' or undefined)
-        const tagUnit = priceTagData.unit?.toLowerCase();
-        const listUnit = unitType?.toLowerCase();
-
-        // If tag is weight-based (lb/oz) but list is count-based (each/empty)
-        if ((tagUnit === 'lb' || tagUnit === 'oz' || tagUnit === 'pound') &&
-          (!listUnit || listUnit === 'each' || listUnit === 'count')) {
-
-          console.log('[QuickPriceInput] Detected unit mismatch. Tag:', tagUnit, 'List:', listUnit);
-
-          // 1. Try to find average weight
-          // Fetch user overrides
-          const storedOverrides = localStorage.getItem('userWeightOverrides');
-          const userOverrides = storedOverrides ? JSON.parse(storedOverrides) : [];
-
-          const weightInfo = getAverageWeight(itemName, userOverrides);
-
-          if (weightInfo) {
-            console.log('[QuickPriceInput] Found average weight:', weightInfo.averageWeight);
-            setAverageWeight(weightInfo.averageWeight);
-
-            // Calculate estimated total based on 1 item (user can change qty)
-            const estimatedTotal = calculateTotalPrice(priceTagData.unitPrice, 1, weightInfo.averageWeight);
-            setPriceDisplay(estimatedTotal.toFixed(2));
-            toast.info(`Using average weight for ${itemName}: ${weightInfo.averageWeight} lb`);
-          } else {
-            // 2. Prompt user for weight
-            console.log('[QuickPriceInput] No average weight found. Prompting user.');
-            setPendingWeightItem({
-              name: itemName,
-              unitPrice: priceTagData.unitPrice
-            });
-            setShowWeightModal(true);
-          }
-        }
-      }
-
-      if (priceTagData.onSale) {
-        setOnSale(true);
-      }
-
-      // Show success/warning message
-      const confidence = Math.round(priceTagData.confidence * 100);
-
-      if (dataFound || priceTagData.unitPrice) {
-        toast.success(`Scanned! Confidence: ${confidence}% (Logged)`);
-      } else {
-        toast.warning(`Scanned (Conf: ${confidence}%), but no price found. Check "Raw Text" below.`);
-      }
-
-    } catch (error: any) {
-      console.error('[OCR] Failed to process image:', error);
-      toast.error('Failed to scan price tag. Please enter manually.');
-    } finally {
-      setIsProcessingOCR(false);
-    }
-  };
 
   // Calculate values based on mode
   let totalPrice = 0;
@@ -375,9 +252,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       scannedData.saleUnitPrice,
       scannedData.saleRequirement
     )
-    : (ocrUnitPrice !== null
-      ? ocrUnitPrice
-      : (totalPrice > 0 && quantityNum > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0));
+    : (totalPrice > 0 && quantityNum > 0 ? calculateUnitPrice(totalPrice, quantityNum) : 0);
 
   // Calculate cart addition
   // IMPORTANT: CRV is NOT taxed! It's added AFTER sales tax
@@ -416,63 +291,15 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
       setUsePackMode(false);
       setPacks([{ price: '', weight: '' }]);
       setOnSale(false);
-      setAverageWeight(null); // Reset average weight
       onClose();
     }
   };
 
-  // Weight Modal Handlers
-  const handleWeigh = (weight: number) => {
-    if (pendingWeightItem) {
-      // User weighed the items, so we have exact total weight
-      // Calculate total price: unit price * total weight
-      const total = pendingWeightItem.unitPrice * weight;
-      setPriceDisplay(total.toFixed(2));
-      // Set quantity to 1 (since we used total weight) or maybe keep it as is?
-      // Actually, if they weighed "3 onions" and got "1.5 lbs", 
-      // the price is 1.5 * price/lb.
-      // We can set priceDisplay to that.
-      // And we should probably clear averageWeight since we have exacts.
-      setAverageWeight(null);
-      setShowWeightModal(false);
-      setPendingWeightItem(null);
-    }
-  };
 
-  const handleSetAverage = (avgWeight: number, saveToProfile: boolean) => {
-    if (pendingWeightItem) {
-      setAverageWeight(avgWeight);
-      const currentQty = parseFloat(quantity) || 1;
-      const total = calculateTotalPrice(pendingWeightItem.unitPrice, currentQty, avgWeight);
-      setPriceDisplay(total.toFixed(2));
-
-      if (saveToProfile) {
-        // TODO: Save to user profile via API
-        toast.success(`Saved average weight for ${itemName}`);
-      }
-
-      setShowWeightModal(false);
-      setPendingWeightItem(null);
-    }
-  };
-
-  const handleSkipTotal = () => {
-    setShowWeightModal(false);
-    setPendingWeightItem(null);
-    // Just keep the unit price, user will enter total manually
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      {/* Weight Input Modal */}
-      <WeightInputModal
-        isOpen={showWeightModal}
-        itemName={pendingWeightItem?.name || itemName}
-        onClose={() => setShowWeightModal(false)}
-        onWeigh={handleWeigh}
-        onSkipTotal={handleSkipTotal}
-        onSetAverage={handleSetAverage}
-      />
+
 
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl shadow-2xl bg-card text-primary">
         {/* Header */}
@@ -620,66 +447,6 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
               <label htmlFor="pack-mode-checkbox" className="text-sm font-medium cursor-pointer flex-1">
                 Multiple packs (each pack has different weight)
               </label>
-            </div>
-          )}
-
-          {/* Scan Price Tag Button */}
-          {!usePackMode && (
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => setIsCameraOpen(true)}
-                disabled={isProcessingOCR}
-                className="w-full flex items-center justify-center space-x-2 p-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Camera className="h-5 w-5" />
-                <span>{isProcessingOCR ? 'Processing...' : 'Scan Price Tag'}</span>
-              </button>
-
-              {/* Debug: Show last scanned text */}
-              {lastScannedText && (
-                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto max-h-20 border border-gray-300 dark:border-gray-700">
-                  <div className="font-bold mb-1 text-gray-500">Raw OCR Text:</div>
-                  <pre className="whitespace-pre-wrap">{lastScannedText}</pre>
-                </div>
-              )}
-
-              {/* OCR Log Management */}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const logs = localStorage.getItem('ocrScanLogs');
-                    if (!logs || logs === '[]') {
-                      toast.info('No OCR logs to export');
-                      return;
-                    }
-                    const blob = new Blob([logs], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `ocr-logs-${new Date().toISOString().split('T')[0]}.json`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    toast.success('OCR logs exported!');
-                  }}
-                  className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
-                >
-                  📥 Export OCR Logs
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm('Clear all OCR logs? This cannot be undone.')) {
-                      localStorage.removeItem('ocrScanLogs');
-                      toast.success('OCR logs cleared');
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
-                >
-                  🗑️ Clear Logs
-                </button>
-              </div>
             </div>
           )}
 
@@ -1055,12 +822,7 @@ const QuickPriceInput: React.FC<QuickPriceInputProps> = ({
         </div>
       </div>
 
-      {/* Camera Capture Modal */}
-      <CameraCapture
-        isOpen={isCameraOpen}
-        onClose={() => setIsCameraOpen(false)}
-        onCapture={handleCameraCapture}
-      />
+
     </div>
   );
 };
