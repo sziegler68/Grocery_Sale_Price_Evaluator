@@ -64,6 +64,53 @@ export const Dashboard: React.FC = () => {
                     </div>
                 </section>
 
+                {/* Main Actions */}
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Make a List */}
+                    <button
+                        onClick={() => navigate('/shopping-lists')}
+                        className="p-6 rounded-2xl bg-purple-600 shadow-lg shadow-purple-900/20 hover:bg-purple-700 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
+                    >
+                        <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                            <List className="h-7 w-7" />
+                        </div>
+                        <div className="text-center">
+                            <h3 className="font-bold text-white text-lg">Make a List</h3>
+                            <p className="text-sm text-purple-100 mt-1">Create a new shopping list</p>
+                        </div>
+                    </button>
+
+                    {/* Price Check */}
+                    <button
+                        onClick={() => setShowPriceCheck(true)}
+                        className="p-6 rounded-2xl bg-purple-600 shadow-lg shadow-purple-900/20 hover:bg-purple-700 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
+                    >
+                        <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                            <Search className="h-7 w-7" />
+                        </div>
+                        <div className="text-center">
+                            <h3 className="font-bold text-white text-lg">Price Check</h3>
+                            <p className="text-sm text-purple-100 mt-1">Scan or search for prices</p>
+                        </div>
+                    </button>
+
+                    {/* Shopping Trip */}
+                    <button
+                        onClick={() => navigate('/active-trip')}
+                        className="p-6 rounded-2xl bg-purple-600 shadow-lg shadow-purple-900/20 hover:bg-purple-700 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
+                    >
+                        <div className="h-14 w-14 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                            <ShoppingCart className="h-7 w-7" />
+                        </div>
+                        <div className="text-center">
+                            <h3 className="font-bold text-white text-lg">Shopping Trip</h3>
+                            <p className="text-sm text-purple-100 mt-1">Start or resume a trip</p>
+                        </div>
+                    </button>
+                </section>
+
+                {/* Recent Lists */}
+                <section>
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="font-bold text-lg text-primary flex items-center gap-2">
                             <List className="h-5 w-5" />
