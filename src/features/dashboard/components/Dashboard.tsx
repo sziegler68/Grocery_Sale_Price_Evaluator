@@ -86,11 +86,11 @@ export const Dashboard: React.FC = () => {
                     {/* Price Check */}
                     <button
                         onClick={() => setShowPriceCheck(true)}
-                        className="relative overflow-hidden p-6 rounded-2xl border border-blue-100 dark:border-blue-900/50 bg-gradient-to-br from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/10 shadow-sm hover:shadow-blue-200/50 dark:hover:shadow-blue-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
+                        className="relative overflow-hidden p-6 rounded-2xl border border-purple-100 dark:border-purple-900/50 bg-gradient-to-br from-white to-purple-50/50 dark:from-gray-800 dark:to-purple-900/10 shadow-sm hover:shadow-purple-200/50 dark:hover:shadow-purple-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
                     >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-500"></div>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-500"></div>
 
-                        <div className="h-14 w-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-300 group-hover:rotate-6 transition-transform duration-300 shadow-inner">
+                        <div className="h-14 w-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-300 group-hover:rotate-6 transition-transform duration-300 shadow-inner">
                             <Search className="h-7 w-7" />
                         </div>
                         <div className="text-center relative z-10">
@@ -102,11 +102,11 @@ export const Dashboard: React.FC = () => {
                     {/* Shopping Trip */}
                     <button
                         onClick={() => navigate('/active-trip')}
-                        className="relative overflow-hidden p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 bg-gradient-to-br from-white to-emerald-50/50 dark:from-gray-800 dark:to-emerald-900/10 shadow-sm hover:shadow-emerald-200/50 dark:hover:shadow-emerald-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
+                        className="relative overflow-hidden p-6 rounded-2xl border border-purple-100 dark:border-purple-900/50 bg-gradient-to-br from-white to-purple-50/50 dark:from-gray-800 dark:to-purple-900/10 shadow-sm hover:shadow-purple-200/50 dark:hover:shadow-purple-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col items-center gap-4 group"
                     >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-500"></div>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-500"></div>
 
-                        <div className="h-14 w-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-300 group-hover:rotate-6 transition-transform duration-300 shadow-inner">
+                        <div className="h-14 w-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-300 group-hover:rotate-6 transition-transform duration-300 shadow-inner">
                             <ShoppingCart className="h-7 w-7" />
                         </div>
                         <div className="text-center relative z-10">
