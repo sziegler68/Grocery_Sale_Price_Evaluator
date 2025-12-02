@@ -86,21 +86,31 @@ const ShoppingListDetail: React.FC = () => {
 
       setActiveTrip(trip);
 
-      // Check for view=trip query param
-      const searchParams = new URLSearchParams(window.location.search);
-      const viewParam = searchParams.get('view');
-      console.log('[TRIP] Query params:', { view: viewParam, hasTrip: !!trip });
-      if (viewParam === 'trip' && trip) {
-        console.log('[TRIP] ✅ Switching to trip view from query param');
+      // Check for viewTrip in location state (passed from ActiveTripRedirect)
+      const viewTripFromState = (window.history.state?.usr?.viewTrip) || false;
+      console.log('[TRIP] Checking for trip view trigger:', {
+        viewTripFromState,
+        hasTrip: !!trip,
+        currentURL: window.location.href
+      });
+
+      if (viewTripFromState && trip) {
+        console.log('[TRIP] ✅ Switching to trip view from navigation state');
         setViewingTrip(true);
-      } else if (viewParam === 'trip' && !trip) {
-        console.log('[TRIP] ⚠️ view=trip param present but no active trip found');
+        console.log('[TRIP] setViewingTrip(true) called');
+      } else if (viewTripFromState && !trip) {
+        console.log('[TRIP] ⚠️ viewTrip state present but no active trip found');
       }
     } catch (error) {
       console.error('Failed to load shopping list:', error);
       toast.error('Failed to load shopping list');
     }
   }, [shareCode, navigate, loadListByShareCode]);
+
+  // Debug: Log when viewingTrip changes
+  useEffect(() => {
+    console.log('[TRIP] viewingTrip state changed to:', viewingTrip);
+  }, [viewingTrip]);
 
   // Debounced version of loadListData to prevent rapid successive calls
   const debouncedLoadListData = useCallback(() => {

@@ -30,7 +30,11 @@ export const ActiveTripRedirect: React.FC = () => {
                             const trip = await getActiveTrip(list.id);
                             if (trip) {
                                 // Found an active trip for one of the user's lists!
-                                navigate(`/shopping-lists/${shareCode}?view=trip`, { replace: true });
+                                console.log('[ACTIVE_TRIP] Found active trip, navigating to list with viewTrip state');
+                                navigate(`/shopping-lists/${shareCode}`, {
+                                    replace: true,
+                                    state: { viewTrip: true }
+                                });
                                 setIsChecking(false);
                                 return;
                             }
