@@ -22,6 +22,7 @@ export const defaultPreferences: UnitPreferences = {
 const STORAGE_KEY = 'grocery-unit-preferences';
 const SALES_TAX_KEY = 'grocery-sales-tax';
 const USER_NAME_KEY = 'grocery-user-name';
+const ZIP_CODE_KEY = 'grocery-zip-code';
 
 export const getUnitPreferences = (): UnitPreferences => {
     try {
@@ -78,5 +79,43 @@ export const saveSalesTaxRate = (rate: number): void => {
         localStorage.setItem(SALES_TAX_KEY, rate.toString());
     } catch (error) {
         console.error('Failed to save sales tax:', error);
+    }
+};
+
+export const getZipCode = (): string => {
+    try {
+        const stored = localStorage.getItem(ZIP_CODE_KEY);
+        return stored || '';
+    } catch (error) {
+        console.error('Failed to load zip code:', error);
+        return '';
+    }
+};
+
+export const saveZipCode = (zipCode: string): void => {
+    try {
+        localStorage.setItem(ZIP_CODE_KEY, zipCode.trim());
+    } catch (error) {
+        console.error('Failed to save zip code:', error);
+    }
+};
+
+const TAX_OVERRIDE_KEY = 'grocery-tax-override';
+
+export const getTaxRateOverride = (): boolean => {
+    try {
+        const stored = localStorage.getItem(TAX_OVERRIDE_KEY);
+        return stored === 'true';
+    } catch (error) {
+        console.error('Failed to load tax override flag:', error);
+        return false;
+    }
+};
+
+export const saveTaxRateOverride = (isOverridden: boolean): void => {
+    try {
+        localStorage.setItem(TAX_OVERRIDE_KEY, isOverridden.toString());
+    } catch (error) {
+        console.error('Failed to save tax override flag:', error);
     }
 };

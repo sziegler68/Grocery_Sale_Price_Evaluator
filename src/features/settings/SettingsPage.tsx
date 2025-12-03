@@ -1,20 +1,54 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Key, ExternalLink, CheckCircle, XCircle } from 'lucide-react';
+import { Key, ExternalLink, CheckCircle, XCircle, MapPin, Calculator, Bell, User, AlertTriangle } from 'lucide-react';
 import { WeightPreferences } from './components/WeightPreferences';
+import { useNotificationStore } from '../notifications/store/useNotificationStore';
+import { taxService } from '../../shared/services/taxService';
+import {
+    getZipCode,
+    saveZipCode,
+    getSalesTaxRate,
+    saveSalesTaxRate,
+    getUserName,
+    saveUserName,
+    getTaxRateOverride,
+    saveTaxRateOverride
+} from '../../shared/utils/settings';
 
 export function SettingsPage() {
     const [apiKey, setApiKey] = useState('');
     const [isValidating, setIsValidating] = useState(false);
     const [isValid, setIsValid] = useState<boolean | null>(null);
+    const [userName, setUserName] = useState('');
+    const [zipCode, setZipCode] = useState('');
+    const [taxRate, setTaxRate] = useState(0);
+    const [isSyncingTax, setIsSyncingTax] = useState(false);
+    const [taxOverride, setTaxOverride] = useState(false);
+    const [zipValidationWarning, setZipValidationWarning] = useState('');
+
+    // Notification Store
+    const {
+        isEnabled: notificationsEnabled,
+        isPushEnabled,
+        types: notificationTypes,
+        loadSettings: loadNotificationSettings,
+        setEnabled: setNotificationsEnabled,
+        setPushEnabled,
+        updateTypes
+    } = useNotificationStore();
 
     useEffect(() => {
-        // Load saved API key
+        // Load saved settings
         const savedKey = localStorage.getItem('geminiApiKey');
         if (savedKey) {
             setApiKey(savedKey);
             setIsValid(true); // Assume valid if saved
         }
+        setUserName(getUserName());
+        setZipCode(getZipCode());
+        setTaxRate(getSalesTaxRate() * 100); // Convert to percentage for display
+        setTaxOverride(getTaxRateOverride());
+        loadNotificationSettings();
     }, []);
 
     const validateApiKey = async (key: string): Promise<boolean> => {
@@ -54,6 +88,61 @@ export function SettingsPage() {
             setApiKey('');
             setIsValid(null);
             toast.success('API key removed');
+        }
+    };
+
+    const handleSyncTax = async () => {
+        if (!zipCode || zipCode.length < 5) {
+            toast.error('Please enter a valid zip code');
+            return;
+        }
+
+        setIsSyncingTax(true);
+        setZipValidationWarning('');
+        try {
+            const { jurisdiction } = await taxService.fetchTaxJurisdiction(zipCode);
+
+            if (jurisdiction) {
+                const percentageRate = Number((jurisdiction.total_rate * 100).toFixed(3));
+                setTaxRate(percentageRate);
+                saveZipCode(zipCode);
+                saveSalesTaxRate(jurisdiction.total_rate);
+                setTaxOverride(false);
+                saveTaxRateOverride(false);
+                toast.success(`Found tax rate for ${jurisdiction.city}: ${percentageRate}%`);
+            } else {
+                setZipValidationWarning('Zip code not found in our database. You can still save it and manually set the tax rate.');
+                toast.warning('Zip code not found in database. Please set tax rate manually.');
+            }
+        } catch (error) {
+            console.error('Failed to sync tax:', error);
+            toast.error('Failed to sync tax rate');
+        } finally {
+            setIsSyncingTax(false);
+        }
+    };
+
+    const handleManualTaxChange = (value: string) => {
+        const num = parseFloat(value);
+        if (!isNaN(num)) {
+            setTaxRate(num);
+            saveSalesTaxRate(num / 100);
+        } else if (value === '') {
+            setTaxRate(0);
+            saveSalesTaxRate(0);
+        }
+    };
+
+    const handleUserNameSave = () => {
+        saveUserName(userName);
+        toast.success('Name saved!');
+    };
+
+    const handleTaxOverrideToggle = (checked: boolean) => {
+        setTaxOverride(checked);
+        saveTaxRateOverride(checked);
+        if (checked) {
+            toast.info('Manual tax override enabled. You can now edit the tax rate directly.');
         }
     };
 
@@ -159,6 +248,205 @@ export function SettingsPage() {
                             </p>
                         </div>
                     )}
+                </div>
+
+                {/* User Profile Section */}
+                <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <User className="h-5 w-5 text-brand" />
+                        <h2 className="text-lg font-semibold text-primary">User Profile</h2>
+                    </div>
+
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Set your name for a personalized experience.
+                    </p>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Your Name
+                        </label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={userName}
+                                onChange={(e) => setUserName(e.target.value)}
+                                placeholder="Enter your name"
+                                className="flex-1 px-4 py-2 rounded-lg border bg-input border-input text-sm"
+                            />
+                            <button
+                                onClick={handleUserNameSave}
+                                disabled={!userName.trim()}
+                                className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 text-sm font-medium whitespace-nowrap"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Location & Tax Section */}
+                <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <MapPin className="h-5 w-5 text-brand" />
+                        <h2 className="text-lg font-semibold text-primary">Location & Tax</h2>
+                    </div>
+
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Enter your zip code to automatically sync local sales tax rates, or manually adjust the rate below.
+                    </p>
+
+                    {/* Zip Validation Warning */}
+                    {zipValidationWarning && (
+                        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-start gap-2">
+                            <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                                {zipValidationWarning}
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Zip Code
+                            </label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={zipCode}
+                                    onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                                    placeholder="12345"
+                                    className="flex-1 px-4 py-2 rounded-lg border bg-input border-input text-sm"
+                                />
+                                <button
+                                    onClick={handleSyncTax}
+                                    disabled={isSyncingTax || zipCode.length < 5}
+                                    className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 text-sm font-medium whitespace-nowrap"
+                                >
+                                    {isSyncingTax ? 'Syncing...' : 'Sync Tax'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                <Calculator className="h-4 w-4" />
+                                Sales Tax Rate (%)
+                            </label>
+
+                            {/* Manual Override Checkbox */}
+                            <div className="flex items-center gap-2 mb-2">
+                                <input
+                                    type="checkbox"
+                                    id="taxOverride"
+                                    checked={taxOverride}
+                                    onChange={(e) => handleTaxOverrideToggle(e.target.checked)}
+                                    className="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
+                                />
+                                <label htmlFor="taxOverride" className="text-xs text-gray-600 dark:text-gray-400">
+                                    Manual Override
+                                </label>
+                            </div>
+
+                            <input
+                                type="number"
+                                value={taxRate}
+                                onChange={(e) => handleManualTaxChange(e.target.value)}
+                                step="0.01"
+                                min="0"
+                                max="100"
+                                disabled={!taxOverride}
+                                className={`w-full px-4 py-2 rounded-lg border text-sm ${taxOverride
+                                        ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
+                                        : 'bg-input border-input cursor-not-allowed'
+                                    }`}
+                            />
+                            {taxOverride && (
+                                <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                                    ⚠️ Manual override enabled
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Notification Settings Section */}
+                <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Bell className="h-5 w-5 text-brand" />
+                        <h2 className="text-lg font-semibold text-primary">Notification Settings</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-sm font-medium text-primary">Enable Notifications</h3>
+                                <p className="text-xs text-secondary">Receive updates about shared lists</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={notificationsEnabled}
+                                    onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand/20 dark:peer-focus:ring-brand/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand"></div>
+                            </label>
+                        </div>
+
+                        {notificationsEnabled && (
+                            <div className="pl-4 border-l-2 border-brand/20 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-primary">Push Notifications</h3>
+                                        <p className="text-xs text-secondary">Receive alerts even when app is closed</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={isPushEnabled}
+                                            onChange={(e) => setPushEnabled(e.target.checked)}
+                                        />
+                                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-brand"></div>
+                                    </label>
+                                </div>
+
+                                <div className="pt-2">
+                                    <h3 className="text-sm font-medium text-primary mb-2">Notify me when:</h3>
+                                    <div className="space-y-2">
+                                        <label className="flex items-center space-x-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={notificationTypes.itemsAdded}
+                                                onChange={(e) => updateTypes({ itemsAdded: e.target.checked })}
+                                                className="rounded border-gray-300 text-brand focus:ring-brand"
+                                            />
+                                            <span className="text-sm text-primary">Items are added to list</span>
+                                        </label>
+                                        <label className="flex items-center space-x-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={notificationTypes.itemsPurchased}
+                                                onChange={(e) => updateTypes({ itemsPurchased: e.target.checked })}
+                                                className="rounded border-gray-300 text-brand focus:ring-brand"
+                                            />
+                                            <span className="text-sm text-primary">Items are purchased</span>
+                                        </label>
+                                        <label className="flex items-center space-x-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={notificationTypes.shoppingComplete}
+                                                onChange={(e) => updateTypes({ shoppingComplete: e.target.checked })}
+                                                className="rounded border-gray-300 text-brand focus:ring-brand"
+                                            />
+                                            <span className="text-sm text-primary">Shopping trip is completed</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Weight Preferences Section */}
