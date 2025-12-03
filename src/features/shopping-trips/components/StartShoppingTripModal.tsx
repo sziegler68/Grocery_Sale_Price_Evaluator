@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ShoppingCart, DollarSign, MapPin, AlertTriangle } from 'lucide-react';
+import { X, ShoppingCart, DollarSign, MapPin } from 'lucide-react';
 
 interface StartShoppingTripModalProps {
   isOpen: boolean;
@@ -240,8 +240,8 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
                 onChange={handleSalesTaxInput}
                 disabled={!taxOverride}
                 className={`w-full pl-4 pr-8 py-3 rounded-lg border focus:ring-2 focus:ring-brand focus:border-transparent ${taxOverride
-                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
-                    : 'bg-input border-input cursor-not-allowed'
+                  ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
+                  : 'bg-input border-input cursor-not-allowed'
                   }`}
                 placeholder="10.25"
               />
