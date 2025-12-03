@@ -11,7 +11,7 @@ import EditItem from '@features/price-tracker/components/EditItem';
 import Items from '@features/price-tracker/components/Items';
 import ItemDetail from '@features/price-tracker/components/ItemDetail';
 import Analytics from '@shared/components/Analytics';
-import Settings from '@shared/components/Settings';
+import { SettingsPage } from '@features/settings/SettingsPage';
 import ShoppingLists from '@features/shopping-lists/components/ShoppingLists';
 import ShoppingListDetail from '@features/shopping-lists/components/ShoppingListDetail';
 import Help from '@shared/components/Help';
@@ -85,7 +85,7 @@ const AppContent: React.FC = () => {
         <Route path="/shopping-lists" element={<ShoppingLists />} />
         <Route path="/shopping-lists/:shareCode" element={<ShoppingListDetail />} />
         <Route path="/scan" element={<StandaloneScanner />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/help" element={<Help />} />
 
         {/* Trip Routes */}

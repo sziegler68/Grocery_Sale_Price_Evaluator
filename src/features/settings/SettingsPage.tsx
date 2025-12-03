@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Key, ExternalLink, CheckCircle, XCircle, MapPin, Calculator, Bell, User, AlertTriangle } from 'lucide-react';
+import { Key, ExternalLink, CheckCircle, XCircle, MapPin, Calculator, Bell, User, AlertTriangle, Settings as SettingsIcon } from 'lucide-react';
 import { WeightPreferences } from './components/WeightPreferences';
 import { useNotificationStore } from '../notifications/store/useNotificationStore';
 import { taxService } from '../../shared/services/taxService';
 import {
+    type UnitPreferences,
+    getUnitPreferences,
+    saveUnitPreferences,
     getZipCode,
     saveZipCode,
     getSalesTaxRate,
@@ -25,6 +28,7 @@ export function SettingsPage() {
     const [isSyncingTax, setIsSyncingTax] = useState(false);
     const [taxOverride, setTaxOverride] = useState(false);
     const [zipValidationWarning, setZipValidationWarning] = useState('');
+    const [unitPreferences, setUnitPreferences] = useState<UnitPreferences>(getUnitPreferences());
 
     // Notification Store
     const {
@@ -144,6 +148,27 @@ export function SettingsPage() {
         if (checked) {
             toast.info('Manual tax override enabled. You can now edit the tax rate directly.');
         }
+    };
+
+    const handleResetOnboarding = () => {
+        if (confirm('Reset the welcome walkthrough? The app will reload and show the onboarding wizard.')) {
+            localStorage.removeItem('hasCompletedOnboarding');
+            toast.success('Onboarding reset! Reloading app...');
+            // Use window.location.replace with full URL to force complete reload
+            setTimeout(() => {
+                window.location.replace(window.location.origin);
+            }, 1000);
+        }
+    };
+
+    const handleUnitPreferenceChange = (category: keyof UnitPreferences, value: string) => {
+        const updated = {
+            ...unitPreferences,
+            [category]: value,
+        };
+        setUnitPreferences(updated);
+        saveUnitPreferences(updated);
+        toast.success('Unit preference saved!');
     };
 
     return (
@@ -357,8 +382,8 @@ export function SettingsPage() {
                                 max="100"
                                 disabled={!taxOverride}
                                 className={`w-full px-4 py-2 rounded-lg border text-sm ${taxOverride
-                                        ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
-                                        : 'bg-input border-input cursor-not-allowed'
+                                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
+                                    : 'bg-input border-input cursor-not-allowed'
                                     }`}
                             />
                             {taxOverride && (
@@ -449,9 +474,207 @@ export function SettingsPage() {
                     </div>
                 </div>
 
+                {/* Unit Preferences Section */}
+                <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Calculator className="h-5 w-5 text-brand" />
+                        <h2 className="text-lg font-semibold text-primary">Unit Preferences</h2>
+                    </div>
+
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Set your preferred units for comparing prices. Items will be normalized to these units when displaying price comparisons.
+                    </p>
+
+                    <div className="space-y-4">
+                        {/* Meat */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Meat (Beef, Pork, Chicken, Seafood)
+                            </label>
+                            <select
+                                value={unitPreferences.meat}
+                                onChange={(e) => handleUnitPreferenceChange('meat', e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
+                            >
+                                <option value="pound">Pound (lb)</option>
+                                <option value="ounce">Ounce (oz)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Prices will be normalized to price per {unitPreferences.meat}
+                            </p>
+                        </div>
+
+                        {/* Fruit */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Fruit
+                            </label>
+                            <select
+                                value={unitPreferences.fruit}
+                                onChange={(e) => handleUnitPreferenceChange('fruit', e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
+                            >
+                                <option value="pound">Pound (lb)</option>
+                                <option value="ounce">Ounce (oz)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Prices will be normalized to price per {unitPreferences.fruit}
+                            </p>
+                        </div>
+
+                        {/* Vegetables */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Vegetables
+                            </label>
+                            <select
+                                value={unitPreferences.veggies}
+                                onChange={(e) => handleUnitPreferenceChange('veggies', e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
+                            >
+                                <option value="pound">Pound (lb)</option>
+                                <option value="ounce">Ounce (oz)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Prices will be normalized to price per {unitPreferences.veggies}
+                            </p>
+                        </div>
+
+                        {/* Milk */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Milk
+                            </label>
+                            <select
+                                value={unitPreferences.milk}
+                                onChange={(e) => handleUnitPreferenceChange('milk', e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
+                            >
+                                <option value="gallon">Gallon</option>
+                                <option value="quart">Quart</option>
+                                <option value="pint">Pint</option>
+                                <option value="liter">Liter</option>
+                                <option value="ml">Milliliter (ml)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Prices will be normalized to price per {unitPreferences.milk}
+                            </p>
+                        </div>
+
+                        {/* Soda */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Soda
+                            </label>
+                            <select
+                                value={unitPreferences.soda}
+                                onChange={(e) => handleUnitPreferenceChange('soda', e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
+                            >
+                                <option value="gallon">Gallon</option>
+                                <option value="quart">Quart</option>
+                                <option value="pint">Pint</option>
+                                <option value="liter">Liter</option>
+                                <option value="ml">Milliliter (ml)</option>
+                                <option value="can">Can</option>
+                                <option value="each">Each</option>
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Prices will be normalized to price per {unitPreferences.soda}
+                            </p>
+                        </div>
+
+                        {/* Drinks */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Drinks (Juice, Tea, etc.)
+                            </label>
+                            <select
+                                value={unitPreferences.drinks}
+                                onChange={(e) => handleUnitPreferenceChange('drinks', e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
+                            >
+                                <option value="gallon">Gallon</option>
+                                <option value="quart">Quart</option>
+                                <option value="pint">Pint</option>
+                                <option value="liter">Liter</option>
+                                <option value="ml">Milliliter (ml)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Prices will be normalized to price per {unitPreferences.drinks}
+                            </p>
+                        </div>
+
+                        {/* Dairy */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Dairy (Cheese, Yogurt, Sour Cream, etc.)
+                            </label>
+                            <select
+                                value={unitPreferences.dairy}
+                                onChange={(e) => handleUnitPreferenceChange('dairy', e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
+                            >
+                                <option value="pound">Pound (lb)</option>
+                                <option value="ounce">Ounce (oz)</option>
+                                <option value="gallon">Gallon</option>
+                                <option value="quart">Quart</option>
+                                <option value="pint">Pint</option>
+                                <option value="liter">Liter</option>
+                                <option value="ml">Milliliter (ml)</option>
+                            </select>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Prices will be normalized to price per {unitPreferences.dairy}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Example */}
+                    <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                        <h3 className="font-medium text-sm mb-2 text-blue-900 dark:text-blue-100">Example:</h3>
+                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                            If you set meat to "pound", then a $12.99 steak weighing 2.5 lbs will show as <strong>$5.20/lb</strong>,
+                            and a $3.99 steak weighing 8 oz will show as <strong>$7.98/lb</strong> for easy comparison.
+                        </p>
+                        <p className="text-sm text-blue-800 dark:text-blue-200 mt-2">
+                            If you set milk to "gallon", then a $1.50 quart will show as <strong>$6.00/gallon</strong>
+                            alongside a $4.99 gallon for easy price comparison.
+                        </p>
+                    </div>
+                </div>
+
                 {/* Weight Preferences Section */}
                 <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
                     <WeightPreferences />
+                </div>
+
+                {/* App Settings Section */}
+                <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <SettingsIcon className="h-5 w-5 text-brand" />
+                        <h2 className="text-lg font-semibold text-primary">App Settings</h2>
+                    </div>
+
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Advanced app configuration and reset options.
+                    </p>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div>
+                                <h3 className="text-sm font-medium text-primary">Reset Welcome Walkthrough</h3>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                    Re-trigger the onboarding wizard to see the welcome guide again
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleResetOnboarding}
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium whitespace-nowrap"
+                            >
+                                Reset
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Info Section */}
