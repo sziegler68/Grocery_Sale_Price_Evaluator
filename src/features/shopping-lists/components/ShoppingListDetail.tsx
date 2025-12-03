@@ -13,7 +13,7 @@ import ShoppingTripView from '../../shopping-trips/components/ShoppingTripView';
 import { useDarkMode } from '../../../shared/hooks/useDarkMode';
 import { getUserNameForList, setUserNameForList, removeUserNameForList } from '../../../shared/utils/listUserNames';
 import { notifyShoppingComplete, notifyMissingItems, notifyItemsPurchased, sendLiveNotification } from '../../notifications/api';
-import { getSalesTaxRate } from '../../../shared/utils/settings';
+import { getSalesTaxRate, getZipCode, saveZipCode, saveSalesTaxRate } from '../../../shared/utils/settings';
 import { useShoppingListStore } from '../store/useShoppingListStore';
 import { useShoppingTripStore } from '../../shopping-trips/store/useShoppingTripStore';
 import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
@@ -435,61 +435,74 @@ const ShoppingListDetail: React.FC = () => {
     }
   };
 
-  const handleStartTrip = async (budget: number, storeName: string, salesTaxRate: number) => {
+  const handleStartTrip = async (budget: number, storeName: string, salesTaxRate: number, zipCode: string, overridesUsed: { zip: boolean; tax: boolean }) => {
     if (!list) return;
 
-    try {
-      // Check if there's already an active trip for any of the user's lists
-      const shareCodes = getStoredShareCodes();
-      let existingTrip: ShoppingTrip | null = null;
+    // Helper to actually create the trip
+    const createTrip = async () => {
+      try {
+        // Check if there's already an active trip for any of the user's lists
+        const shareCodes = getStoredShareCodes();
+        let existingTrip: ShoppingTrip | null = null;
 
-      for (const code of shareCodes) {
-        try {
-          const userList = await getShoppingListByCode(code);
-          if (userList && userList.id !== list.id) {
-            const trip = await getActiveTrip(userList.id);
-            if (trip) {
-              existingTrip = trip;
-              break;
+        for (const code of shareCodes) {
+          try {
+            const userList = await getShoppingListByCode(code);
+            if (userList && userList.id !== list.id) {
+              const trip = await getActiveTrip(userList.id);
+              if (trip) {
+                existingTrip = trip;
+                break;
+              }
             }
+          } catch (error) {
+            console.warn(`Failed to check trip for list ${code}:`, error);
           }
-        } catch (error) {
-          console.warn(`Failed to check trip for list ${code}:`, error);
         }
-      }
 
-      if (existingTrip) {
-        // There's an active trip for a different list (but still one of the user's lists)
-        setConflictingTrip(existingTrip);
-        setShowTripConflictModal(true);
-        setShowStartTripModal(false);
-        return;
-      }
+        if (existingTrip) {
+          setConflictingTrip(existingTrip);
+          setShowTripConflictModal(true);
+          setShowStartTripModal(false);
+          return;
+        }
 
-      // No conflict, proceed with creating the trip
-      const trip = await createShoppingTrip({
-        list_id: list.id,
-        budget,
-        store_name: storeName,
-        sales_tax_rate: salesTaxRate
-      });
-
-      setActiveTrip(trip);
-      setViewingTrip(true);
-      setShowStartTripModal(false);
-      toast.success('Shopping trip started!');
-
-      // Send notification that shopping trip started
-      if (userName && shareCode) {
-        const message = `${userName} started a shopping trip at ${storeName} (Budget: $${Math.round(budget)})`;
-        sendLiveNotification(list.id, message, 'trip_started', userName).catch(() => {
-          // Silently fail
+        const trip = await createShoppingTrip({
+          list_id: list.id,
+          budget,
+          store_name: storeName,
+          sales_tax_rate: salesTaxRate
         });
+
+        setActiveTrip(trip);
+        setViewingTrip(true);
+        setShowStartTripModal(false);
+        toast.success('Shopping trip started!');
+
+        if (userName && shareCode) {
+          const message = `${userName} started a shopping trip at ${storeName} (Budget: $${Math.round(budget)})`;
+          sendLiveNotification(list.id, message, 'trip_started', userName).catch(() => { });
+        }
+      } catch (error) {
+        console.error('Failed to start trip:', error);
+        toast.error('Failed to start trip. Make sure you\'ve run the database migration (shopping_trip_schema.sql)');
       }
-    } catch (error) {
-      console.error('Failed to start trip:', error);
-      toast.error('Failed to start trip. Make sure you\'ve run the database migration (shopping_trip_schema.sql)');
+    };
+
+    // Check if we need to update default settings
+    if (overridesUsed.zip || overridesUsed.tax) {
+      const shouldUpdate = window.confirm(
+        `You changed the ${overridesUsed.zip ? 'zip code' : ''}${overridesUsed.zip && overridesUsed.tax ? ' and ' : ''}${overridesUsed.tax ? 'tax rate' : ''} for this trip.\n\nWould you like to update your default settings?`
+      );
+
+      if (shouldUpdate) {
+        if (overridesUsed.zip) saveZipCode(zipCode);
+        if (overridesUsed.tax) saveSalesTaxRate(salesTaxRate);
+        toast.success('Default settings updated');
+      }
     }
+
+    await createTrip();
   };
 
   const handleEndConflictingTrip = async () => {
@@ -914,6 +927,7 @@ const ShoppingListDetail: React.FC = () => {
           listName={list.name}
           defaultStore=""
           salesTaxRate={getSalesTaxRate()}
+          defaultZipCode={getZipCode()}
         />
       )}
 
