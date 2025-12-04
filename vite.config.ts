@@ -136,7 +136,7 @@ const getIcons = () => {
 };
 
 const getManifest = (): Partial<ManifestOptions> => ({
-  id: getManifestId(),
+  id: './',
   name: getAppName(),
   short_name: getAppShortName(),
   description: getAppDescription(),
