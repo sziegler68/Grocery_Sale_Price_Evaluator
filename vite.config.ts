@@ -79,15 +79,6 @@ const stripTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
 const getScope = () => getBranchBasePath();
 
-const getManifestId = () => {
-  const raw = process.env.MANIFEST_ID_OVERRIDE;
-  if (raw && raw.trim().length > 0) {
-    const normalized = raw.trim().startsWith('/') ? raw.trim() : `/${raw.trim()}`;
-    return normalized;
-  }
-  return getScope();
-};
-
 const getIcons = () => {
   // Use simple generic icons for Vercel dev builds
   if (process.env.VERCEL) {
