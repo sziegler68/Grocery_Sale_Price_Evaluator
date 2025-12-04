@@ -174,6 +174,7 @@ export default defineConfig(({ command }) => ({
       registerType: 'autoUpdate',
       manifest: getManifest(),
       includeAssets: ['icons/192x192.png', 'icons/512x512.png'],
+      scope: getScope(),
       devOptions: {
         enabled: true,
         suppressWarnings: true,
