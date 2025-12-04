@@ -118,12 +118,19 @@ const getIcons = () => {
       src: toIconPath('icons/192x192.png'),
       sizes: '192x192',
       type: 'image/png',
+      purpose: 'any',
     },
     {
       src: toIconPath('icons/512x512.png'),
       sizes: '512x512',
       type: 'image/png',
-      purpose: 'any maskable',
+      purpose: 'any',
+    },
+    {
+      src: toIconPath('icons/512x512.png'),
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'maskable',
     },
   ];
 };
@@ -136,8 +143,11 @@ const getManifest = (): Partial<ManifestOptions> => ({
   start_url: getScope(),
   scope: getScope(),
   display: 'standalone',
+  display_override: ['window-controls-overlay', 'standalone'],
+  orientation: 'portrait-primary',
   background_color: '#0f172a',
   theme_color: '#7c3aed',
+  categories: ['shopping', 'utilities'],
   icons: getIcons(),
 });
 
