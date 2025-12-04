@@ -174,13 +174,14 @@ export default defineConfig(({ command }) => ({
       registerType: 'autoUpdate',
       manifest: getManifest(),
       includeAssets: ['icons/192x192.png', 'icons/512x512.png'],
-      scope: getScope(),
       devOptions: {
         enabled: true,
         suppressWarnings: true,
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.destination === 'document',
