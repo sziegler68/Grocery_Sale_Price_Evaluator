@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Camera, X, RotateCw } from 'lucide-react';
+import { Camera, X, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 interface CameraCaptureProps {
@@ -27,6 +27,12 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
     const [isCapturing, setIsCapturing] = useState(false);
+    const [zoomLevel, setZoomLevel] = useState(1);
+    const [maxZoom, setMaxZoom] = useState(1);
+    const [minZoom, setMinZoom] = useState(1);
+
+    // Pinch zoom state
+    const lastTouchDistance = useRef<number>(0);
 
     // Start camera when modal opens
     useEffect(() => {
@@ -48,8 +54,12 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     facingMode,
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
+                    // Enhanced autofocus for price tag scanning
                     // @ts-ignore - advanced constraints not fully typed
-                    advanced: [{ focusMode: "continuous" }]
+                    advanced: [
+                        { focusMode: "continuous", focusDistance: 0 }, // Macro/close-up mode
+                        { focusMode: "auto" }
+                    ]
                 },
             });
 
@@ -59,6 +69,19 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 videoRef.current.play();
+            }
+
+            // Get zoom capabilities
+            const videoTrack = stream.getVideoTracks()[0];
+            const capabilities = videoTrack.getCapabilities() as any;
+
+            if (capabilities.zoom) {
+                setMinZoom(capabilities.zoom.min || 1);
+                setMaxZoom(capabilities.zoom.max || 1);
+                setZoomLevel(capabilities.zoom.min || 1);
+                console.log('[CameraCapture] Zoom range:', capabilities.zoom.min, '-', capabilities.zoom.max);
+            } else {
+                console.log('[CameraCapture] Zoom not supported on this device');
             }
         } catch (error: any) {
             console.error('[CameraCapture] Failed to start camera:', error);
@@ -124,6 +147,72 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
     };
 
+    // Apply zoom level to camera
+    const applyZoom = async (level: number) => {
+        if (!streamRef.current) return;
+
+        const videoTrack = streamRef.current.getVideoTracks()[0];
+        const capabilities = videoTrack.getCapabilities() as any;
+
+        if (!capabilities.zoom) {
+            console.log('[CameraCapture] Zoom not supported');
+            return;
+        }
+
+        try {
+            await videoTrack.applyConstraints({
+                // @ts-ignore
+                advanced: [{ zoom: level }]
+            });
+            setZoomLevel(level);
+        } catch (error) {
+            console.error('[CameraCapture] Failed to apply zoom:', error);
+        }
+    };
+
+    // Handle zoom in/out buttons
+    const handleZoomIn = () => {
+        const newZoom = Math.min(zoomLevel + 0.5, maxZoom);
+        applyZoom(newZoom);
+    };
+
+    const handleZoomOut = () => {
+        const newZoom = Math.max(zoomLevel - 0.5, minZoom);
+        applyZoom(newZoom);
+    };
+
+    // Handle pinch-to-zoom gesture
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (e.touches.length === 2) {
+            const distance = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+            lastTouchDistance.current = distance;
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (e.touches.length === 2 && lastTouchDistance.current > 0) {
+            const distance = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY
+            );
+
+            const delta = distance - lastTouchDistance.current;
+            const zoomDelta = delta * 0.01; // Sensitivity factor
+
+            const newZoom = Math.max(minZoom, Math.min(maxZoom, zoomLevel + zoomDelta));
+            applyZoom(newZoom);
+
+            lastTouchDistance.current = distance;
+        }
+    };
+
+    const handleTouchEnd = () => {
+        lastTouchDistance.current = 0;
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -167,6 +256,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                             playsInline
                             autoPlay
                             muted
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
                         />
 
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -176,6 +268,33 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                                 </div>
                             </div>
                         </div>
+
+                        {/* Zoom Controls */}
+                        {maxZoom > 1 && (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
+                                <button
+                                    onClick={handleZoomIn}
+                                    disabled={zoomLevel >= maxZoom}
+                                    className="p-3 rounded-full bg-black/50 hover:bg-black/70 transition-colors disabled:opacity-30"
+                                >
+                                    <ZoomIn className="h-6 w-6 text-white" />
+                                </button>
+
+                                <div className="flex flex-col items-center gap-2 py-2 px-2 rounded-full bg-black/50">
+                                    <div className="text-white text-xs font-medium">
+                                        {zoomLevel.toFixed(1)}x
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleZoomOut}
+                                    disabled={zoomLevel <= minZoom}
+                                    className="p-3 rounded-full bg-black/50 hover:bg-black/70 transition-colors disabled:opacity-30"
+                                >
+                                    <ZoomOut className="h-6 w-6 text-white" />
+                                </button>
+                            </div>
+                        )}
                     </>
                 )}
             </div>
