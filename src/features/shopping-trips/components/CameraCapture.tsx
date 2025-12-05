@@ -240,30 +240,32 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         const videoTrack = streamRef.current.getVideoTracks()[0];
         const capabilities = videoTrack.getCapabilities() as any;
 
-        if (capabilities.focusMode && capabilities.focusMode.includes('manual')) {
-            try {
-                await videoTrack.applyConstraints({
-                    // @ts-ignore
-                    advanced: [{
-                        focusMode: 'manual',
-                        pointsOfInterest: [{ x, y }]
-                    }]
-                });
-                console.log('[CameraCapture] Focus applied at:', x, y);
-            } catch (error) {
-                console.log('[CameraCapture] Manual focus not supported, using continuous');
-                // Fallback to continuous autofocus
-                try {
-                    await videoTrack.applyConstraints({
-                        // @ts-ignore
-                        advanced: [{ focusMode: 'continuous' }]
-                    });
-                } catch (err) {
-                    console.error('[CameraCapture] Focus failed:', err);
+        try {
+            // Build constraints object dynamically to avoid TypeScript errors
+            const constraintsObj: any = {};
+            
+            // Check if device supports focus modes
+            if (capabilities.focusMode && Array.isArray(capabilities.focusMode)) {
+                const advancedConstraints: any = {};
+                
+                if (capabilities.focusMode.includes('manual')) {
+                    // Android: manual tap-to-focus
+                    advancedConstraints.focusMode = 'manual';
+                    advancedConstraints.pointsOfInterest = [{ x, y }];
+                    console.log('[CameraCapture] Android: manual focus at', x, y);
+                } else if (capabilities.focusMode.includes('continuous')) {
+                    // iOS: continuous autofocus  
+                    advancedConstraints.focusMode = 'continuous';
+                    console.log('[CameraCapture] iOS: continuous autofocus');
+                }
+                
+                if (Object.keys(advancedConstraints).length > 0) {
+                    constraintsObj.advanced = [advancedConstraints];
+                    await videoTrack.applyConstraints(constraintsObj);
                 }
             }
-        } else {
-            console.log('[CameraCapture] Manual focus not supported on this device');
+        } catch (error) {
+            console.log('[CameraCapture] Using device default focus');
         }
     };
 
