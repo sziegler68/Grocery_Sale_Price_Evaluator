@@ -375,7 +375,7 @@ export function SettingsPage() {
 
                             <input
                                 type="number"
-                                value={taxRate}
+                                value={taxRate.toFixed(2)}
                                 onChange={(e) => handleManualTaxChange(e.target.value)}
                                 step="0.01"
                                 min="0"
