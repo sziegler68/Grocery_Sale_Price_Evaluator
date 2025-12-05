@@ -401,11 +401,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                             onTouchStart={(e) => {
                                 handleTouchStart(e);
                                 // Single tap for focus
-                                if (e.touches.length === 1) {
-                                    handleTapToFocus(e);
-                                }
+                                // Tap-to-focus disabled - autofocus works better
                             }}
-                            onClick={handleTapToFocus}
+                            // onClick={handleTapToFocus}  // Disabled - causes blur on some devices
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
                         />
