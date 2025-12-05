@@ -74,18 +74,15 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
             const constraints: any = {
                 video: {
+                    facingMode: { exact: 'environment' },
                     width: { ideal: 3840, min: 1280 },
                     height: { ideal: 2160, min: 720 },
-                    aspectRatio: { ideal: 16 / 9 },
+                    aspectRatio: { ideal: 16/9 },
+                    zoom: 1.0,  // Force main camera (not ultra-wide)
                 }
             };
 
-            // Use specific camera if found, otherwise use facingMode
-            if (selectedCamera?.deviceId) {
-                constraints.video.deviceId = { exact: selectedCamera.deviceId };
-            } else {
-                constraints.video.facingMode = facingMode;
-            }
+            // zoom: 1.0 forces main camera, no need for deviceId selection
 
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
