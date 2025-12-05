@@ -53,8 +53,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode,
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
+                    width: { ideal: 3840, min: 1280 },  // 4K ideal, 720p min`r`n                    height: { ideal: 2160, min: 720 },`r`n                    aspectRatio: { ideal: 16/9 },
                 },
             });
 
