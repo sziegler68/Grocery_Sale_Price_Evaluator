@@ -78,9 +78,13 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 }
 
                 // Android scoring
+                // For generic labels like 'camera 0, facing back', prefer camera 0 (main camera)
+                if (label.includes('camera 0') && label.includes('back')) score += 200;
                 if (label.includes('rear wide') || label.includes('main')) score += 100;
                 if (label.includes('wide') && !label.includes('ultra')) score += 80;
                 if (label.includes('back') && !label.includes('ultra')) score += 70;
+                // Penalize camera 2 (likely ultra-wide on generic labels)
+                if (label.includes('camera 2') && label.includes('back')) score -= 100;
                 // Main cam is almost always 0 or 1 on Android
                 if (deviceId.endsWith('0') || deviceId.endsWith('1')) score += 60; 
                 if (label.includes('ultra') || label.includes('0.5') || label.includes('0.6')) score -= 200;
