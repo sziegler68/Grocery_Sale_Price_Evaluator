@@ -89,7 +89,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 if (deviceId.endsWith('0') || deviceId.endsWith('1')) score += 60; 
                 if (label.includes('ultra') || label.includes('0.5') || label.includes('0.6')) score -= 200;
 
-                return { ...device, score };
+                return { label: device.label, deviceId: device.deviceId, groupId: device.groupId, kind: device.kind, score, toJSON: device.toJSON };
             });
 
             // Log all candidates before sorting
