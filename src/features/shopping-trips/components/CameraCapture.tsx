@@ -29,8 +29,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
     const [isCapturing, setIsCapturing] = useState(false);
     const [zoomLevel, setZoomLevel] = useState(1);
     const [maxZoom, setMaxZoom] = useState(1);
-    const [minZoom, setMinZoom] = useState(1);
-
+    const [minZoom, setMinZoom] = useState(1);`r`n    const [focusPoint, setFocusPoint] = useState<{x: number, y: number} | null>(null);`r`n
     // Pinch zoom state
     const lastTouchDistance = useRef<number>(0);
 
