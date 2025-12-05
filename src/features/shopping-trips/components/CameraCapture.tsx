@@ -54,12 +54,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     facingMode,
                     width: { ideal: 1920 },
                     height: { ideal: 1080 },
-                    // Enhanced autofocus for price tag scanning
-                    // @ts-ignore - advanced constraints not fully typed
-                    advanced: [
-                        { focusMode: "continuous", focusDistance: 0 }, // Macro/close-up mode
-                        { focusMode: "auto" }
-                    ]
                 },
             });
 
