@@ -48,44 +48,66 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         };
     }, [isOpen, facingMode]);
 
-    const startCamera = async () => {
+            const startCamera = async () => {
         try {
-            // Enumerate cameras to find the main back camera
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            // Step 1: Always request permission first with the most permissive constraints
+            // This avoids iOS Safari refusing later exact constraints
+            try {
+                const permissionStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                permissionStream.getTracks().forEach(t => t.stop());
+            } catch (e) {
+                console.warn('[CameraCapture] Could not get initial permission, proceeding anyway');
+            }
 
-            console.log('[CameraCapture] Available cameras:', videoDevices.map(d => ({ label: d.label, id: d.deviceId })));
+            // Step 2: Enumerate devices (now we have real labels on both platforms)
+            const allDevices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = allDevices.filter(d => d.kind === 'videoinput');
+            
+            console.log('[CameraCapture] All video devices:', videoDevices.map(d => ({ label: d.label, id: d.deviceId })));
 
-            // Find back cameras (environment facing)
-            const backCameras = videoDevices.filter(device =>
-                device.label.toLowerCase().includes('back') ||
-                device.label.toLowerCase().includes('rear') ||
-                device.label.toLowerCase().includes('environment')
-            );
+            // Step 3: Choose the best rear-facing device using a scored priority list
+            type Candidate = MediaDeviceInfo & { score: number };
+            const candidates: Candidate[] = videoDevices.map(device => {
+                const label = device.label.toLowerCase();
+                const deviceId = device.deviceId;
+                let score = 0;
 
-            // Prefer main camera (not ultra-wide, not telephoto)
-            // Main camera usually has "main" in label or is the first back camera
-            let selectedCamera = backCameras.find(device =>
-                device.label.toLowerCase().includes('main') ||
-                device.label.toLowerCase().includes('wide') && !device.label.toLowerCase().includes('ultra')
-            ) || backCameras[0]; // Fallback to first back camera
-
-            console.log('[CameraCapture] Selected camera:', selectedCamera?.label || 'default');
-
-            const constraints: any = {
-                video: {
-                    facingMode: { exact: 'environment' },
-                    width: { ideal: 3840, min: 1280 },
-                    height: { ideal: 2160, min: 720 },
-                    aspectRatio: { ideal: 16/9 },
-                    zoom: 1.0,  // Force main camera (not ultra-wide)
+                // iOS Safari (always uses "environment" facingMode, labels are generic)
+                if (/iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())) {
+                    return { ...device, score: label.includes('back') || label.includes('rear') ? 100 : 50 };
                 }
+
+                // Android scoring
+                if (label.includes('rear wide') || label.includes('main')) score += 100;
+                if (label.includes('wide') && !label.includes('ultra')) score += 80;
+                if (label.includes('back') && !label.includes('ultra')) score += 70;
+                // Main cam is almost always 0 or 1 on Android
+                if (deviceId.endsWith('0') || deviceId.endsWith('1')) score += 60; 
+                if (label.includes('ultra') || label.includes('0.5') || label.includes('0.6')) score -= 200;
+
+                return { ...device, score };
+            });
+
+            // Sort by score descending, then pick the winner
+            const bestDevice = candidates.sort((a, b) => b.score - a.score)[0];
+            
+            console.log('[CameraCapture] Best camera candidate:', bestDevice?.label, 'Score:', bestDevice?.score);
+
+            // Step 4: Build final constraints
+            const constraints: MediaStreamConstraints = {
+                video: {
+                    deviceId: bestDevice ? { exact: bestDevice.deviceId } : undefined,
+                    facingMode: bestDevice ? undefined : { exact: 'environment' },
+                    width: { min: 1280, ideal: 3840, max: 4096 },
+                    height: { min: 720, ideal: 2160, max: 4096 },
+                    frameRate: { ideal: 30, max: 60 },
+                    aspectRatio: { ideal: 16/9 }
+                },
+                audio: false,
             };
 
-            // zoom: 1.0 forces main camera, no need for deviceId selection
-
+            // Step 5: Get the stream
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
             streamRef.current = stream;
             setHasPermission(true);
 
@@ -94,18 +116,45 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 videoRef.current.play();
             }
 
-            // Get zoom capabilities
-            const videoTrack = stream.getVideoTracks()[0];
-            const capabilities = videoTrack.getCapabilities() as any;
+            // Step 6: Force 1x zoom and max resolution on capable devices
+            const track = stream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities() as any;
 
+            // Apply 1x zoom
             if (capabilities.zoom) {
+                // Some devices use ratio (100 = 1x), others use absolute float (1.0 = 1x)
+                // If max zoom is small (e.g. 10), it's likely float. If large (e.g. 100), it's likely ratio.
+                const zoomValue = capabilities.zoom.max <= 10 ? 1.0 : 100;
+                
+                try {
+                    await track.applyConstraints({
+                        // @ts-ignore
+                        advanced: [{ zoom: zoomValue }]
+                    });
+                    console.log('[CameraCapture] Applied 1x zoom:', zoomValue);
+                    setZoomLevel(zoomValue);
+                } catch (e) {
+                    console.warn('[CameraCapture] Could not apply 1x zoom', e);
+                }
+                
+                // Update zoom state limits
                 setMinZoom(capabilities.zoom.min || 1);
                 setMaxZoom(capabilities.zoom.max || 1);
-                setZoomLevel(capabilities.zoom.min || 1);
-                console.log('[CameraCapture] Zoom range:', capabilities.zoom.min, '-', capabilities.zoom.max);
-            } else {
-                console.log('[CameraCapture] Zoom not supported on this device');
             }
+
+            // Bonus: Push resolution higher if supported
+            if (capabilities.width && capabilities.width.max >= 3840) {
+                try {
+                    await track.applyConstraints({
+                        width: { ideal: capabilities.width.max },
+                        height: { ideal: capabilities.height.max }
+                    });
+                    console.log('[CameraCapture] Pushed to max resolution:', capabilities.width.max);
+                } catch (e) {
+                    console.warn('[CameraCapture] Could not push resolution higher', e);
+                }
+            }
+
         } catch (error: any) {
             console.error('[CameraCapture] Failed to start camera:', error);
             setHasPermission(false);
@@ -119,8 +168,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             }
         }
     };
-
-    const stopCamera = () => {
+const stopCamera = () => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
             streamRef.current = null;
