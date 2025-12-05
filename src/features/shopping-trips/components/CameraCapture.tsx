@@ -207,6 +207,67 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         lastTouchDistance.current = 0;
     };
 
+    // Handle tap-to-focus
+    const handleTapToFocus = async (e: React.MouseEvent<HTMLVideoElement> | React.TouchEvent<HTMLVideoElement>) => {
+        if (!streamRef.current || !videoRef.current) return;
+
+        // Ignore if this is part of a pinch gesture
+        if ('touches' in e && e.touches.length > 1) return;
+
+        const video = videoRef.current;
+        const rect = video.getBoundingClientRect();
+
+        // Get tap coordinates
+        let clientX: number, clientY: number;
+        if ('touches' in e) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        // Calculate relative coordinates (0-1 range)
+        const x = (clientX - rect.left) / rect.width;
+        const y = (clientY - rect.top) / rect.height;
+
+        // Show focus indicator
+        setFocusPoint({ x: clientX - rect.left, y: clientY - rect.top });
+
+        // Hide focus indicator after animation
+        setTimeout(() => setFocusPoint(null), 1000);
+
+        // Apply focus at tap point
+        const videoTrack = streamRef.current.getVideoTracks()[0];
+        const capabilities = videoTrack.getCapabilities() as any;
+
+        if (capabilities.focusMode && capabilities.focusMode.includes('manual')) {
+            try {
+                await videoTrack.applyConstraints({
+                    // @ts-ignore
+                    advanced: [{
+                        focusMode: 'manual',
+                        pointsOfInterest: [{ x, y }]
+                    }]
+                });
+                console.log('[CameraCapture] Focus applied at:', x, y);
+            } catch (error) {
+                console.log('[CameraCapture] Manual focus not supported, using continuous');
+                // Fallback to continuous autofocus
+                try {
+                    await videoTrack.applyConstraints({
+                        // @ts-ignore
+                        advanced: [{ focusMode: 'continuous' }]
+                    });
+                } catch (err) {
+                    console.error('[CameraCapture] Focus failed:', err);
+                }
+            }
+        } else {
+            console.log('[CameraCapture] Manual focus not supported on this device');
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -246,14 +307,36 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     <>
                         <video
                             ref={videoRef}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover cursor-pointer"
                             playsInline
                             autoPlay
                             muted
-                            onTouchStart={handleTouchStart}
+                            onTouchStart={(e) => {
+                                handleTouchStart(e);
+                                // Single tap for focus
+                                if (e.touches.length === 1) {
+                                    handleTapToFocus(e);
+                                }
+                            }}
+                            onClick={handleTapToFocus}
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
                         />
+
+                        {/* Focus Indicator */}
+                        {focusPoint && (
+                            <div
+                                className="absolute pointer-events-none"
+                                style={{
+                                    left: focusPoint.x,
+                                    top: focusPoint.y,
+                                    transform: 'translate(-50%, -50%)'
+                                }}
+                            >
+                                <div className="w-16 h-16 border-2 border-yellow-400 rounded-full animate-ping" />
+                                <div className="absolute inset-0 w-16 h-16 border-2 border-yellow-400 rounded-full" />
+                            </div>
+                        )}
 
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="border-2 border-white/50 rounded-lg w-4/5 h-2/3 shadow-lg">
