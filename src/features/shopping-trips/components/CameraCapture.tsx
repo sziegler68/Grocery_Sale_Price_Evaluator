@@ -92,6 +92,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 return { ...device, score };
             });
 
+            // Log all candidates before sorting
+            console.log('[CameraCapture] All candidates:', candidates.map(c => ({ label: c.label, score: c.score })));
+            
             // Sort by score descending, then pick the winner
             const bestDevice = candidates.sort((a, b) => b.score - a.score)[0];
             
