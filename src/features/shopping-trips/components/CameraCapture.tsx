@@ -168,7 +168,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             }
         }
     };
-const stopCamera = () => {
+
+    const stopCamera = () => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
             streamRef.current = null;
