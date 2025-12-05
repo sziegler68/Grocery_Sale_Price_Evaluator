@@ -30,7 +30,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
     const [zoomLevel, setZoomLevel] = useState(1);
     const [maxZoom, setMaxZoom] = useState(1);
     const [minZoom, setMinZoom] = useState(1);
-    const [focusPoint, setFocusPoint] = useState<{x: number, y: number} | null>(null);
+    const [focusPoint, setFocusPoint] = useState<{ x: number, y: number } | null>(null);
 
     // Pinch zoom state
     const lastTouchDistance = useRef<number>(0);
@@ -50,14 +50,44 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
     const startCamera = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
+            // Enumerate cameras to find the main back camera
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+            console.log('[CameraCapture] Available cameras:', videoDevices.map(d => ({ label: d.label, id: d.deviceId })));
+
+            // Find back cameras (environment facing)
+            const backCameras = videoDevices.filter(device =>
+                device.label.toLowerCase().includes('back') ||
+                device.label.toLowerCase().includes('rear') ||
+                device.label.toLowerCase().includes('environment')
+            );
+
+            // Prefer main camera (not ultra-wide, not telephoto)
+            // Main camera usually has "main" in label or is the first back camera
+            let selectedCamera = backCameras.find(device =>
+                device.label.toLowerCase().includes('main') ||
+                device.label.toLowerCase().includes('wide') && !device.label.toLowerCase().includes('ultra')
+            ) || backCameras[0]; // Fallback to first back camera
+
+            console.log('[CameraCapture] Selected camera:', selectedCamera?.label || 'default');
+
+            const constraints: any = {
                 video: {
-                    facingMode,
-                    width: { ideal: 3840, min: 1280 },  // 4K ideal, 720p min
+                    width: { ideal: 3840, min: 1280 },
                     height: { ideal: 2160, min: 720 },
-                    aspectRatio: { ideal: 16/9 },
-                },
-            });
+                    aspectRatio: { ideal: 16 / 9 },
+                }
+            };
+
+            // Use specific camera if found, otherwise use facingMode
+            if (selectedCamera?.deviceId) {
+                constraints.video.deviceId = { exact: selectedCamera.deviceId };
+            } else {
+                constraints.video.facingMode = facingMode;
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
             streamRef.current = stream;
             setHasPermission(true);
@@ -246,11 +276,11 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         try {
             // Build constraints object dynamically to avoid TypeScript errors
             const constraintsObj: any = {};
-            
+
             // Check if device supports focus modes
             if (capabilities.focusMode && Array.isArray(capabilities.focusMode)) {
                 const advancedConstraints: any = {};
-                
+
                 if (capabilities.focusMode.includes('manual')) {
                     // Android: manual tap-to-focus
                     advancedConstraints.focusMode = 'manual';
@@ -261,7 +291,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     advancedConstraints.focusMode = 'continuous';
                     console.log('[CameraCapture] iOS: continuous autofocus');
                 }
-                
+
                 if (Object.keys(advancedConstraints).length > 0) {
                     constraintsObj.advanced = [advancedConstraints];
                     await videoTrack.applyConstraints(constraintsObj);
