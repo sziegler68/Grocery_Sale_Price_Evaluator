@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Camera, X, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
+import { Camera, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 interface CameraCaptureProps {
