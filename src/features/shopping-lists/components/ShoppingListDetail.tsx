@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt, CheckSquare, Square } from 'lucide-react';
+import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt, CheckSquare, Square, ClipboardPaste } from 'lucide-react';
 import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
 import ShoppingListItem from './ShoppingListItem';
 import AddItemToListModal from './AddItemToListModal';
+import { PasteListModal, type MatchedItem } from './PasteListModal';
 import { ListStats } from './ListStats';
 import { CategoryGroup } from './CategoryGroup';
 import SetNameModal from '../../../shared/components/SetNameModal';
@@ -19,7 +20,8 @@ import { useShoppingTripStore } from '../../shopping-trips/store/useShoppingTrip
 import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
 import { ingestGroceryItem } from '../../price-tracker/services/itemIngestion';
 import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
-import { getShoppingListByCode } from '../api';
+import { getShoppingListByCode, addItemToList } from '../api';
+import { normalizeUnit } from '../../../utils/listParser';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from '../types';
 import type { ShoppingListItem as ShoppingListItemType } from '../types';
@@ -49,6 +51,7 @@ const ShoppingListDetail: React.FC = () => {
     clearItems
   } = useShoppingListStore();
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showPasteModal, setShowPasteModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -623,6 +626,38 @@ const ShoppingListDetail: React.FC = () => {
     loadListData();
   };
 
+  const handlePastedItems = async (matchedItems: MatchedItem[]) => {
+    if (!list) return;
+
+    try {
+      // Add each matched item to the list
+      for (const item of matchedItems) {
+        if (item.matchedItem) {
+          // Use existing item from database - call API directly
+          await addItemToList({
+            list_id: list.id,
+            item_name: item.matchedItem.name,
+            category: item.matchedItem.category,
+            quantity: item.quantity || 1,
+            unit_type: item.unit ? normalizeUnit(item.unit) || undefined : undefined,
+            target_price: item.matchedItem.target_price || null,
+          });
+        } else {
+          // Create new item (no match found)
+          // For now, skip items without matches
+          // TODO: Add ability to create new items from paste
+          console.log('Skipping unmatched item:', item.itemName);
+        }
+      }
+
+      toast.success(`Added ${matchedItems.length} items to list`);
+      loadListData();
+    } catch (error) {
+      console.error('Failed to add pasted items:', error);
+      toast.error('Failed to add some items');
+    }
+  };
+
   // Group items by category (memoized to prevent recalculation on every render)
   const groupedItems = useMemo(() => {
     return items.reduce((acc, item) => {
@@ -744,6 +779,14 @@ const ShoppingListDetail: React.FC = () => {
             >
               <Plus className="h-5 w-5" />
               <span>Add Item to List</span>
+            </button>
+
+            <button
+              onClick={() => setShowPasteModal(true)}
+              className="flex items-center justify-center space-x-2 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+            >
+              <ClipboardPaste className="h-5 w-5" />
+              <span>Paste Items</span>
             </button>
 
             {activeTrip ? (
@@ -916,6 +959,20 @@ const ShoppingListDetail: React.FC = () => {
           listName={list.name}
           onClose={() => setShowAddItemModal(false)}
           onAdded={handleItemUpdate}
+        />
+      )}
+
+      {showPasteModal && list && (
+        <PasteListModal
+          isOpen={showPasteModal}
+          onClose={() => setShowPasteModal(false)}
+          onAddItems={handlePastedItems}
+          availableItems={items.map(item => ({
+            id: item.id,
+            name: item.item_name,
+            category: item.category,
+            target_price: item.target_price,
+          }))}
         />
       )}
 
