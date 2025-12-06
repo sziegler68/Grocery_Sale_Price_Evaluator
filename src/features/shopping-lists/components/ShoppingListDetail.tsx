@@ -991,7 +991,7 @@ const ShoppingListDetail: React.FC = () => {
           isOpen={showPasteModal}
           onClose={() => setShowPasteModal(false)}
           onAddItems={handlePastedItems}
-          onAddItems={handlePastedItems}
+
           availableItems={allGroceryItems.length > 0 ? allGroceryItems : items.map(item => ({
             id: item.id,
             name: item.item_name,
