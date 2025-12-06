@@ -640,7 +640,7 @@ const ShoppingListDetail: React.FC = () => {
             category: item.matchedItem.category,
             quantity: item.quantity || 1,
             unit_type: item.unit ? normalizeUnit(item.unit) || undefined : undefined,
-            target_price: item.matchedItem.target_price || null,
+            target_price: item.matchedItem.target_price || undefined,
           });
         } else {
           // Create new item (no match found)
