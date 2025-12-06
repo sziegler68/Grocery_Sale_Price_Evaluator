@@ -292,7 +292,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         lastTouchDistance.current = 0;
     };
 
-    // Handle tap-to-focus - DISABLED (causes blur, autofocus works better)`r`n    // @ts-ignore - Function disabled but kept for future reference`r`n    const handleTapToFocus = async (e: React.MouseEvent<HTMLVideoElement> | React.TouchEvent<HTMLVideoElement>) => {
+    // Handle tap-to-focus - DISABLED (causes blur, autofocus works better)
+    // @ts-ignore - Function disabled but kept for future reference
+    const handleTapToFocus = async (e: React.MouseEvent<HTMLVideoElement> | React.TouchEvent<HTMLVideoElement>) => {
         if (!streamRef.current || !videoRef.current) return;
 
         // Ignore if this is part of a pinch gesture
