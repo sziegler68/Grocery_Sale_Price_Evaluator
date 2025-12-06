@@ -30,7 +30,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
     const [zoomLevel, setZoomLevel] = useState(1);
     const [maxZoom, setMaxZoom] = useState(1);
     const [minZoom, setMinZoom] = useState(1);
-    const [focusPoint, setFocusPoint] = useState<{ x: number, y: number } | null>(null);
 
     // Pinch zoom state
     const lastTouchDistance = useRef<number>(0);
@@ -48,7 +47,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         };
     }, [isOpen, facingMode]);
 
-            const startCamera = async () => {
+    const startCamera = async () => {
         try {
             // Step 1: Always request permission first with the most permissive constraints
             // This avoids iOS Safari refusing later exact constraints
@@ -62,7 +61,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
             // Step 2: Enumerate devices (now we have real labels on both platforms)
             const allDevices = await navigator.mediaDevices.enumerateDevices();
             const videoDevices = allDevices.filter(d => d.kind === 'videoinput');
-            
+
             console.log('[CameraCapture] All video devices:', videoDevices.map(d => ({ label: d.label, id: d.deviceId })));
 
             // Step 3: Choose the best rear-facing device using a scored priority list
@@ -86,7 +85,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 // Penalize camera 2 (likely ultra-wide on generic labels)
                 if (label.includes('camera 2') && label.includes('back')) score -= 100;
                 // Main cam is almost always 0 or 1 on Android
-                if (deviceId.endsWith('0') || deviceId.endsWith('1')) score += 60; 
+                if (deviceId.endsWith('0') || deviceId.endsWith('1')) score += 60;
                 if (label.includes('ultra') || label.includes('0.5') || label.includes('0.6')) score -= 200;
 
                 return { label: device.label, deviceId: device.deviceId, groupId: device.groupId, kind: device.kind, score, toJSON: device.toJSON };
@@ -94,10 +93,10 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
             // Log all candidates before sorting
             console.log('[CameraCapture] All candidates:', candidates.map(c => ({ label: c.label, score: c.score })));
-            
+
             // Sort by score descending, then pick the winner
             const bestDevice = candidates.sort((a, b) => b.score - a.score)[0];
-            
+
             console.log('[CameraCapture] Best camera candidate:', bestDevice?.label, 'Score:', bestDevice?.score);
 
             // Step 4: Build final constraints
@@ -108,7 +107,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     width: { min: 1280, ideal: 3840, max: 4096 },
                     height: { min: 720, ideal: 2160, max: 4096 },
                     frameRate: { ideal: 30, max: 60 },
-                    aspectRatio: { ideal: 16/9 }
+                    aspectRatio: { ideal: 16 / 9 }
                 },
                 audio: false,
             };
@@ -132,7 +131,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 // Some devices use ratio (100 = 1x), others use absolute float (1.0 = 1x)
                 // If max zoom is small (e.g. 10), it's likely float. If large (e.g. 100), it's likely ratio.
                 const zoomValue = capabilities.zoom.max <= 10 ? 1.0 : 100;
-                
+
                 try {
                     await track.applyConstraints({
                         // @ts-ignore
@@ -143,7 +142,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                 } catch (e) {
                     console.warn('[CameraCapture] Could not apply 1x zoom', e);
                 }
-                
+
                 // Update zoom state limits
                 setMinZoom(capabilities.zoom.min || 1);
                 setMaxZoom(capabilities.zoom.max || 1);
@@ -292,69 +291,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         lastTouchDistance.current = 0;
     };
 
-    // Handle tap-to-focus - DISABLED (causes blur, autofocus works better)
-    // @ts-ignore - Function disabled but kept for future reference
-    const handleTapToFocus = async (e: React.MouseEvent<HTMLVideoElement> | React.TouchEvent<HTMLVideoElement>) => {
-        if (!streamRef.current || !videoRef.current) return;
 
-        // Ignore if this is part of a pinch gesture
-        if ('touches' in e && e.touches.length > 1) return;
-
-        const video = videoRef.current;
-        const rect = video.getBoundingClientRect();
-
-        // Get tap coordinates
-        let clientX: number, clientY: number;
-        if ('touches' in e) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
-
-        // Calculate relative coordinates (0-1 range)
-        const x = (clientX - rect.left) / rect.width;
-        const y = (clientY - rect.top) / rect.height;
-
-        // Show focus indicator
-        setFocusPoint({ x: clientX - rect.left, y: clientY - rect.top });
-
-        // Hide focus indicator after animation
-        setTimeout(() => setFocusPoint(null), 1000);
-
-        // Apply focus at tap point
-        const videoTrack = streamRef.current.getVideoTracks()[0];
-        const capabilities = videoTrack.getCapabilities() as any;
-
-        try {
-            // Build constraints object dynamically to avoid TypeScript errors
-            const constraintsObj: any = {};
-
-            // Check if device supports focus modes
-            if (capabilities.focusMode && Array.isArray(capabilities.focusMode)) {
-                const advancedConstraints: any = {};
-
-                if (capabilities.focusMode.includes('manual')) {
-                    // Android: manual tap-to-focus
-                    advancedConstraints.focusMode = 'manual';
-                    advancedConstraints.pointsOfInterest = [{ x, y }];
-                    console.log('[CameraCapture] Android: manual focus at', x, y);
-                } else if (capabilities.focusMode.includes('continuous')) {
-                    // iOS: continuous autofocus  
-                    advancedConstraints.focusMode = 'continuous';
-                    console.log('[CameraCapture] iOS: continuous autofocus');
-                }
-
-                if (Object.keys(advancedConstraints).length > 0) {
-                    constraintsObj.advanced = [advancedConstraints];
-                    await videoTrack.applyConstraints(constraintsObj);
-                }
-            }
-        } catch (error) {
-            console.log('[CameraCapture] Using device default focus');
-        }
-    };
 
     if (!isOpen) return null;
 
@@ -399,30 +336,12 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                             playsInline
                             autoPlay
                             muted
-                            onTouchStart={(e) => {
-                                handleTouchStart(e);
-                                // Single tap for focus
-                                // Tap-to-focus disabled - autofocus works better
-                            }}
-                            // onClick={handleTapToFocus}  // Disabled - causes blur on some devices
+                            onTouchStart={handleTouchStart}
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
                         />
 
-                        {/* Focus Indicator */}
-                        {focusPoint && (
-                            <div
-                                className="absolute pointer-events-none"
-                                style={{
-                                    left: focusPoint.x,
-                                    top: focusPoint.y,
-                                    transform: 'translate(-50%, -50%)'
-                                }}
-                            >
-                                <div className="w-16 h-16 border-2 border-yellow-400 rounded-full animate-ping" />
-                                <div className="absolute inset-0 w-16 h-16 border-2 border-yellow-400 rounded-full" />
-                            </div>
-                        )}
+
 
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="border-2 border-white/50 rounded-lg w-4/5 h-2/3 shadow-lg">
