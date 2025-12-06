@@ -21,6 +21,7 @@ import { getActiveTrip, createShoppingTrip } from '../../shopping-trips/api';
 import { ingestGroceryItem } from '../../price-tracker/services/itemIngestion';
 import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
 import { getShoppingListByCode, addItemToList } from '../api';
+import { fetchAllItems } from '../../price-tracker/api/groceryData';
 import { normalizeUnit } from '../../../utils/listParser';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from '../types';
@@ -60,6 +61,7 @@ const ShoppingListDetail: React.FC = () => {
   const [viewingTrip, setViewingTrip] = useState(false);
   const [conflictingTrip, setConflictingTrip] = useState<ShoppingTrip | null>(null);
   const [showTripConflictModal, setShowTripConflictModal] = useState(false);
+  const [allGroceryItems, setAllGroceryItems] = useState<{ id: string; name: string; category: string; target_price: number | null }[]>([]);
   const loadDataTimeoutRef = useRef<number | null>(null);
   const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
 
@@ -228,6 +230,24 @@ const ShoppingListDetail: React.FC = () => {
 
   useEffect(() => {
     loadListData();
+
+    // Load all grocery items for fuzzy matching
+    const loadGroceryItems = async () => {
+      try {
+        const result = await fetchAllItems();
+        if (result.items) {
+          setAllGroceryItems(result.items.map(item => ({
+            id: item.id,
+            name: item.itemName,
+            category: item.category,
+            target_price: item.targetPrice || null,
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to load grocery items for matching:', error);
+      }
+    };
+    loadGroceryItems();
 
     // Check if user has set their name for this list
     if (shareCode) {
@@ -644,9 +664,13 @@ const ShoppingListDetail: React.FC = () => {
           });
         } else {
           // Create new item (no match found)
-          // For now, skip items without matches
-          // TODO: Add ability to create new items from paste
-          console.log('Skipping unmatched item:', item.itemName);
+          await addItemToList({
+            list_id: list.id,
+            item_name: item.itemName,
+            category: 'Other', // Default category
+            quantity: item.quantity || 1,
+            unit_type: item.unit ? normalizeUnit(item.unit) || undefined : undefined,
+          });
         }
       }
 
@@ -967,7 +991,8 @@ const ShoppingListDetail: React.FC = () => {
           isOpen={showPasteModal}
           onClose={() => setShowPasteModal(false)}
           onAddItems={handlePastedItems}
-          availableItems={items.map(item => ({
+          onAddItems={handlePastedItems}
+          availableItems={allGroceryItems.length > 0 ? allGroceryItems : items.map(item => ({
             id: item.id,
             name: item.item_name,
             category: item.category,

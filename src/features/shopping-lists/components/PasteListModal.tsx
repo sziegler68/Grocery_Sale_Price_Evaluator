@@ -87,9 +87,7 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
     };
 
     const handleAddItems = () => {
-        const itemsToAdd = matchedItems.filter(item =>
-            item.matchedItem !== null || item.matchScore >= 0.7
-        );
+        const itemsToAdd = matchedItems;
 
         if (itemsToAdd.length > 0) {
             onAddItems(itemsToAdd);
