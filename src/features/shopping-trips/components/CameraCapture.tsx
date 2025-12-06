@@ -25,7 +25,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
     const streamRef = useRef<MediaStream | null>(null);
 
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-    const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
     const [isCapturing, setIsCapturing] = useState(false);
     const [zoomLevel, setZoomLevel] = useState(1);
     const [maxZoom, setMaxZoom] = useState(1);
@@ -45,7 +44,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         return () => {
             stopCamera();
         };
-    }, [isOpen, facingMode]);
+    }, [isOpen]);
 
     const startCamera = async () => {
         try {
@@ -221,9 +220,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         }
     };
 
-    const toggleCamera = () => {
-        setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
-    };
+
 
     // Apply zoom level to camera
     const applyZoom = async (level: number) => {
@@ -303,13 +300,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
                     className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
                 >
                     <X className="h-6 w-6 text-white" />
-                </button>
-
-                <button
-                    onClick={toggleCamera}
-                    className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-                >
-                    <RotateCw className="h-6 w-6 text-white" />
                 </button>
             </div>
 
