@@ -103,26 +103,26 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
     };
 
     const getMatchColor = (score: number) => {
-        if (score >= 0.9) return 'border-green-200 bg-green-50';
-        if (score >= 0.7) return 'border-yellow-200 bg-yellow-50';
-        return 'border-gray-200 bg-gray-50';
+        if (score >= 0.9) return 'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-900';
+        if (score >= 0.7) return 'border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-900';
+        return 'border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700';
     };
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b">
-                    <h2 className="text-xl font-semibold text-gray-900">
+                <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                         Paste Grocery List
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     >
-                        <X className="h-5 w-5 text-gray-500" />
+                        <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     </button>
                 </div>
 
@@ -131,7 +131,7 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                     {/* Paste Area */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="text-sm font-medium text-gray-700">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Paste your list
                             </label>
                             <button
@@ -146,14 +146,14 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                             value={pastedText}
                             onChange={(e) => setPastedText(e.target.value)}
                             placeholder="Paste your grocery list here...&#10;&#10;Examples:&#10;• 2 lbs chicken&#10;- 3 apples&#10;1. Milk&#10;Bread&#10;5x eggs"
-                            className="w-full h-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none font-mono text-sm"
+                            className="w-full h-40 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none font-mono text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                         />
                     </div>
 
                     {/* Preview */}
                     {matchedItems.length > 0 && (
                         <div>
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">
+                            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Preview ({matchedItems.length} items found)
                             </h3>
                             <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -167,11 +167,11 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-baseline gap-2">
-                                                <span className="font-medium text-gray-900">
+                                                <span className="font-medium text-gray-900 dark:text-white">
                                                     {item.matchedItem?.name || item.itemName}
                                                 </span>
                                                 {item.quantity && (
-                                                    <span className="text-sm text-gray-600">
+                                                    <span className="text-sm text-gray-600 dark:text-gray-400">
                                                         {item.quantity} {normalizeUnit(item.unit)}
                                                     </span>
                                                 )}
@@ -203,8 +203,8 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between p-4 border-t bg-gray-50">
-                    <p className="text-sm text-gray-600">
+                <div className="flex items-center justify-between p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                         {matchedItems.length > 0 && (
                             <>
                                 {matchedItems.filter(i => i.matchScore >= 0.9).length} exact matches, {' '}
@@ -215,7 +215,7 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                     <div className="flex gap-2">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
+                            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         >
                             Cancel
                         </button>

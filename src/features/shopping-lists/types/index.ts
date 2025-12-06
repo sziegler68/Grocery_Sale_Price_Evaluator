@@ -19,14 +19,14 @@ export interface ShoppingListItem {
   quantity: number;
   unit_type: string | null;
   target_price: number | null;
-  
+
   // Phase 3: Quality fields
   organic?: boolean;
   grass_fed?: boolean;
   freshness?: 'Fresh' | 'Previously Frozen' | 'Frozen';
   meat_grade?: 'Choice' | 'Prime' | 'Wagyu';
   seafood_source?: 'Wild' | 'Farm Raised';
-  
+
   is_checked: boolean;
   checked_at: string | null;
   notes: string | null;
@@ -45,14 +45,14 @@ export interface AddItemToListInput {
   quantity?: number;
   unit_type?: string;
   target_price?: number;
-  
+
   // Phase 3: Quality fields
   organic?: boolean;
   grass_fed?: boolean;
   freshness?: 'Fresh' | 'Previously Frozen' | 'Frozen';
   meat_grade?: 'Choice' | 'Prime' | 'Wagyu';
   seafood_source?: 'Wild' | 'Farm Raised';
-  
+
   notes?: string;
   added_by?: string;
 }
@@ -81,6 +81,8 @@ export const CATEGORY_MAP: Record<string, ShoppingListCategory> = {
   'Seafood': 'Seafood',
   'Dairy': 'Dairy',
   'Produce': 'Produce',
+  'Deli': 'Deli',
+  'Prepared Food': 'Prepared Food',
   'Bakery': 'Bakery',
   'Frozen': 'Frozen',
   'Pantry': 'Pantry',
