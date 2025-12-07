@@ -61,7 +61,7 @@ const ShoppingListDetail: React.FC = () => {
   const [viewingTrip, setViewingTrip] = useState(false);
   const [conflictingTrip, setConflictingTrip] = useState<ShoppingTrip | null>(null);
   const [showTripConflictModal, setShowTripConflictModal] = useState(false);
-  const [allGroceryItems, setAllGroceryItems] = useState<{ id: string; name: string; category: string; target_price: number | null }[]>([]);
+  const [allGroceryItems, setAllGroceryItems] = useState<{ id: string; name: string; category: string; target_price: number | null; unit_type?: string }[]>([]);
   const loadDataTimeoutRef = useRef<number | null>(null);
   const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
 
@@ -242,6 +242,7 @@ const ShoppingListDetail: React.FC = () => {
             name: item.itemName,
             category: item.category,
             target_price: item.targetPrice || null,
+            unit_type: item.unitType,
           })));
         }
       } catch (error) {
@@ -660,7 +661,7 @@ const ShoppingListDetail: React.FC = () => {
             item_name: item.matchedItem.name,
             category: item.matchedItem.category,
             quantity: item.quantity || 1,
-            unit_type: item.unit ? normalizeUnit(item.unit) || undefined : undefined,
+            unit_type: (item.unit ? normalizeUnit(item.unit) : item.matchedItem.unit_type) || undefined,
             target_price: item.matchedItem.target_price || undefined,
           });
         } else {
@@ -1000,6 +1001,7 @@ const ShoppingListDetail: React.FC = () => {
               name: item.item_name,
               category: item.category,
               target_price: item.target_price,
+              unit_type: item.unit_type
             }))}
           />
         </>

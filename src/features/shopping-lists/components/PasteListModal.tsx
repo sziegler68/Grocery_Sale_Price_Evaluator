@@ -14,6 +14,7 @@ interface Item {
     name: string;
     category: string;
     target_price: number | null;
+    unit_type?: string;
 }
 
 interface PasteListModalProps {
