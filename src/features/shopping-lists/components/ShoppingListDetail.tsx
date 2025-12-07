@@ -655,23 +655,30 @@ const ShoppingListDetail: React.FC = () => {
       // Add each matched item to the list
       for (const item of matchedItems) {
         if (item.matchedItem) {
+          // Use parsed name from user input, but append unit for clarity
+          const unit = (item.unit ? normalizeUnit(item.unit) : item.matchedItem.unit_type);
+          const displayName = unit ? `${item.itemName} (${unit})` : item.itemName;
+
           // Use existing item from database - call API directly
           await addItemToList({
             list_id: list.id,
-            item_name: item.matchedItem.name,
+            item_name: displayName,
             category: item.matchedItem.category,
             quantity: item.quantity || 1,
-            unit_type: (item.unit ? normalizeUnit(item.unit) : item.matchedItem.unit_type) || undefined,
+            unit_type: unit || undefined,
             target_price: item.matchedItem.target_price || undefined,
           });
         } else {
           // Create new item (no match found)
+          const unit = item.unit ? normalizeUnit(item.unit) : null;
+          const displayName = unit ? `${item.itemName} (${unit})` : item.itemName;
+
           await addItemToList({
             list_id: list.id,
-            item_name: item.itemName,
+            item_name: displayName,
             category: 'Other', // Default category
             quantity: item.quantity || 1,
-            unit_type: item.unit ? normalizeUnit(item.unit) || undefined : undefined,
+            unit_type: unit || undefined,
           });
         }
       }
