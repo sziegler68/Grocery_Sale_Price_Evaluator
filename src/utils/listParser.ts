@@ -94,7 +94,7 @@ function extractQuantity(text: string): {
         // "2 lbs chicken" or "chicken 2 lbs"
         {
             // Order matters! Longest matches first. Use word boundaries to avoid partial matches (e.g. "l" matching start of "large")
-            regex: /(\d+\.?\d*)\s*\b(milliliters?|kilograms?|gallons?|bottles?|pounds?|ounces?|quarts?|liters?|blocks?|grams?|dozen|boxes|packs?|bunch|loaf|head|bags?|jars?|cups?|tbsp|lbs?|tsp|gal|box|qt|kg|ml|oz|lb|g|l|c)\b/i,
+            regex: /(\d+\.?\d*)\s*\b(milliliters?|kilograms?|containers?|packages?|gallons?|bottles?|cartons?|pounds?|ounces?|quarts?|liters?|blocks?|hearts?|grams?|dozen|boxes|packs?|bunch|pints?|cans?|loaf|head|bags?|jars?|cups?|tbsp|pkgs?|lbs?|tsp|gal|box|pkg|qt|kg|ml|oz|lb|g|l|c)\b/i,
             hasUnit: true,
         },
         // "3x eggs" or "3 x eggs"
@@ -104,7 +104,7 @@ function extractQuantity(text: string): {
         },
         // Fractions: "1/2 lb", "1 1/2 cups"
         {
-            regex: /(\d+\s+)?(\d+)\/(\d+)\s*(lbs?|pounds?|oz|ounces?|kg|g|ml|l|gallons?|qt|cups?|c|tbsp|tsp)?/i,
+            regex: /(\d+\s+)?(\d+)\/(\d+)\s*(milliliters?|kilograms?|containers?|packages?|gallons?|bottles?|cartons?|pounds?|ounces?|quarts?|liters?|blocks?|hearts?|grams?|dozen|boxes|packs?|bunch|pints?|cans?|loaf|head|bags?|jars?|cups?|tbsp|pkgs?|lbs?|tsp|gal|box|pkg|qt|kg|ml|oz|lb|g|l|c)?/i,
             hasUnit: true,
             isFraction: true,
         },
@@ -151,6 +151,7 @@ function cleanItemName(text: string): string {
     return text
         .replace(/\([^)]*\)/g, '')      // Remove (notes in parentheses)
         .replace(/\[[^\]]*\]/g, '')     // Remove [notes in brackets]
+        .replace(/\b(hearts?|heads?|bunches?|stalks?)\b/gi, '') // Remove common produce suffixes
         .replace(/\s+/g, ' ')           // Collapse multiple spaces
         .replace(/[,;]+$/, '')          // Remove trailing punctuation
         .trim();
