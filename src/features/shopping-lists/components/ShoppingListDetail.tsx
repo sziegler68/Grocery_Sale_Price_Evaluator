@@ -1001,7 +1001,7 @@ const ShoppingListDetail: React.FC = () => {
               name: item.item_name,
               category: item.category,
               target_price: item.target_price,
-              unit_type: item.unit_type
+              unit_type: item.unit_type || undefined
             }))}
           />
         </>
