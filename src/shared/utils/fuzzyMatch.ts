@@ -24,11 +24,54 @@ export function findBestFuzzyMatch<T extends { toString(): string }>(
     includeScore: true,
     threshold: threshold, // 0.0 = perfect match, 1.0 = match anything
     ignoreLocation: true, // Search anywhere in the string
+    useExtendedSearch: true, // Enable extended search for token matching
     keys: [] as string[] // Empty for array of strings
   };
 
   const fuse = new Fuse(candidates, options);
-  const result = fuse.search(query);
+
+  // 1. Standard search
+  let result = fuse.search(query);
+
+  // 2. If no good match, try token-based AND search
+  // e.g. "boneless skinless chicken breast" -> "'boneless 'skinless 'chicken 'breast"
+  if (result.length === 0 || (result[0].score || 1) > 0.4) {
+    const tokens = query.split(' ').filter(t => t.length > 2); // Ignore short words
+    if (tokens.length > 1) {
+      // Construct extended search query: all tokens must exist (fuzzy)
+      const extendedQuery = tokens.map(t => `'${t}`).join(' ');
+      const extendedResult = fuse.search(extendedQuery);
+
+      if (extendedResult.length > 0) {
+        // Only use if it's better than the original result
+        if (result.length === 0 || (extendedResult[0].score || 1) < (result[0].score || 1)) {
+          result = extendedResult;
+        }
+      }
+    }
+  }
+
+  // 3. Fallback: Try matching just the last word (often the noun)
+  // e.g. "2% milk" -> "milk"
+  if (result.length === 0 || (result[0].score || 1) > 0.4) {
+    const tokens = query.split(' ');
+    if (tokens.length > 1) {
+      const lastToken = tokens[tokens.length - 1];
+      if (lastToken.length > 2) {
+        const lastTokenResult = fuse.search(lastToken);
+        if (lastTokenResult.length > 0) {
+          // Be strict with single token matches to avoid false positives
+          // e.g. "breast" matching "Turkey Breast" when looking for "Chicken Breast"
+          if ((lastTokenResult[0].score || 1) < 0.1) {
+            // Only replace if significantly better
+            if (result.length === 0 || (lastTokenResult[0].score || 1) < (result[0].score || 1)) {
+              result = lastTokenResult;
+            }
+          }
+        }
+      }
+    }
+  }
 
   if (result.length > 0) {
     const best = result[0];
