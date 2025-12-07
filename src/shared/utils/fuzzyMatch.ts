@@ -30,6 +30,11 @@ export function findBestFuzzyMatch<T extends { toString(): string }>(
 
   const fuse = new Fuse(candidates, options);
 
+  // Debug log (only if candidates > 0 to avoid noise)
+  if (candidates.length > 0 && query.length > 3) {
+    // console.log('[DEBUG] findBestFuzzyMatch query:', query, 'candidates:', candidates.length);
+  }
+
   // 1. Standard search
   let result = fuse.search(query);
 

@@ -236,6 +236,7 @@ const ShoppingListDetail: React.FC = () => {
       try {
         const result = await fetchAllItems();
         if (result.items) {
+          console.log('[DEBUG] Loaded allGroceryItems:', result.items.length);
           setAllGroceryItems(result.items.map(item => ({
             id: item.id,
             name: item.itemName,
@@ -987,18 +988,21 @@ const ShoppingListDetail: React.FC = () => {
       )}
 
       {showPasteModal && list && (
-        <PasteListModal
-          isOpen={showPasteModal}
-          onClose={() => setShowPasteModal(false)}
-          onAddItems={handlePastedItems}
+        <>
+          {console.log('[DEBUG] Passing to PasteListModal, allGroceryItems:', allGroceryItems.length, 'items:', items.length)}
+          <PasteListModal
+            isOpen={showPasteModal}
+            onClose={() => setShowPasteModal(false)}
+            onAddItems={handlePastedItems}
 
-          availableItems={allGroceryItems.length > 0 ? allGroceryItems : items.map(item => ({
-            id: item.id,
-            name: item.item_name,
-            category: item.category,
-            target_price: item.target_price,
-          }))}
-        />
+            availableItems={allGroceryItems.length > 0 ? allGroceryItems : items.map(item => ({
+              id: item.id,
+              name: item.item_name,
+              category: item.category,
+              target_price: item.target_price,
+            }))}
+          />
+        </>
       )}
 
       {showStartTripModal && list && (
