@@ -93,8 +93,8 @@ function extractQuantity(text: string): {
     const patterns = [
         // "2 lbs chicken" or "chicken 2 lbs"
         {
-            // Order matters! Longest matches first to avoid partial matches (e.g. "g" matching start of "gallons")
-            regex: /(\d+\.?\d*)\s*(kilograms?|milliliters?|pounds?|ounces?|gallons?|quarts?|liters?|grams?|dozen|lbs?|cups?|tbsp|tsp|gal|qt|kg|ml|oz|lb|g|l|c)/i,
+            // Order matters! Longest matches first. Use word boundaries to avoid partial matches (e.g. "l" matching start of "large")
+            regex: /(\d+\.?\d*)\s*\b(milliliters?|kilograms?|gallons?|bottles?|pounds?|ounces?|quarts?|liters?|blocks?|grams?|dozen|boxes|packs?|bunch|loaf|head|bags?|jars?|cups?|tbsp|lbs?|tsp|gal|box|qt|kg|ml|oz|lb|g|l|c)\b/i,
             hasUnit: true,
         },
         // "3x eggs" or "3 x eggs"
