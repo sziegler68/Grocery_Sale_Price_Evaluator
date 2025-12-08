@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Key, ExternalLink, CheckCircle, XCircle, MapPin, Calculator, Bell, User, AlertTriangle, Settings as SettingsIcon } from 'lucide-react';
 import { WeightPreferences } from './components/WeightPreferences';
+import { CustomUnitPreferences } from './components/CustomUnitPreferences';
 import { useNotificationStore } from '../notifications/store/useNotificationStore';
 import { taxService } from '../../shared/services/taxService';
 import {
@@ -15,7 +16,8 @@ import {
     getUserName,
     saveUserName,
     getTaxRateOverride,
-    saveTaxRateOverride
+    saveTaxRateOverride,
+    ALL_UNITS
 } from '../../shared/utils/settings';
 
 export function SettingsPage() {
@@ -29,6 +31,7 @@ export function SettingsPage() {
     const [taxOverride, setTaxOverride] = useState(false);
     const [zipValidationWarning, setZipValidationWarning] = useState('');
     const [unitPreferences, setUnitPreferences] = useState<UnitPreferences>(getUnitPreferences());
+    const [showCustomUnits, setShowCustomUnits] = useState(false);
 
     // Notification Store
     const {
@@ -170,6 +173,23 @@ export function SettingsPage() {
         saveUnitPreferences(updated);
         toast.success('Unit preference saved!');
     };
+
+    if (showCustomUnits) {
+        return (
+            <div className="min-h-screen bg-background p-4">
+                <div className="max-w-2xl mx-auto">
+                    <CustomUnitPreferences
+                        preferences={unitPreferences}
+                        onUpdate={(updated) => {
+                            setUnitPreferences(updated);
+                            saveUnitPreferences(updated);
+                        }}
+                        onBack={() => setShowCustomUnits(false)}
+                    />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background p-4">
@@ -496,8 +516,9 @@ export function SettingsPage() {
                                 onChange={(e) => handleUnitPreferenceChange('meat', e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                             >
-                                <option value="pound">Pound (lb)</option>
-                                <option value="ounce">Ounce (oz)</option>
+                                {ALL_UNITS.map(unit => (
+                                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Prices will be normalized to price per {unitPreferences.meat}
@@ -514,8 +535,9 @@ export function SettingsPage() {
                                 onChange={(e) => handleUnitPreferenceChange('fruit', e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                             >
-                                <option value="pound">Pound (lb)</option>
-                                <option value="ounce">Ounce (oz)</option>
+                                {ALL_UNITS.map(unit => (
+                                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Prices will be normalized to price per {unitPreferences.fruit}
@@ -532,8 +554,9 @@ export function SettingsPage() {
                                 onChange={(e) => handleUnitPreferenceChange('veggies', e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                             >
-                                <option value="pound">Pound (lb)</option>
-                                <option value="ounce">Ounce (oz)</option>
+                                {ALL_UNITS.map(unit => (
+                                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Prices will be normalized to price per {unitPreferences.veggies}
@@ -550,11 +573,9 @@ export function SettingsPage() {
                                 onChange={(e) => handleUnitPreferenceChange('milk', e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                             >
-                                <option value="gallon">Gallon</option>
-                                <option value="quart">Quart</option>
-                                <option value="pint">Pint</option>
-                                <option value="liter">Liter</option>
-                                <option value="ml">Milliliter (ml)</option>
+                                {ALL_UNITS.map(unit => (
+                                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Prices will be normalized to price per {unitPreferences.milk}
@@ -571,13 +592,9 @@ export function SettingsPage() {
                                 onChange={(e) => handleUnitPreferenceChange('soda', e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                             >
-                                <option value="gallon">Gallon</option>
-                                <option value="quart">Quart</option>
-                                <option value="pint">Pint</option>
-                                <option value="liter">Liter</option>
-                                <option value="ml">Milliliter (ml)</option>
-                                <option value="can">Can</option>
-                                <option value="each">Each</option>
+                                {ALL_UNITS.map(unit => (
+                                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Prices will be normalized to price per {unitPreferences.soda}
@@ -594,11 +611,9 @@ export function SettingsPage() {
                                 onChange={(e) => handleUnitPreferenceChange('drinks', e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                             >
-                                <option value="gallon">Gallon</option>
-                                <option value="quart">Quart</option>
-                                <option value="pint">Pint</option>
-                                <option value="liter">Liter</option>
-                                <option value="ml">Milliliter (ml)</option>
+                                {ALL_UNITS.map(unit => (
+                                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Prices will be normalized to price per {unitPreferences.drinks}
@@ -615,13 +630,9 @@ export function SettingsPage() {
                                 onChange={(e) => handleUnitPreferenceChange('dairy', e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border bg-input border-input focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                             >
-                                <option value="pound">Pound (lb)</option>
-                                <option value="ounce">Ounce (oz)</option>
-                                <option value="gallon">Gallon</option>
-                                <option value="quart">Quart</option>
-                                <option value="pint">Pint</option>
-                                <option value="liter">Liter</option>
-                                <option value="ml">Milliliter (ml)</option>
+                                {ALL_UNITS.map(unit => (
+                                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                                ))}
                             </select>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Prices will be normalized to price per {unitPreferences.dairy}
@@ -640,6 +651,15 @@ export function SettingsPage() {
                             If you set milk to "gallon", then a $1.50 quart will show as <strong>$6.00/gallon</strong>
                             alongside a $4.99 gallon for easy price comparison.
                         </p>
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                        <button
+                            onClick={() => setShowCustomUnits(true)}
+                            className="text-sm text-brand hover:text-brand-dark font-medium flex items-center gap-1"
+                        >
+                            Manage Custom Item Units →
+                        </button>
                     </div>
                 </div>
 

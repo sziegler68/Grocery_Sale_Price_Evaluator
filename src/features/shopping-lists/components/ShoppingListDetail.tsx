@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt, CheckSquare, Square, ClipboardPaste } from 'lucide-react';
+import { ArrowLeft, Plus, Copy, Trash2, RotateCcw, Check, ShoppingCart, CheckCircle, AlertCircle, Receipt, CheckSquare, Square, ClipboardPaste, Camera } from 'lucide-react';
 import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
 import ShoppingListItem from './ShoppingListItem';
 import AddItemToListModal from './AddItemToListModal';
 import { PasteListModal, type MatchedItem } from './PasteListModal';
+import { ScanListModal } from './ScanListModal';
 import { ListStats } from './ListStats';
 import { CategoryGroup } from './CategoryGroup';
 import SetNameModal from '../../../shared/components/SetNameModal';
@@ -23,6 +24,8 @@ import { getStoredShareCodes } from '../../../shared/utils/shoppingListStorage';
 import { getShoppingListByCode, addItemToList } from '../api';
 import { fetchAllItems } from '../../price-tracker/api/groceryData';
 import { normalizeUnit } from '../../../utils/listParser';
+import { getUnitPreferences } from '../../../shared/utils/settings';
+import { getPreferredUnit, convertPrice } from '../../../utils/unitConversion';
 import { removeShareCode } from '../../../shared/utils/shoppingListStorage';
 import { SHOPPING_LIST_CATEGORIES } from '../types';
 import type { ShoppingListItem as ShoppingListItemType } from '../types';
@@ -53,6 +56,8 @@ const ShoppingListDetail: React.FC = () => {
   } = useShoppingListStore();
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showPasteModal, setShowPasteModal] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
+  const [scannedListText, setScannedListText] = useState('');
   const [showNameModal, setShowNameModal] = useState(false);
   const [showStartTripModal, setShowStartTripModal] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -137,6 +142,12 @@ const ShoppingListDetail: React.FC = () => {
   const handleItemUpdate = () => {
     // Use debounced reload to prevent excessive database calls
     debouncedLoadListData();
+  };
+
+  const handleScanComplete = (text: string) => {
+    setScannedListText(text);
+    setShowScanModal(false);
+    setShowPasteModal(true);
   };
 
   // Sync batched checkbox changes to Supabase
@@ -651,13 +662,33 @@ const ShoppingListDetail: React.FC = () => {
   const handlePastedItems = async (matchedItems: MatchedItem[]) => {
     if (!list) return;
 
+    const prefs = getUnitPreferences();
+
     try {
       // Add each matched item to the list
       for (const item of matchedItems) {
         if (item.matchedItem) {
+          // 1. Determine the Final Unit
+          // Priority: User Input > User Preference > Database Default
+          const userUnit = item.unit ? normalizeUnit(item.unit) : null;
+          const dbUnit = item.matchedItem.unit_type;
+          const prefUnit = getPreferredUnit(item.matchedItem.name, item.matchedItem.category, prefs);
+
+          const finalUnit = userUnit || prefUnit || dbUnit;
+
+          // 2. Determine Display Name
           // Use parsed name from user input, but append unit for clarity
-          const unit = (item.unit ? normalizeUnit(item.unit) : item.matchedItem.unit_type);
-          const displayName = unit ? `${item.itemName} (${unit})` : item.itemName;
+          const displayName = finalUnit ? `${item.itemName} (${finalUnit})` : item.itemName;
+
+          // 3. Convert Target Price if needed
+          // DB Target Price is per 'dbUnit'. We need it per 'finalUnit'.
+          let finalTargetPrice = item.matchedItem.target_price;
+          if (finalTargetPrice && dbUnit && finalUnit && dbUnit !== finalUnit) {
+            const converted = convertPrice(finalTargetPrice, dbUnit, finalUnit);
+            if (converted) {
+              finalTargetPrice = converted.price;
+            }
+          }
 
           // Use existing item from database - call API directly
           await addItemToList({
@@ -665,8 +696,8 @@ const ShoppingListDetail: React.FC = () => {
             item_name: displayName,
             category: item.matchedItem.category,
             quantity: item.quantity || 1,
-            unit_type: unit || undefined,
-            target_price: item.matchedItem.target_price || undefined,
+            unit_type: finalUnit || undefined,
+            target_price: finalTargetPrice || undefined,
           });
         } else {
           // Create new item (no match found)
@@ -820,6 +851,14 @@ const ShoppingListDetail: React.FC = () => {
             >
               <ClipboardPaste className="h-5 w-5" />
               <span>Paste Items</span>
+            </button>
+
+            <button
+              onClick={() => setShowScanModal(true)}
+              className="flex items-center justify-center space-x-2 px-6 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors shadow-lg"
+            >
+              <Camera className="h-5 w-5" />
+              <span>Scan List</span>
             </button>
 
             {activeTrip ? (
@@ -1000,8 +1039,12 @@ const ShoppingListDetail: React.FC = () => {
           {console.log('[DEBUG] Passing to PasteListModal, allGroceryItems:', allGroceryItems.length, 'items:', items.length)}
           <PasteListModal
             isOpen={showPasteModal}
-            onClose={() => setShowPasteModal(false)}
+            onClose={() => {
+              setShowPasteModal(false);
+              setScannedListText(''); // Clear scanned text on close
+            }}
             onAddItems={handlePastedItems}
+            initialText={scannedListText}
 
             availableItems={allGroceryItems.length > 0 ? allGroceryItems : items.map(item => ({
               id: item.id,
@@ -1023,6 +1066,14 @@ const ShoppingListDetail: React.FC = () => {
           defaultStore=""
           salesTaxRate={getSalesTaxRate()}
           defaultZipCode={getZipCode()}
+        />
+      )}
+
+      {showScanModal && (
+        <ScanListModal
+          isOpen={showScanModal}
+          onClose={() => setShowScanModal(false)}
+          onScanComplete={handleScanComplete}
         />
       )}
 

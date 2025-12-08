@@ -1,12 +1,34 @@
+export const ALL_UNITS = [
+    { value: 'pound', label: 'Pound (lb)' },
+    { value: 'ounce', label: 'Ounce (oz)' },
+    { value: 'gallon', label: 'Gallon' },
+    { value: 'quart', label: 'Quart' },
+    { value: 'pint', label: 'Pint' },
+    { value: 'liter', label: 'Liter' },
+    { value: 'ml', label: 'Milliliter (ml)' },
+    { value: 'can', label: 'Can' },
+    { value: 'each', label: 'Each' },
+    { value: 'box', label: 'Box' },
+    { value: 'bag', label: 'Bag' },
+    { value: 'pkg', label: 'Package' },
+    { value: 'bottle', label: 'Bottle' },
+    { value: 'cup', label: 'Cup' },
+    { value: 'tbsp', label: 'Tablespoon' },
+    { value: 'tsp', label: 'Teaspoon' },
+    { value: 'dozen', label: 'Dozen' },
+    { value: 'bunch', label: 'Bunch' },
+];
+
 export interface UnitPreferences {
-    meat: 'pound' | 'ounce';
-    fruit: 'pound' | 'ounce';
-    veggies: 'pound' | 'ounce';
-    milk: 'gallon' | 'quart' | 'pint' | 'liter' | 'ml';
-    soda: 'gallon' | 'quart' | 'pint' | 'liter' | 'ml' | 'can' | 'each';
-    drinks: 'gallon' | 'quart' | 'pint' | 'liter' | 'ml';
-    dairy: 'pound' | 'ounce' | 'gallon' | 'quart' | 'pint' | 'liter' | 'ml';
-    [key: string]: string;
+    meat: string;
+    fruit: string;
+    veggies: string;
+    milk: string;
+    soda: string;
+    drinks: string;
+    dairy: string;
+    [key: string]: string | Record<string, string> | undefined;
+    customItems?: Record<string, string>;
 }
 
 export const defaultPreferences: UnitPreferences = {
@@ -17,6 +39,7 @@ export const defaultPreferences: UnitPreferences = {
     soda: 'liter',
     drinks: 'gallon',
     dairy: 'pound',
+    customItems: {},
 };
 
 const STORAGE_KEY = 'grocery-unit-preferences';

@@ -22,6 +22,7 @@ interface PasteListModalProps {
     onClose: () => void;
     onAddItems: (items: MatchedItem[]) => void;
     availableItems: Item[];
+    initialText?: string;
 }
 
 export interface MatchedItem extends ParsedItem {
@@ -35,9 +36,17 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
     onClose,
     onAddItems,
     availableItems,
+    initialText = '',
 }) => {
-    const [pastedText, setPastedText] = useState('');
+    const [pastedText, setPastedText] = useState(initialText);
     const [matchedItems, setMatchedItems] = useState<MatchedItem[]>([]);
+
+    // Update text if initialText changes (e.g. when reopening with new scan)
+    useEffect(() => {
+        if (isOpen && initialText) {
+            setPastedText(initialText);
+        }
+    }, [isOpen, initialText]);
 
     // Parse text whenever it changes
     useEffect(() => {
