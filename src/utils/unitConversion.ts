@@ -1,4 +1,4 @@
-import { UnitPreferences } from '../shared/utils/settings';
+import type { UnitPreferences } from '../shared/utils/settings';
 
 const CATEGORY_MAP: Record<string, keyof UnitPreferences> = {
     'Meat': 'meat',
