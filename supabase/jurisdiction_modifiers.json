@@ -1,0 +1,369 @@
+{
+    "AL": {
+        "jurisdiction_modifiers": true,
+        "note": "Limited home-rule/local legislation possible; localities can affect tax base in some cases. Verify city/parish codes.",
+        "sources": [
+            "Avalara",
+            "Wikipedia"
+        ]
+    },
+    "AK": {
+        "jurisdiction_modifiers": true,
+        "note": "No statewide general sales tax; many localities levy their own sales taxes and set taxability locally.",
+        "sources": [
+            "SalesTaxInstitute",
+            "Avalara"
+        ]
+    },
+    "AZ": {
+        "jurisdiction_modifiers": true,
+        "note": "Cities/counties may impose local privilege taxes with some differences in tax base; local variation exists.",
+        "sources": [
+            "TaxConnex",
+            "Avalara"
+        ]
+    },
+    "AR": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability is set at state level; locals generally only add rates.",
+        "sources": [
+            "Streamlined Sales Tax"
+        ]
+    },
+    "CA": {
+        "jurisdiction_modifiers": false,
+        "note": "California state law defines taxability; locals add district/local rates but do not generally change taxability categories.",
+        "sources": [
+            "CDTFA"
+        ]
+    },
+    "CO": {
+        "jurisdiction_modifiers": true,
+        "note": "Many home-rule municipalities — localities in Colorado can have different tax bases; check city ordinances.",
+        "sources": [
+            "Avalara",
+            "Colorado municipal tax guidance"
+        ]
+    },
+    "CT": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability determined at state level; localities do not change the tax base.",
+        "sources": [
+            "Streamlined Sales Tax"
+        ]
+    },
+    "DE": {
+        "jurisdiction_modifiers": false,
+        "note": "No statewide sales tax; not applicable for local sales-tax modifiers in the usual sense.",
+        "sources": [
+            "SalesTaxInstitute"
+        ]
+    },
+    "FL": {
+        "jurisdiction_modifiers": false,
+        "note": "State defines taxability; counties add surtaxes (rates) but generally do not change taxability categories.",
+        "sources": [
+            "Florida Dept. of Revenue",
+            "Streamlined Sales Tax"
+        ]
+    },
+    "GA": {
+        "jurisdiction_modifiers": false,
+        "note": "State defines taxability; however, local sales taxes (county) are applied to food in practice — double-check local rules for rate application.",
+        "sources": [
+            "Georgia DOR",
+            "Wikipedia"
+        ]
+    },
+    "HI": {
+        "jurisdiction_modifiers": false,
+        "note": "Hawaii uses an excise tax structure; taxability is state-determined (locals do not change the tax base).",
+        "sources": [
+            "Hawaii DOR"
+        ]
+    },
+    "ID": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability set by state; locals may not change categories.",
+        "sources": [
+            "Idaho Tax Commission"
+        ]
+    },
+    "IL": {
+        "jurisdiction_modifiers": false,
+        "note": "State sets tax base; home-rule sales tax in IL concerns rates (home-rule rate authority) but generally follows state taxability definitions.",
+        "sources": [
+            "Illinois DOR"
+        ]
+    },
+    "IN": {
+        "jurisdiction_modifiers": false,
+        "note": "State taxability rules are statewide; locals add rate components only.",
+        "sources": [
+            "Indiana DOR"
+        ]
+    },
+    "IA": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability is state-level; local rates apply but generally do not change taxable categories.",
+        "sources": [
+            "Iowa DOR"
+        ]
+    },
+    "KS": {
+        "jurisdiction_modifiers": false,
+        "note": "State determines taxability; locals generally limited to rate changes.",
+        "sources": [
+            "Kansas DOR"
+        ]
+    },
+    "KY": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability set by state statutes; localities add rates only.",
+        "sources": [
+            "Kentucky DOR"
+        ]
+    },
+    "LA": {
+        "jurisdiction_modifiers": true,
+        "note": "Parishes/municipalities have local-option tax authority and may create variations in tax base in some cases; check parish ordinances.",
+        "sources": [
+            "Avalara",
+            "Louisiana DOR"
+        ]
+    },
+    "ME": {
+        "jurisdiction_modifiers": false,
+        "note": "State sets taxability; localities do not alter tax base.",
+        "sources": [
+            "Maine DOR"
+        ]
+    },
+    "MD": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability statewide; counties/cities add rate but do not change categories.",
+        "sources": [
+            "Maryland Comptroller"
+        ]
+    },
+    "MA": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability determined at state level; localities do not change the tax base.",
+        "sources": [
+            "Massachusetts DOR"
+        ]
+    },
+    "MI": {
+        "jurisdiction_modifiers": false,
+        "note": "State defines taxability; local rate add-ons only.",
+        "sources": [
+            "Michigan Treasury"
+        ]
+    },
+    "MN": {
+        "jurisdiction_modifiers": false,
+        "note": "State-level taxability; localities add rates but not categories.",
+        "sources": [
+            "Minnesota DOR"
+        ]
+    },
+    "MS": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability is determined by state law; locals typically affect rates only.",
+        "sources": [
+            "Mississippi DOR"
+        ]
+    },
+    "MO": {
+        "jurisdiction_modifiers": false,
+        "note": "Generally state-determined taxability; some local exceptions exist but primarily rate changes — verify municipal codes if needed.",
+        "sources": [
+            "Missouri DOR"
+        ]
+    },
+    "MT": {
+        "jurisdiction_modifiers": false,
+        "note": "No statewide sales tax; local resort/municipal taxes exist but taxability is not broadly modified by local law.",
+        "sources": [
+            "SalesTaxInstitute"
+        ]
+    },
+    "NE": {
+        "jurisdiction_modifiers": false,
+        "note": "State sets taxability; local option is mainly rate-based.",
+        "sources": [
+            "Nebraska DOR"
+        ]
+    },
+    "NV": {
+        "jurisdiction_modifiers": false,
+        "note": "State taxability rules apply statewide; locals add rates.",
+        "sources": [
+            "Nevada DOR"
+        ]
+    },
+    "NH": {
+        "jurisdiction_modifiers": false,
+        "note": "No general sales tax; meals/rooms taxes are state-administered — locals do not change tax base broadly.",
+        "sources": [
+            "New Hampshire DOR"
+        ]
+    },
+    "NJ": {
+        "jurisdiction_modifiers": false,
+        "note": "State sets taxability; local rate components are limited (no county sales tax system like others).",
+        "sources": [
+            "New Jersey DOR"
+        ]
+    },
+    "NM": {
+        "jurisdiction_modifiers": false,
+        "note": "Gross receipts tax is state-administered; municipalities administer and may have local rate differences but tax base is largely state-defined.",
+        "sources": [
+            "New Mexico Taxation & Revenue"
+        ]
+    },
+    "NY": {
+        "jurisdiction_modifiers": true,
+        "note": "New York State sets taxability but New York City and some counties have nuanced local rules (e.g., NYC prepared food treatment) — check NYC/county guidance.",
+        "sources": [
+            "NY Dept. of Taxation",
+            "Avalara"
+        ]
+    },
+    "NC": {
+        "jurisdiction_modifiers": false,
+        "note": "State determines taxability; local rates vary but categories follow state law.",
+        "sources": [
+            "NC DOR"
+        ]
+    },
+    "ND": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability set at state level; local rates only.",
+        "sources": [
+            "North Dakota DOR"
+        ]
+    },
+    "OH": {
+        "jurisdiction_modifiers": false,
+        "note": "State-level taxability; some localities have special taxes but usually do not change the taxable categories.",
+        "sources": [
+            "Ohio DOR"
+        ]
+    },
+    "OK": {
+        "jurisdiction_modifiers": true,
+        "note": "Municipalities in Oklahoma may have local sales-tax rules and some local differences in treatment historically — verify municipal codes.",
+        "sources": [
+            "Oklahoma Tax Commission",
+            "TaxConnex"
+        ]
+    },
+    "OR": {
+        "jurisdiction_modifiers": false,
+        "note": "No statewide sales tax; Oregon's bottle bill exists; localities generally do not create separate taxability rules.",
+        "sources": [
+            "Oregon DOR"
+        ]
+    },
+    "PA": {
+        "jurisdiction_modifiers": false,
+        "note": "State defines taxable categories; some counties (e.g., Allegheny/Philadelphia) may have local tax structures but taxability generally follows state law.",
+        "sources": [
+            "PA DOR"
+        ]
+    },
+    "RI": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability statewide; locals do not alter categories.",
+        "sources": [
+            "Rhode Island Division of Taxation"
+        ]
+    },
+    "SC": {
+        "jurisdiction_modifiers": true,
+        "note": "Recent precedent/changes allow certain local divergences in some states like SC — verify county/city rules for outlier cases.",
+        "sources": [
+            "TaxConnex",
+            "SC DOR"
+        ]
+    },
+    "SD": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability set by state; local rates apply but categories are statewide.",
+        "sources": [
+            "South Dakota DOR"
+        ]
+    },
+    "TN": {
+        "jurisdiction_modifiers": false,
+        "note": "State level determines taxability; local option taxes affect rates.",
+        "sources": [
+            "Tennessee DOR"
+        ]
+    },
+    "TX": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability is set by state statute; most localities only add rates — isolated municipal exceptions are rare; verify city ordinances when in doubt.",
+        "sources": [
+            "Texas Comptroller"
+        ]
+    },
+    "UT": {
+        "jurisdiction_modifiers": false,
+        "note": "State sets taxability, localities add rates/districts but do not typically change categories.",
+        "sources": [
+            "Utah State Tax Commission"
+        ]
+    },
+    "VT": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability defined by state law; local variations not common.",
+        "sources": [
+            "Vermont DOR"
+        ]
+    },
+    "VA": {
+        "jurisdiction_modifiers": false,
+        "note": "State defines taxability; localities primarily add rate components.",
+        "sources": [
+            "Virginia DOR"
+        ]
+    },
+    "WA": {
+        "jurisdiction_modifiers": false,
+        "note": "State-level taxability; local sales/use taxes exist but taxable categories are set by state.",
+        "sources": [
+            "Washington DOR"
+        ]
+    },
+    "WV": {
+        "jurisdiction_modifiers": false,
+        "note": "Taxability set statewide; locals add rates only.",
+        "sources": [
+            "West Virginia DOR"
+        ]
+    },
+    "WI": {
+        "jurisdiction_modifiers": false,
+        "note": "State taxability definitions apply statewide; local rates apply but categories are state-defined.",
+        "sources": [
+            "Wisconsin DOR"
+        ]
+    },
+    "WY": {
+        "jurisdiction_modifiers": false,
+        "note": "State determines taxability; local rates may apply in some resort/local contexts but categories are statewide.",
+        "sources": [
+            "Wyoming Dept. of Revenue"
+        ]
+    },
+    "DC": {
+        "jurisdiction_modifiers": false,
+        "note": "DC sets its own taxability; no subordinate local jurisdictions.",
+        "sources": [
+            "DC Office of Tax and Revenue"
+        ]
+    }
+}

@@ -1,0 +1,830 @@
+{
+    "AL": {
+        "state": "Alabama",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Alabama taxes groceries at a reduced state rate (recently reduced to 2-3% phased); local rates apply. Verify local jurisdictions for final total tax.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "AK": {
+        "state": "Alaska",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "No state sales tax; many localities levy sales tax and localities can tax groceries. Check local municipality rules.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "AZ": {
+        "state": "Arizona",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries exempt from state tax; prepared food and many other categories taxable. Local jurisdictions may add taxes.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "AR": {
+        "state": "Arkansas",
+        "grocery": "reduced_rate",
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Food/food ingredients taxed at a reduced state rate; candy/soft drinks often taxed at full rate. Check state guidance for exceptions.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "CA": {
+        "state": "California",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": true,
+        "notes": "Unprepared groceries generally exempt; hot/prepared foods taxable. California has CRV (California Redemption Value) with specific container/size rules — CRV is statewide.",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "CO": {
+        "state": "Colorado",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries exempt from state tax but local jurisdictions can levy taxes. Certain items (carbonated water, chewing gum, deli items) may be taxable.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "CT": {
+        "state": "Connecticut",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": false,
+        "notes": "Groceries exempt; Connecticut has a 10¢ bottle deposit on covered beverages (statewide).",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "DE": {
+        "state": "Delaware",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "No state sales tax; some vendor fees may apply. Prepared food may be taxed via other mechanisms.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "FL": {
+        "state": "Florida",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries generally exempt at the state level; prepared food is taxable. Local surtaxes apply in some counties.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "GA": {
+        "state": "Georgia",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Georgia exempts groceries from state tax but local (county/city) sales taxes can apply to food purchases.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "HI": {
+        "state": "Hawaii",
+        "grocery": "excise_tax_structure",
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": false,
+        "notes": "Hawaii uses an excise tax mechanism and has a statewide container deposit program (small fee). Check state law for grocery tax credits/exemptions.",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "ID": {
+        "state": "Idaho",
+        "grocery": true,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Food is generally taxable at state level but Idaho provides a grocery tax credit to residents (income tax credit).",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "IL": {
+        "state": "Illinois",
+        "grocery": "reduced_rate_or_recent_change",
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Illinois historically had a reduced grocery tax; recent reforms have changed the grocery tax – verify current state guidance for the effective policy and local effects.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "IN": {
+        "state": "Indiana",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries exempt at state level; prepared food taxable.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "IA": {
+        "state": "Iowa",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": false,
+        "notes": "Groceries generally exempt; Iowa has a bottle-bill covering many beverages (statewide).",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "KS": {
+        "state": "Kansas",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Kansas eliminated the state sales tax on groceries effective Jan 1, 2025, though local taxes may still apply; verify local rules.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "KY": {
+        "state": "Kentucky",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Food and food ingredients exempt from sales tax; exclusions include candy, soft drinks, dietary supplements, and prepared food.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "LA": {
+        "state": "Louisiana",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "State exempts food for home consumption; parishes/municipalities may impose local taxes on food in some cases.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "ME": {
+        "state": "Maine",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Exemption tied to Maine's definition of 'grocery staples'—see state guidance for boundary items.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "MD": {
+        "state": "Maryland",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries generally exempt; prepared foods taxed.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "MA": {
+        "state": "Massachusetts",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": false,
+        "notes": "Groceries exempt; Massachusetts has had container laws historically—verify current deposit rules (BottleBill.org / state).",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "MI": {
+        "state": "Michigan",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": false,
+        "notes": "Groceries exempt at state level; Michigan has a beverage container deposit law (10¢) covering many beverage types.",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "MN": {
+        "state": "Minnesota",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries exempt; some snack-food carve-outs exist—check state rules.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "MS": {
+        "state": "Mississippi",
+        "grocery": true,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries taxed at a reduced/full state rate (recent changes; check current effective rate).",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "MO": {
+        "state": "Missouri",
+        "grocery": true,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries taxable at a reduced state rate; local taxes may apply; definitions of taxable food vary.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "MT": {
+        "state": "Montana",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "No statewide sales tax; some resort areas impose local option taxes. Prepared food rules vary.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "NE": {
+        "state": "Nebraska",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries generally exempt; check local option taxes.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "NV": {
+        "state": "Nevada",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries generally exempt from state tax; local taxes may apply.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "NH": {
+        "state": "New Hampshire",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "No state sales tax. Prepared food subject to meal/rooms tax in some localities; verify local rules.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "NJ": {
+        "state": "New Jersey",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries exempt at state level; prepared food and many beverage categories taxable.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "NM": {
+        "state": "New Mexico",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries generally exempt; gross receipts tax structure applies—check local/municipal rules.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "NY": {
+        "state": "New York",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": true,
+        "notes": "Groceries generally exempt; many exceptions exist; New York has a 5¢ deposit on many containers (bottle bill). Check NY Department of Taxation guidance for detailed item listings.",
+        "sources": [
+            "turn1view0",
+            "turn2search0",
+            "turn0search11"
+        ]
+    },
+    "NC": {
+        "state": "North Carolina",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries exempt from state sales tax but subject to a uniform reduced local rate in some contexts; prepared foods taxed.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "ND": {
+        "state": "North Dakota",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries exempt; check exceptions for specific snack items.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "OH": {
+        "state": "Ohio",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries exempt if sold for off-premises consumption; prepared and some deli items taxed. Localities may vary.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "OK": {
+        "state": "Oklahoma",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Oklahoma eliminated statewide grocery tax (effective Aug 2024), but local sales taxes may still apply to food purchases. Confirm local rules.",
+        "sources": [
+            "turn1view0",
+            "turn0search12"
+        ]
+    },
+    "OR": {
+        "state": "Oregon",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": false,
+        "notes": "No statewide sales tax; Oregon has a bottle bill (10¢) covering many beverages. Prepared food subject to local meal taxes in some areas.",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "PA": {
+        "state": "Pennsylvania",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": false,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries exempt; PA treats candy differently (often exempt). Check municipality rules for local taxed items.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "RI": {
+        "state": "Rhode Island",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries exempt; verify specific snack exceptions in state guidance. Bottle bills not currently statewide deposit (check updates).",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "SC": {
+        "state": "South Carolina",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Unprepared food purchasable with SNAP (food stamps) is exempt; local option taxes may apply.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "SD": {
+        "state": "South Dakota",
+        "grocery": true,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "South Dakota taxes groceries (historically at full/temporary rates); verify current rate and localities.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "TN": {
+        "state": "Tennessee",
+        "grocery": true,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries taxed at a reduced state rate but local rates can fully tax groceries. Check localities.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "TX": {
+        "state": "Texas",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries largely exempt; prepared foods and many beverages taxed. Local sales taxes apply.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "UT": {
+        "state": "Utah",
+        "grocery": true,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Utah taxes groceries at a reduced rate with complex local options; check state guidance for combined rates.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "VT": {
+        "state": "Vermont",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": false,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": true,
+        "local_variations": false,
+        "notes": "Groceries exempt; Vermont has a bottle deposit program (various rates). Some soda/chips edge-cases exist — check state guidance.",
+        "sources": [
+            "turn1view0",
+            "turn2search0"
+        ]
+    },
+    "VA": {
+        "state": "Virginia",
+        "grocery": true,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Virginia taxes groceries at a reduced rate with local option taxes in some areas; check current rate and local rules.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "WA": {
+        "state": "Washington",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries exempt; prepared foods taxed. No statewide bottle deposit (some municipal programs may exist).",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "WV": {
+        "state": "West Virginia",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Groceries generally exempt; check local taxes and exceptions.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "WI": {
+        "state": "Wisconsin",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries exempt at state level; some snack foods excluded from exemption — see state rules.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "WY": {
+        "state": "Wyoming",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": true,
+        "notes": "Food for domestic home consumption is generally exempt; local taxes possible.",
+        "sources": [
+            "turn1view0"
+        ]
+    },
+    "DC": {
+        "state": "District of Columbia",
+        "grocery": false,
+        "prepared_food": true,
+        "candy": true,
+        "soda_soft_drinks": true,
+        "dietary_supplements": true,
+        "alcohol": true,
+        "non_food": true,
+        "crv_deposit": false,
+        "local_variations": false,
+        "notes": "Groceries exempt; prepared food generally taxed. Check DC Office of Tax and Revenue for details.",
+        "sources": [
+            "turn1view0"
+        ]
+    }
+}

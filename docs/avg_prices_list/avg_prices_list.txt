@@ -1,0 +1,990 @@
+[
+{
+"name": "Soda (Coke, Sprite) & Soft Drinks",
+"category": "Beverages",
+"price": 5.0,
+"unit": "12-pack"
+},
+{
+"name": "Milk",
+"category": "Dairy",
+"price": 4.13,
+"unit": "gallon"
+},
+{
+"name": "Chips (Cheetos, Doritos & Lay's)",
+"category": "Snacks",
+"price": 6.97,
+"unit": "16 oz bag"
+},
+{
+"name": "Eggs",
+"category": "Dairy",
+"price": 3.49,
+"unit": "dozen"
+},
+{
+"name": "Bread",
+"category": "Bakery",
+"price": 1.85,
+"unit": "lb"
+},
+{
+"name": "Breakfast Cereal & Instant Oatmeal",
+"category": "Breakfast",
+"price": 4.5,
+"unit": "box"
+},
+{
+"name": "Candy Bars (Kit Kat, Snickers & Milky Way etc.)",
+"category": "Snacks",
+"price": 1.5,
+"unit": "bar"
+},
+{
+"name": "Block Cheese & Deli Cheese",
+"category": "Dairy",
+"price": 6.05,
+"unit": "lb"
+},
+{
+"name": "Beer",
+"category": "Beverages",
+"price": 1.83,
+"unit": "16 oz"
+},
+{
+"name": "Bottled Water",
+"category": "Beverages",
+"price": 1.2,
+"unit": "liter"
+},
+{
+"name": "Cigarettes & Ecigarettes",
+"category": "Miscellaneous",
+"price": 8.0,
+"unit": "pack"
+},
+{
+"name": "Chocolate Bars",
+"category": "Snacks",
+"price": 2.0,
+"unit": "bar"
+},
+{
+"name": "Snack Cakes",
+"category": "Snacks",
+"price": 3.0,
+"unit": "pack"
+},
+{
+"name": "Cookies & Crackers",
+"category": "Snacks",
+"price": 5.15,
+"unit": "lb"
+},
+{
+"name": "Pepperoni, Jerky, Bacon, Ham & Other Packaged Meat",
+"category": "Meat",
+"price": 7.29,
+"unit": "lb for bacon"
+},
+{
+"name": "Wine",
+"category": "Beverages",
+"price": 13.97,
+"unit": "liter"
+},
+{
+"name": "Cupcakes & Muffins",
+"category": "Bakery",
+"price": 4.0,
+"unit": "pack"
+},
+{
+"name": "Breakfast Bars & Granola Bars",
+"category": "Breakfast",
+"price": 0.5,
+"unit": "bar"
+},
+{
+"name": "Fresh Fruits (esp. Bananas, Apples & Lemons)",
+"category": "Fruits",
+"price": 0.67,
+"unit": "lb for bananas"
+},
+{
+"name": "Fresh Vegetables (esp. Potatoes, Tomatoes & Cucumbers)",
+"category": "Vegetables",
+"price": 1.01,
+"unit": "lb for potatoes"
+},
+{
+"name": "Liquors",
+"category": "Beverages",
+"price": 20.0,
+"unit": "bottle"
+},
+{
+"name": "Fried Chicken",
+"category": "Meat",
+"price": 2.06,
+"unit": "lb"
+},
+{
+"name": "Candies & Other Sweets",
+"category": "Snacks",
+"price": 1.5,
+"unit": "pack"
+},
+{
+"name": "Coffee",
+"category": "Beverages",
+"price": 9.14,
+"unit": "lb"
+},
+{
+"name": "Yogurts & Milkshakes",
+"category": "Dairy",
+"price": 1.0,
+"unit": "cup"
+},
+{
+"name": "Fruit Juices",
+"category": "Beverages",
+"price": 3.0,
+"unit": "liter"
+},
+{
+"name": "Fresh & Frozen Beef",
+"category": "Meat",
+"price": 6.64,
+"unit": "lb"
+},
+{
+"name": "Hot Dogs",
+"category": "Meat",
+"price": 4.0,
+"unit": "pack"
+},
+{
+"name": "Peanut Butter",
+"category": "Pantry",
+"price": 3.0,
+"unit": "18 oz jar"
+},
+{
+"name": "Household Cleaners",
+"category": "Household",
+"price": 4.0,
+"unit": "bottle"
+},
+{
+"name": "Baby Disposable Diapers",
+"category": "Baby",
+"price": 0.3,
+"unit": "diaper"
+},
+{
+"name": "Mayonnaise & Miracle Whip",
+"category": "Condiments",
+"price": 4.0,
+"unit": "jar"
+},
+{
+"name": "Sandwiches",
+"category": "Deli",
+"price": 5.0,
+"unit": "each"
+},
+{
+"name": "Frozen Pizza",
+"category": "Frozen",
+"price": 5.0,
+"unit": "each"
+},
+{
+"name": "Cream & Cream Desserts",
+"category": "Dairy",
+"price": 3.0,
+"unit": "container"
+},
+{
+"name": "Ice Cream",
+"category": "Frozen",
+"price": 6.4,
+"unit": "half gallon"
+},
+{
+"name": "Sausages",
+"category": "Meat",
+"price": 4.35,
+"unit": "lb"
+},
+{
+"name": "Philadelphia Cream Cheese",
+"category": "Dairy",
+"price": 4.93,
+"unit": "lb"
+},
+{
+"name": "Butter (Quarter)",
+"category": "Dairy",
+"price": 4.0,
+"unit": "lb"
+},
+{
+"name": "Painkillers",
+"category": "Medicine",
+"price": 5.0,
+"unit": "pack"
+},
+{
+"name": "Vitamin C, Other Vitamins & Supplements",
+"category": "Medicine",
+"price": 10.0,
+"unit": "bottle"
+},
+{
+"name": "Pasta & Macaroni",
+"category": "Pantry",
+"price": 1.2,
+"unit": "lb"
+},
+{
+"name": "Deli Rolls",
+"category": "Bakery",
+"price": 3.0,
+"unit": "pack"
+},
+{
+"name": "Eggo Frozen Waffles & Pancakes",
+"category": "Frozen",
+"price": 3.0,
+"unit": "pack"
+},
+{
+"name": "Biscuits",
+"category": "Bakery",
+"price": 2.5,
+"unit": "pack"
+},
+{
+"name": "Frozen Fish",
+"category": "Seafood",
+"price": 8.0,
+"unit": "lb"
+},
+{
+"name": "Frozen Seafood",
+"category": "Seafood",
+"price": 10.0,
+"unit": "lb"
+},
+{
+"name": "Legumes",
+"category": "Pantry",
+"price": 1.63,
+"unit": "lb"
+},
+{
+"name": "Cereal Grains",
+"category": "Pantry",
+"price": 1.06,
+"unit": "lb for rice"
+},
+{
+"name": "Meal Kits",
+"category": "Pantry",
+"price": 10.0,
+"unit": "kit"
+},
+{
+"name": "Donuts",
+"category": "Bakery",
+"price": 5.0,
+"unit": "dozen"
+},
+{
+"name": "Tea",
+"category": "Beverages",
+"price": 5.0,
+"unit": "box"
+},
+{
+"name": "Dog & Cat Food",
+"category": "Pet",
+"price": 1.5,
+"unit": "lb"
+},
+{
+"name": "Gift Cards",
+"category": "Miscellaneous",
+"price": 25.0,
+"unit": "card"
+},
+{
+"name": "Canned Soups",
+"category": "Pantry",
+"price": 2.0,
+"unit": "can"
+},
+{
+"name": "Canned Chicken, Ham & Vegetables",
+"category": "Pantry",
+"price": 2.5,
+"unit": "can"
+},
+{
+"name": "Tuna Fish & Canned Salmon",
+"category": "Pantry",
+"price": 1.5,
+"unit": "can"
+},
+{
+"name": "Nuts",
+"category": "Snacks",
+"price": 8.0,
+"unit": "lb"
+},
+{
+"name": "Dish Soap",
+"category": "Household",
+"price": 3.0,
+"unit": "bottle"
+},
+{
+"name": "Detergents & Fabric Softeners",
+"category": "Household",
+"price": 8.0,
+"unit": "bottle"
+},
+{
+"name": "Toilet Paper",
+"category": "Household",
+"price": 10.0,
+"unit": "12-pack"
+},
+{
+"name": "Jams & Applesauce",
+"category": "Pantry",
+"price": 3.0,
+"unit": "jar"
+},
+{
+"name": "Honey & Maple Syrup",
+"category": "Pantry",
+"price": 5.0,
+"unit": "bottle"
+},
+{
+"name": "Energy Drinks & Sport Drinks",
+"category": "Beverages",
+"price": 2.0,
+"unit": "bottle"
+},
+{
+"name": "Frozen Vegetables",
+"category": "Frozen",
+"price": 2.0,
+"unit": "bag"
+},
+{
+"name": "Del Monte Green Beans",
+"category": "Pantry",
+"price": 1.5,
+"unit": "can"
+},
+{
+"name": "Disposable Cups",
+"category": "Household",
+"price": 5.0,
+"unit": "pack"
+},
+{
+"name": "Disposable Utensils",
+"category": "Household",
+"price": 4.0,
+"unit": "pack"
+},
+{
+"name": "Soybean Oil & Sunflower Oil",
+"category": "Pantry",
+"price": 5.0,
+"unit": "bottle"
+},
+{
+"name": "Flour",
+"category": "Pantry",
+"price": 0.56,
+"unit": "lb"
+},
+{
+"name": "Disposable Shaving Razors",
+"category": "Personal Care",
+"price": 5.0,
+"unit": "pack"
+},
+{
+"name": "Meatballs",
+"category": "Meat",
+"price": 5.0,
+"unit": "lb"
+},
+{
+"name": "Ketchup, Mayonnaise, BBQ & Mustard",
+"category": "Condiments",
+"price": 3.0,
+"unit": "bottle"
+},
+{
+"name": "Chewing Gum",
+"category": "Snacks",
+"price": 1.0,
+"unit": "pack"
+},
+{
+"name": "Noodles & Instant Soups",
+"category": "Pantry",
+"price": 1.0,
+"unit": "pack"
+},
+{
+"name": "Disposable Plates",
+"category": "Household",
+"price": 5.0,
+"unit": "pack"
+},
+{
+"name": "Tissues & Paper Towels",
+"category": "Household",
+"price": 8.0,
+"unit": "pack"
+},
+{
+"name": "Olive Oil",
+"category": "Pantry",
+"price": 7.0,
+"unit": "bottle"
+},
+{
+"name": "Sauces (Soy, Tabasco, Fish)",
+"category": "Condiments",
+"price": 4.0,
+"unit": "bottle"
+},
+{
+"name": "Shampoo",
+"category": "Personal Care",
+"price": 5.0,
+"unit": "bottle"
+},
+{
+"name": "Baby Food",
+"category": "Baby",
+"price": 1.0,
+"unit": "jar"
+},
+{
+"name": "Skincare Products",
+"category": "Personal Care",
+"price": 10.0,
+"unit": "item"
+},
+{
+"name": "Toothpaste",
+"category": "Personal Care",
+"price": 3.0,
+"unit": "tube"
+},
+{
+"name": "Soap",
+"category": "Personal Care",
+"price": 1.0,
+"unit": "bar"
+},
+{
+"name": "Tomato Paste, Tomato Sauce",
+"category": "Pantry",
+"price": 2.0,
+"unit": "can"
+},
+{
+"name": "Baking Powder",
+"category": "Pantry",
+"price": 2.0,
+"unit": "can"
+},
+{
+"name": "Ice Cubes",
+"category": "Miscellaneous",
+"price": 2.0,
+"unit": "bag"
+},
+{
+"name": "Bagged Salads",
+"category": "Vegetables",
+"price": 3.0,
+"unit": "bag"
+},
+{
+"name": "Packaged Mac & Cheese",
+"category": "Pantry",
+"price": 1.0,
+"unit": "box"
+},
+{
+"name": "Vinegar",
+"category": "Pantry",
+"price": 3.0,
+"unit": "bottle"
+},
+{
+"name": "Batteries",
+"category": "Household",
+"price": 1.0,
+"unit": "AA battery"
+},
+{
+"name": "Hand Sanitizers",
+"category": "Personal Care",
+"price": 3.0,
+"unit": "bottle"
+},
+{
+"name": "Flowers",
+"category": "Miscellaneous",
+"price": 10.0,
+"unit": "bouquet"
+},
+{
+"name": "Spices, Herbs & Seasonings",
+"category": "Pantry",
+"price": 4.0,
+"unit": "jar"
+},
+{
+"name": "Pretzels",
+"category": "Snacks",
+"price": 4.0,
+"unit": "bag"
+},
+{
+"name": "Shower Gels",
+"category": "Personal Care",
+"price": 5.0,
+"unit": "bottle"
+},
+{
+"name": "Deodorants",
+"category": "Personal Care",
+"price": 4.0,
+"unit": "stick"
+},
+{
+"name": "Sugar & Salt",
+"category": "Pantry",
+"price": 1.04,
+"unit": "lb for sugar"
+},
+{
+"name": "Feminine Hygiene Products",
+"category": "Personal Care",
+"price": 5.0,
+"unit": "pack"
+},
+{
+"name": "Toothbrushes",
+"category": "Personal Care",
+"price": 2.0,
+"unit": "each"
+}
+]
+[
+  {"name": "Ground Beef 80/20", "category": "Meat", "price": 5.29, "unit": "lb"},
+  {"name": "Chicken Breast (boneless skinless)", "category": "Meat", "price": 3.99, "unit": "lb"},
+  {"name": "Chicken Thighs (bone-in)", "category": "Meat", "price": 1.89, "unit": "lb"},
+  {"name": "Pork Chops (bone-in)", "category": "Meat", "price": 4.29, "unit": "lb"},
+  {"name": "Bacon (regular sliced)", "category": "Meat", "price": 7.49, "unit": "lb"},
+  {"name": "Whole Chicken", "category": "Meat", "price": 1.79, "unit": "lb"},
+  {"name": "Turkey Breast (deli sliced)", "category": "Deli", "price": 9.99, "unit": "lb"},
+  {"name": "Ham (deli sliced)", "category": "Deli", "price": 8.49, "unit": "lb"},
+  {"name": "Salami", "category": "Deli", "price": 7.99, "unit": "lb"},
+  {"name": "Rotisserie Chicken (whole)", "category": "Deli", "price": 7.99, "unit": "each"},
+  {"name": "Bananas", "category": "Produce", "price": 0.59, "unit": "lb"},
+  {"name": "Apples (Gala or Fuji)", "category": "Produce", "price": 1.69, "unit": "lb"},
+  {"name": "Oranges (navel)", "category": "Produce", "price": 1.39, "unit": "lb"},
+  {"name": "Strawberries (1 lb clamshell)", "category": "Produce", "price": 3.99, "unit": "lb"},
+  {"name": "Blueberries (pint)", "category": "Produce", "price": 4.49, "unit": "pint"},
+  {"name": "Avocados (Hass)", "category": "Produce", "price": 1.50, "unit": "each"},
+  {"name": "Romaine Lettuce (heart)", "category": "Produce", "price": 2.29, "unit": "each"},
+  {"name": "Tomatoes (on the vine)", "category": "Produce", "price": 2.49, "unit": "lb"},
+  {"name": "Cucumbers", "category": "Produce", "price": 0.79, "unit": "each"},
+  {"name": "Bell Peppers (red/yellow)", "category": "Produce", "price": 1.79, "unit": "each"},
+  {"name": "Carrots (baby)", "category": "Produce", "price": 1.69, "unit": "1 lb bag"},
+  {"name": "Potatoes (russet)", "category": "Produce", "price": 0.89, "unit": "lb"},
+  {"name": "Onions (yellow)", "category": "Produce", "price": 1.19, "unit": "lb"},
+  {"name": "Broccoli Crowns", "category": "Produce", "price": 2.29, "unit": "lb"},
+  {"name": "Spinach (baby, bagged)", "category": "Produce", "price": 3.49, "unit": "10 oz bag"},
+  {"name": "White Bread (store brand)", "category": "Bakery", "price": 2.19, "unit": "20 oz loaf"},
+  {"name": "Whole Wheat Bread", "category": "Bakery", "price": 3.29, "unit": "20 oz loaf"},
+  {"name": "Hamburger Buns", "category": "Bakery", "price": 2.99, "unit": "8-pack"},
+  {"name": "Hot Dog Buns", "category": "Bakery", "price": 2.99, "unit": "8-pack"},
+  {"name": "Bagels", "category": "Bakery", "price": 3.99, "unit": "6-pack"},
+  {"name": "Tortillas (flour, 10-count)", "category": "Bakery", "price": 2.79, "unit": "pack"},
+  {"name": "Cheddar Cheese (shredded)", "category": "Dairy", "price": 3.99, "unit": "8 oz bag"},
+  {"name": "Mozzarella Cheese (shredded)", "category": "Dairy", "price": 3.79, "unit": "8 oz bag"},
+  {"name": "American Cheese Slices", "category": "Dairy", "price": 3.99, "unit": "16 slices"},
+  {"name": "Greek Yogurt (5-6 oz cup)", "category": "Dairy", "price": 1.25, "unit": "cup"},
+  {"name": "Orange Juice (half gallon)", "category": "Beverages", "price": 4.29, "unit": "64 oz"},
+  {"name": "Almond Milk", "category": "Beverages", "price": 3.49, "unit": "half gallon"},
+  {"name": "Apple Juice", "category": "Beverages", "price": 3.29, "unit": "64 oz"},
+  {"name": "Ground Coffee (12 oz can)", "category": "Beverages", "price": 8.99, "unit": "12 oz"},
+  {"name": "Spaghetti Pasta", "category": "Pantry", "price": 1.49, "unit": "1 lb box"},
+  {"name": "Penne Pasta", "category": "Pantry", "price": 1.59, "unit": "1 lb box"},
+  {"name": "Rice (white, long grain)", "category": "Pantry", "price": 1.29, "unit": "2 lb bag"},
+  {"name": "Brown Rice", "category": "Pantry", "price": 2.19, "unit": "2 lb bag"},
+  {"name": "Canned Tomatoes (diced)", "category": "Pantry", "price": 1.39, "unit": "14.5 oz can"},
+  {"name": "Pasta Sauce (jar)", "category": "Pantry", "price": 2.49, "unit": "24 oz jar"},
+  {"name": "Black Beans (canned)", "category": "Pantry", "price": 1.09, "unit": "15 oz can"},
+  {"name": "Kidney Beans (canned)", "category": "Pantry", "price": 1.19, "unit": "15 oz can"},
+  {"name": "Peanut Butter (creamy)", "category": "Pantry", "price": 3.29, "unit": "16 oz jar"},
+  {"name": "Jelly/Jam (grape)", "category": "Pantry", "price": 3.19, "unit": "18 oz jar"},
+  {"name": "Ketchup", "category": "Condiments", "price": 2.99, "unit": "32 oz bottle"},
+  {"name": "Mustard (yellow)", "category": "Condiments", "price": 1.89, "unit": "20 oz bottle"},
+  {"name": "Mayonnaise", "category": "Condiments", "price": 4.29, "unit": "30 oz jar"},
+  {"name": "Salad Dressing (Ranch)", "category": "Condiments", "price": 3.49, "unit": "16 oz bottle"},
+  {"name": "Olive Oil (extra virgin)", "category": "Pantry", "price": 8.99, "unit": "500 ml bottle"},
+  {"name": "Canola Oil", "category": "Pantry", "price": 4.29, "unit": "48 oz bottle"},
+  {"name": "Granulated Sugar", "category": "Pantry", "price": 3.29, "unit": "4 lb bag"},
+  {"name": "Brown Sugar", "category": "Pantry", "price": 2.79, "unit": "2 lb bag"},
+  {"name": "All-Purpose Flour", "category": "Pantry", "price": 2.99, "unit": "5 lb bag"},
+  {"name": "Baking Soda", "category": "Pantry", "price": 0.99, "unit": "1 lb box"},
+  {"name": "Vanilla Extract", "category": "Pantry", "price": 6.99, "unit": "4 oz bottle"},
+  {"name": "Chicken Broth", "category": "Pantry", "price": 2.19, "unit": "32 oz carton"},
+  {"name": "Tuna (canned in water)", "category": "Pantry", "price": 1.29, "unit": "5 oz can"},
+  {"name": "Frozen Broccoli", "category": "Frozen", "price": 1.89, "unit": "12 oz bag"},
+  {"name": "Frozen Peas", "category": "Frozen", "price": 1.69, "unit": "12 oz bag"},
+  {"name": "Frozen Mixed Vegetables", "category": "Frozen", "price": 1.99, "unit": "16 oz bag"},
+  {"name": "Frozen French Fries", "category": "Frozen", "price": 3.29, "unit": "28 oz bag"},
+  {"name": "Vanilla Ice Cream", "category": "Frozen", "price": 4.99, "unit": "1.5 qt"},
+  {"name": "Frozen Pizza (rising crust)", "category": "Frozen", "price": 6.49, "unit": "each"},
+  {"name": "Orange Chicken (frozen)", "category": "Frozen", "price": 7.99, "unit": "22 oz bag"},
+  {"name": "Chicken Nuggets", "category": "Frozen", "price": 5.99, "unit": "32 oz bag"},
+  {"name": "Almonds (raw)", "category": "Snacks", "price": 7.99, "unit": "lb"},
+  {"name": "Peanuts (roasted)", "category": "Snacks", "price": 3.49, "unit": "16 oz jar"},
+  {"name": "Popcorn (microwave)", "category": "Snacks", "price": 4.49, "unit": "6-pack"},
+  {"name": "Potato Chips (family size)", "category": "Snacks", "price": 4.29, "unit": "10-11 oz bag"},
+  {"name": "Tortilla Chips", "category": "Snacks", "price": 3.99, "unit": "13 oz bag"},
+  {"name": "Salsa (medium)", "category": "Snacks", "price": 3.49, "unit": "16 oz jar"},
+  {"name": "Granola Bars (variety)", "category": "Snacks", "price": 4.99, "unit": "12-count box"},
+  {"name": "Oreo Cookies", "category": "Snacks", "price": 4.49, "unit": "14.3 oz package"},
+  {"name": "Chocolate Chip Cookies", "category": "Snacks", "price": 4.29, "unit": "13 oz package"},
+  {"name": "Crackers (saltine)", "category": "Snacks", "price": 3.29, "unit": "1 lb box"},
+  {"name": "Bottled Water (24-pack)", "category": "Beverages", "price": 4.99, "unit": "24 x 16.9 oz"},
+  {"name": "Sparkling Water (12-pack)", "category": "Beverages", "price": 5.99, "unit": "12 x 12 oz cans"},
+  {"name": "Sports Drink (32 oz)", "category": "Beverages", "price": 1.49, "unit": "bottle"},
+  {"name": "Energy Drink (16 oz)", "category": "Beverages", "price": 2.99, "unit": "can"},
+  {"name": "Lemonade (64 oz)", "category": "Beverages", "price": 2.99, "unit": "bottle"},
+  {"name": "Iced Tea (gallon)", "category": "Beverages", "price": 3.29, "unit": "gallon"},
+  {"name": "Paper Towels (6-roll)", "category": "Household", "price": 9.99, "unit": "6-roll pack"},
+  {"name": "Facial Tissue", "category": "Household", "price": 2.49, "unit": "box"},
+  {"name": "Trash Bags (13 gal)", "category": "Household", "price": 10.99, "unit": "40-count"},
+  {"name": "Aluminum Foil", "category": "Household", "price": 5.99, "unit": "75 sq ft roll"},
+  {"name": "Plastic Wrap", "category": "Household", "price": 3.99, "unit": "200 sq ft"},
+  {"name": "Dishwasher Detergent Pods", "category": "Household", "price": 12.99, "unit": "32-count"},
+  {"name": "Laundry Detergent (liquid)", "category": "Household", "price": 11.99, "unit": "100 oz"},
+  {"name": "Body Wash", "category": "Personal Care", "price": 5.99, "unit": "18 oz bottle"},
+  {"name": "Bar Soap (3-pack)", "category": "Personal Care", "price": 4.49, "unit": "3-pack"},
+  {"name": "Shampoo (average)", "category": "Personal Care", "price": 5.49, "unit": "13 oz bottle"},
+  {"name": "Conditioner", "category": "Personal Care", "price": 5.49, "unit": "13 oz bottle"},
+  {"name": "Toothpaste (large)", "category": "Personal Care", "price": 4.29, "unit": "6 oz tube"},
+  {"name": "Mouthwash", "category": "Personal Care", "price": 5.99, "unit": "1 liter"},
+  {"name": "Razors (disposable 10-pack)", "category": "Personal Care", "price": 9.99, "unit": "10-pack"}
+]
+[
+  {"name": "Sirloin Steak", "category": "Meat", "price": 9.99, "unit": "lb"},
+  {"name": "Ribeye Steak", "category": "Meat", "price": 14.99, "unit": "lb"},
+  {"name": "Pork Tenderloin", "category": "Meat", "price": 5.99, "unit": "lb"},
+  {"name": "Lamb Chops", "category": "Meat", "price": 12.99, "unit": "lb"},
+  {"name": "Italian Sausage (mild)", "category": "Meat", "price": 4.99, "unit": "lb"},
+  {"name": "Breakfast Sausage Links", "category": "Meat", "price": 4.49, "unit": "12 oz pack"},
+  {"name": "Turkey Ground", "category": "Meat", "price": 5.49, "unit": "lb"},
+  {"name": "Salmon Fillet (fresh Atlantic)", "category": "Seafood", "price": 11.99, "unit": "lb"},
+  {"name": "Shrimp (raw, peeled, 41-50 ct)", "category": "Seafood", "price": 9.99, "unit": "lb"},
+  {"name": "Tilapia Fillets (frozen)", "category": "Seafood", "price": 7.49, "unit": "lb"},
+  {"name": "Cod Fillets (frozen)", "category": "Seafood", "price": 8.99, "unit": "lb"},
+  {"name": "Canned Salmon", "category": "Seafood", "price": 4.29, "unit": "14.75 oz can"},
+  {"name": "Grapes (red seedless)", "category": "Produce", "price": 2.99, "unit": "lb"},
+  {"name": "Pineapple (whole)", "category": "Produce", "price": 3.99, "unit": "each"},
+  {"name": "Mangoes", "category": "Produce", "price": 1.49, "unit": "each"},
+  {"name": "Kiwi Fruit", "category": "Produce", "price": 0.59, "unit": "each"},
+  {"name": "Lemons", "category": "Produce", "price": 0.79, "unit": "each"},
+  {"name": "Limes", "category": "Produce", "price": 0.69, "unit": "each"},
+  {"name": "Watermelon (seedless mini)", "category": "Produce", "price": 5.99, "unit": "each"},
+  {"name": "Cantaloupe", "category": "Produce", "price": 2.99, "unit": "each"},
+  {"name": "Asparagus", "category": "Produce", "price": 3.99, "unit": "lb"},
+  {"name": "Brussels Sprouts", "category": "Produce", "price": 2.99, "unit": "lb"},
+  {"name": "Cauliflower Head", "category": "Produce", "price": 3.99, "unit": "each"},
+  {"name": "Zucchini", "category": "Produce", "price": 1.79, "unit": "lb"},
+  {"name": "Sweet Potatoes", "category": "Produce", "price": 1.29, "unit": "lb"},
+  {"name": "Mushrooms (white button)", "category": "Produce", "price": 2.49, "unit": "8 oz"},
+  {"name": "Celery", "category": "Produce", "price": 2.29, "unit": "bunch"},
+  {"name": "Green Beans (fresh)", "category": "Produce", "price": 2.29, "unit": "lb"},
+  {"name": "Corn on the Cob", "category": "Produce", "price": 0.69, "unit": "ear"},
+  {"name": "Iceberg Lettuce", "category": "Produce", "price": 1.89, "unit": "head"},
+  {"name": "English Muffins", "category": "Bakery", "price": 3.29, "unit": "6-pack"},
+  {"name": "Croissants", "category": "Bakery", "price": 4.99, "unit": "4-pack"},
+  {"name": "Pita Bread", "category": "Bakery", "price": 2.79, "unit": "6-pack"},
+  {"name": "Naan Bread", "category": "Bakery", "price": 3.99, "unit": "2-pack"},
+  {"name": "Sourdough Bread", "category": "Bakery", "price": 5.49, "unit": "loaf"},
+  {"name": "Parmesan Cheese (grated)", "category": "Dairy", "price": 4.99, "unit": "8 oz"},
+  {"name": "Feta Cheese", "category": "Dairy", "price": 5.49, "unit": "8 oz"},
+  {"name": "Cottage Cheese", "category": "Dairy", "price": 3.29, "unit": "16 oz"},
+  {"name": "Sour Cream", "category": "Dairy", "price": 2.49, "unit": "16 oz"},
+  {"name": "Half & Half", "category": "Dairy", "price": 3.29, "unit": "pint"},
+  {"name": "Heavy Whipping Cream", "category": "Dairy", "price": 4.29, "unit": "pint"},
+  {"name": "Soy Milk", "category": "Beverages", "price": 3.79, "unit": "half gallon"},
+  {"name": "Oat Milk", "category": "Beverages", "price": 4.49, "unit": "half gallon"},
+  {"name": "Coconut Water", "category": "Beverages", "price": 4.99, "unit": "1 liter"},
+  {"name": "Tomato Juice", "category": "Beverages", "price": 3.49, "unit": "46 oz"},
+  {"name": "Instant Coffee", "category": "Beverages", "price": 7.99, "unit": "8 oz jar"},
+  {"name": "Tea Bags (100-count)", "category": "Beverages", "price": 4.99, "unit": "box"},
+  {"name": "Quinoa", "category": "Pantry", "price": 5.99, "unit": "lb"},
+  {"name": "Lentils (dry)", "category": "Pantry", "price": 1.89, "unit": "lb"},
+  {"name": "Chickpeas (canned)", "category": "Pantry", "price": 1.19, "unit": "15 oz can"},
+  {"name": "Refried Beans", "category": "Pantry", "price": 1.49, "unit": "16 oz can"},
+  {"name": "Baked Beans", "category": "Pantry", "price": 2.29, "unit": "28 oz can"},
+  {"name": "Coconut Milk (canned)", "category": "Pantry", "price": 2.49, "unit": "13.5 oz can"},
+  {"name": "Pickles (dill spears)", "category": "Pantry", "price": 3.49, "unit": "32 oz jar"},
+  {"name": "Olives (black, sliced)", "category": "Pantry", "price": 2.99, "unit": "6 oz can"},
+  {"name": "Hot Sauce", "category": "Condiments", "price": 3.29, "unit": "12 oz bottle"},
+  {"name": "Soy Sauce", "category": "Condiments", "price": 3.49, "unit": "15 oz bottle"},
+  {"name": "Worcestershire Sauce", "category": "Condiments", "price": 3.99, "unit": "10 oz bottle"},
+  {"name": "Balsamic Vinegar", "category": "Condiments", "price": 5.99, "unit": "16.9 oz"},
+  {"name": "Honey", "category": "Pantry", "price": 7.99, "unit": "16 oz bear"},
+  {"name": "Maple Syrup (pure)", "category": "Pantry", "price": 9.99, "unit": "12 oz"},
+  {"name": "Pancake Syrup", "category": "Pantry", "price": 3.99, "unit": "24 oz"},
+  {"name": "Canned Corn", "category": "Pantry", "price": 1.09, "unit": "15 oz can"},
+  {"name": "Canned Peas", "category": "Pantry", "price": 1.09, "unit": "15 oz can"},
+  {"name": "Canned Mushrooms", "category": "Pantry", "price": 1.59, "unit": "4 oz can"},
+  {"name": "Ramen Noodles (6-pack)", "category": "Pantry", "price": 2.49, "unit": "6-pack"},
+  {"name": "Macaroni & Cheese (boxed)", "category": "Pantry", "price": 1.79, "unit": "7.25 oz box"},
+  {"name": "Stuffing Mix", "category": "Pantry", "price": 2.99, "unit": "6 oz box"},
+  {"name": "Taco Shells", "category": "Pantry", "price": 2.99, "unit": "12-count"},
+  {"name": "Taco Seasoning", "category": "Pantry", "price": 1.29, "unit": "packet"},
+  {"name": "Frozen Spinach", "category": "Frozen", "price": 1.89, "unit": "10 oz box"},
+  {"name": "Frozen Berries (mixed)", "category": "Frozen", "price": 4.99, "unit": "12 oz bag"},
+  {"name": "Frozen Waffles", "category": "Frozen", "price": 3.49, "unit": "10-count"},
+  {"name": "Frozen Burritos", "category": "Frozen", "price": 1.79, "unit": "each"},
+  {"name": "Frozen Lasagna", "category": "Frozen", "price": 8.99, "unit": "family size"},
+  {"name": "Cashews (roasted)", "category": "Snacks", "price": 9.99, "unit": "lb"},
+  {"name": "Pistachios (in-shell)", "category": "Snacks", "price": 10.99, "unit": "lb"},
+  {"name": "Trail Mix", "category": "Snacks", "price": 6.99, "unit": "lb"},
+  {"name": "Beef Jerky", "category": "Snacks", "price": 7.99, "unit": "8 oz bag"},
+  {"name": "Rice Cakes", "category": "Snacks", "price": 2.99, "unit": "pack"},
+  {"name": "Protein Bars", "category": "Snacks", "price": 1.79, "unit": "each"},
+  {"name": "Fruit Snacks", "category": "Snacks", "price": 4.99, "unit": "10-pouch box"},
+  {"name": "Microwave Popcorn (movie theater)", "category": "Snacks", "price": 5.49, "unit": "6-pack"},
+  {"name": "Pretzel Sticks", "category": "Snacks", "price": 3.49, "unit": "16 oz bag"},
+  {"name": "Cheese Puffs", "category": "Snacks", "price": 3.99, "unit": "9 oz bag"},
+  {"name": "Soda (2-liter)", "category": "Beverages", "price": 1.99, "unit": "2-liter"},
+  {"name": "Root Beer (12-pack cans)", "category": "Beverages", "price": 6.49, "unit": "12-pack"},
+  {"name": "Club Soda (1-liter)", "category": "Beverages", "price": 1.29, "unit": "bottle"},
+  {"name": "Bleach", "category": "Household", "price": 3.99, "unit": "121 oz"},
+  {"name": "All-Purpose Cleaner", "category": "Household", "price": 4.49, "unit": "28 oz spray"},
+  {"name": "Glass Cleaner", "category": "Household", "price": 4.29, "unit": "32 oz"},
+  {"name": "Sponges (multi-pack)", "category": "Household", "price": 4.99, "unit": "6-pack"},
+  {"name": "Ziploc Bags (quart)", "category": "Household", "price": 4.99, "unit": "25-count"},
+  {"name": "Feminine Pads", "category": "Personal Care", "price": 7.99, "unit": "36-count"},
+  {"name": "Tampons", "category": "Personal Care", "price": 8.99, "unit": "40-count"},
+  {"name": "Baby Wipes", "category": "Baby", "price": 3.99, "unit": "80-count pack"},
+  {"name": "Diapers (size 4)", "category": "Baby", "price": 29.99, "unit": "120-count mega"},
+  {"name": "Baby Formula (powder)", "category": "Baby", "price": 34.99, "unit": "23 oz tub"}
+]
+
+[
+  {"name": "New York Strip Steak", "category": "Meat", "price": 13.99, "unit": "lb"},
+  {"name": "Filet Mignon", "category": "Meat", "price": 24.99, "unit": "lb"},
+  {"name": "Pork Shoulder (Boston butt)", "category": "Meat", "price": 3.29, "unit": "lb"},
+  {"name": "Beef Brisket", "category": "Meat", "price": 8.99, "unit": "lb"},
+  {"name": "Chicken Wings (fresh)", "category": "Meat", "price": 3.79, "unit": "lb"},
+  {"name": "Turkey Bacon", "category": "Meat", "price": 5.49, "unit": "12 oz"},
+  {"name": "Prosciutto", "category": "Deli", "price": 18.99, "unit": "lb"},
+  {"name": "Pepperoni (sliced)", "category": "Deli", "price": 6.99, "unit": "lb"},
+  {"name": "Roast Beef (deli)", "category": "Deli", "price": 11.99, "unit": "lb"},
+  {"name": "Smoked Salmon", "category": "Seafood", "price": 12.99, "unit": "8 oz"},
+  {"name": "Crab Meat (canned lump)", "category": "Seafood", "price": 18.99, "unit": "16 oz"},
+  {"name": "Scallops (sea, frozen)", "category": "Seafood", "price": 19.99, "unit": "lb"},
+  {"name": "Cherries (fresh)", "category": "Produce", "price": 5.99, "unit": "lb"},
+  {"name": "Raspberries (6 oz)", "category": "Produce", "price": 4.49, "unit": "6 oz"},
+  {"name": "Blackberries (6 oz)", "category": "Produce", "price": 4.29, "unit": "6 oz"},
+  {"name": "Peaches", "category": "Produce", "price": 2.49, "unit": "lb"},
+  {"name": "Plums", "category": "Produce", "price": 2.79, "unit": "lb"},
+  {"name": "Pears (Bartlett)", "category": "Produce", "price": 1.89, "unit": "lb"},
+  {"name": "Grapefruit", "category": "Produce", "price": 1.29, "unit": "each"},
+  {"name": "Kale (bunched)", "category": "Produce", "price": 2.49, "unit": "bunch"},
+  {"name": "Arugula (5 oz)", "category": "Produce", "price": 3.29, "unit": "5 oz"},
+  {"name": "Eggplant", "category": "Produce", "price": 1.99, "unit": "each"},
+  {"name": "Butternut Squash", "category": "Produce", "price": 1.69, "unit": "lb"},
+  {"name": "Acorn Squash", "category": "Produce", "price": 1.59, "unit": "lb"},
+  {"name": "Red Onions", "category": "Produce", "price": 1.49, "unit": "lb"},
+  {"name": "Garlic (bulb)", "category": "Produce", "price": 0.69, "unit": "each"},
+  {"name": "Ginger Root", "category": "Produce", "price": 3.99, "unit": "lb"},
+  {"name": "Fresh Herbs (basil bunch)", "category": "Produce", "price": 2.49, "unit": "bunch"},
+  {"name": "Ciabatta Bread", "category": "Bakery", "price": 4.49, "unit": "loaf"},
+  {"name": "French Baguette", "category": "Bakery", "price": 3.29, "unit": "each"},
+  {"name": "Dinner Rolls (12-pack)", "category": "Bakery", "price": 4.99, "unit": "12-pack"},
+  {"name": "Rye Bread", "category": "Bakery", "price": 4.79, "unit": "loaf"},
+  {"name": "Gluten-Free Bread", "category": "Bakery", "price": 6.99, "unit": "loaf"},
+  {"name": "Swiss Cheese (sliced)", "category": "Dairy", "price": 6.49, "unit": "lb"},
+  {"name": "Provolone Cheese", "category": "Dairy", "price": 6.29, "unit": "lb"},
+  {"name": "Gouda Cheese", "category": "Dairy", "price": 8.99, "unit": "lb"},
+  {"name": "Ricotta Cheese", "category": "Dairy", "price": 4.29, "unit": "15 oz"},
+  {"name": "Whipped Cream Cheese", "category": "Dairy", "price": 3.49, "unit": "8 oz"},
+  {"name": "Evaporated Milk", "category": "Dairy", "price": 1.89, "unit": "12 oz can"},
+  {"name": "Condensed Milk", "category": "Dairy", "price": 2.99, "unit": "14 oz can"},
+  {"name": "Cranberry Juice", "category": "Beverages", "price": 4.49, "unit": "64 oz"},
+  {"name": "Grape Juice", "category": "Beverages", "price": 4.29, "unit": "64 oz"},
+  {"name": "Kombucha (16 oz)", "category": "Beverages", "price": 3.99, "unit": "bottle"},
+  {"name": "Protein Shake (ready-to-drink)", "category": "Beverages", "price": 3.49, "unit": "11 oz"},
+  {"name": "Couscous", "category": "Pantry", "price": 3.49, "unit": "lb"},
+  {"name": "Barley", "category": "Pantry", "price": 2.29, "unit": "lb"},
+  {"name": "Farro", "category": "Pantry", "price": 4.99, "unit": "lb"},
+  {"name": "Bread Crumbs (plain)", "category": "Pantry", "price": 2.49, "unit": "15 oz"},
+  {"name": "Panko Bread Crumbs", "category": "Pantry", "price": 2.99, "unit": "8 oz"},
+  {"name": "Cornmeal", "category": "Pantry", "price": 3.29, "unit": "24 oz"},
+  {"name": "Cake Mix (boxed)", "category": "Pantry", "price": 2.49, "unit": "box"},
+  {"name": "Brownie Mix", "category": "Pantry", "price": 3.29, "unit": "box"},
+  {"name": "Marshmallows", "category": "Pantry", "price": 2.19, "unit": "10 oz bag"},
+  {"name": "Graham Crackers", "category": "Snacks", "price": 4.29, "unit": "14.4 oz"},
+  {"name": "Chocolate Syrup", "category": "Pantry", "price": 3.49, "unit": "24 oz"},
+  {"name": "Canned Pumpkin", "category": "Pantry", "price": 3.99, "unit": "15 oz"},
+  {"name": "Applesauce (unsweetened cups)", "category": "Pantry", "price": 3.99, "unit": "6-pack"},
+  {"name": "Dried Cranberries", "category": "Pantry", "price": 4.99, "unit": "10 oz"},
+  {"name": "Raisins", "category": "Pantry", "price": 3.99, "unit": "20 oz"},
+  {"name": "Sunflower Seeds (shelled)", "category": "Snacks", "price": 3.49, "unit": "lb"},
+  {"name": "Pumpkin Seeds (pepitas)", "category": "Snacks", "price": 6.99, "unit": "lb"},
+  {"name": "Chia Seeds", "category": "Pantry", "price": 7.99, "unit": "12 oz"},
+  {"name": "Flaxseed (ground)", "category": "Pantry", "price": 4.99, "unit": "16 oz"},
+  {"name": "Canned Chili", "category": "Pantry", "price": 3.29, "unit": "15 oz"},
+  {"name": "Spam", "category": "Pantry", "price": 4.49, "unit": "12 oz"},
+  {"name": "Vienna Sausages", "category": "Pantry", "price": 1.49, "unit": "4.6 oz can"},
+  {"name": "Beef Stew (canned)", "category": "Pantry", "price": 4.99, "unit": "24 oz"},
+  {"name": "Chicken Noodle Soup (canned)", "category": "Pantry", "price": 2.29, "unit": "10.5 oz"},
+  {"name": "Tomato Soup (canned)", "category": "Pantry", "price": 1.99, "unit": "10.5 oz"},
+  {"name": "Instant Mashed Potatoes", "category": "Pantry", "price": 2.49, "unit": "13.75 oz"},
+  {"name": "Frozen Corn", "category": "Frozen", "price": 1.79, "unit": "12 oz bag"},
+  {"name": "Frozen Green Beans", "category": "Frozen", "price": 1.89, "unit": "12 oz bag"},
+  {"name": "Frozen Brussels Sprouts", "category": "Frozen", "price": 2.49, "unit": "12 oz bag"},
+  {"name": "Frozen Cauliflower Rice", "category": "Frozen", "price": 3.49, "unit": "12 oz"},
+  {"name": "Frozen Sweet Potato Fries", "category": "Frozen", "price": 4.29, "unit": "20 oz"},
+  {"name": "Frozen Onion Rings", "category": "Frozen", "price": 4.99, "unit": "16 oz"},
+  {"name": "Frozen Mozzarella Sticks", "category": "Frozen", "price": 6.99, "unit": "24 oz"},
+  {"name": "Frozen Breakfast Sandwiches", "category": "Frozen", "price": 7.99, "unit": "4-pack"},
+  {"name": "Hummus", "category": "Deli", "price": 4.49, "unit": "10 oz"},
+  {"name": "Guacamole", "category": "Deli", "price": 5.99, "unit": "12 oz"},
+  {"name": "Salsa (fresh deli)", "category": "Deli", "price": 4.99, "unit": "16 oz"},
+  {"name": "Pesto Sauce", "category": "Pantry", "price": 4.99, "unit": "7 oz jar"},
+  {"name": "Alfredo Sauce (jar)", "category": "Pantry", "price": 3.99, "unit": "15 oz"},
+  {"name": "Marinara Sauce (premium)", "category": "Pantry", "price": 5.99, "unit": "24 oz"},
+  {"name": "BBQ Sauce", "category": "Condiments", "price": 3.49, "unit": "18 oz"},
+  {"name": "Steak Sauce", "category": "Condiments", "price": 4.29, "unit": "10 oz"},
+  {"name": "Teriyaki Sauce", "category": "Condiments", "price": 3.99, "unit": "15 oz"},
+  {"name": "Sriracha", "category": "Condiments", "price": 5.49, "unit": "17 oz"},
+  {"name": "Relish (sweet)", "category": "Condiments", "price": 2.99, "unit": "10 oz"},
+  {"name": "Horseradish", "category": "Condiments", "price": 3.49, "unit": "6 oz"},
+  {"name": "Capers", "category": "Pantry", "price": 3.99, "unit": "3 oz jar"},
+  {"name": "Artichoke Hearts (jar)", "category": "Pantry", "price": 4.99, "unit": "12 oz"},
+  {"name": "Sun-Dried Tomatoes", "category": "Pantry", "price": 5.99, "unit": "8 oz"},
+  {"name": "Coconut Oil", "category": "Pantry", "price": 7.99, "unit": "14 oz"},
+  {"name": "Avocado Oil", "category": "Pantry", "price": 10.99, "unit": "16.9 oz"},
+  {"name": "Sesame Oil", "category": "Pantry", "price": 6.99, "unit": "12 oz"},
+  {"name": "Cooking Spray", "category": "Pantry", "price": 3.99, "unit": "6 oz"},
+  {"name": "Baking Powder", "category": "Pantry", "price": 2.49, "unit": "8.1 oz"},
+  {"name": "Yeast (jar)", "category": "Pantry", "price": 7.99, "unit": "4 oz"},
+  {"name": "Cornstarch", "category": "Pantry", "price": 2.99, "unit": "16 oz"}
+]
+
+[
+  {"name": "Powdered Sugar", "category": "Pantry", "price": 3.49, "unit": "2 lb"},
+  {"name": "Cocoa Powder (unsweetened)", "category": "Pantry", "price": 5.99, "unit": "8 oz"},
+  {"name": "Chocolate Chips (semi-sweet)", "category": "Pantry", "price": 3.99, "unit": "12 oz"},
+  {"name": "Peanut Butter Chips", "category": "Pantry", "price": 4.29, "unit": "10 oz"},
+  {"name": "Sprinkles", "category": "Pantry", "price": 3.49, "unit": "jar"},
+  {"name": "Gel Food Coloring", "category": "Pantry", "price": 9.99, "unit": "4-pack"},
+  {"name": "Almond Extract", "category": "Pantry", "price": 6.99, "unit": "2 oz"},
+  {"name": "Canned Pineapple", "category": "Pantry", "price": 1.79, "unit": "20 oz"},
+  {"name": "Mandarin Oranges (canned)", "category": "Pantry", "price": 1.49, "unit": "11 oz"},
+  {"name": "Fruit Cocktail", "category": "Pantry", "price": 2.29, "unit": "15 oz"},
+  {"name": "Dried Apricots", "category": "Pantry", "price": 6.99, "unit": "lb"},
+  {"name": "Dates (Medjool)", "category": "Pantry", "price": 8.99, "unit": "lb"},
+  {"name": "Prunes", "category": "Pantry", "price": 5.99, "unit": "lb"},
+  {"name": "Fig Bars", "category": "Snacks", "price": 4.99, "unit": "box"},
+  {"name": "Rice Krispies Cereal", "category": "Breakfast", "price": 4.99, "unit": "18 oz"},
+  {"name": "Cheerios", "category": "Breakfast", "price": 4.99, "unit": "18 oz"},
+  {"name": "Frosted Flakes", "category": "Breakfast", "price": 4.79, "unit": "19 oz"},
+  {"name": "Instant Oatmeal (variety)", "category": "Breakfast", "price": 4.99, "unit": "10-packet"},
+  {"name": "Pancake Mix", "category": "Breakfast", "price": 3.99, "unit": "32 oz"},
+  {"name": "Waffle Mix", "category": "Breakfast", "price": 4.29, "unit": "28 oz"},
+  {"name": "Bagel Bites (frozen)", "category": "Frozen", "price": 6.99, "unit": "9-count"},
+  {"name": "Hot Pockets (pepperoni)", "category": "Frozen", "price": 3.49, "unit": "2-pack"},
+  {"name": "Taquitos (frozen)", "category": "Frozen", "price": 7.99, "unit": "20-count"},
+  {"name": "Fish Sticks", "category": "Frozen", "price": 6.49, "unit": "24 oz"},
+  {"name": "Frozen Garlic Bread", "category": "Frozen", "price": 4.29, "unit": "loaf"},
+  {"name": "Frozen Pie Crust", "category": "Frozen", "price": 3.99, "unit": "2-pack"},
+  {"name": "Cool Whip", "category": "Frozen", "price": 2.99, "unit": "8 oz"},
+  {"name": "Yogurt-Covered Pretzels", "category": "Snacks", "price": 5.99, "unit": "lb"},
+  {"name": "Cheese Crackers", "category": "Snacks", "price": 4.29, "unit": "12.4 oz"},
+  {"name": "Goldfish Crackers", "category": "Snacks", "price": 4.99, "unit": "30 oz carton"},
+  {"name": "Animal Crackers", "category": "Snacks", "price": 3.99, "unit": "bag"},
+  {"name": "Pop Tarts (8-pack)", "category": "Snacks", "price": 3.99, "unit": "8-pack"},
+  {"name": "Gummy Bears", "category": "Snacks", "price": 3.49, "unit": "bag"},
+  {"name": "Licorice", "category": "Snacks", "price": 3.99, "unit": "bag"},
+  {"name": "Cotton Candy", "category": "Snacks", "price": 2.99, "unit": "tub"},
+  {"name": "Coffee Creamer (liquid)", "category": "Dairy", "price": 4.29, "unit": "32 oz"},
+  {"name": "Powdered Creamer", "category": "Pantry", "price": 5.99, "unit": "22 oz"},
+  {"name": "Red Wine Vinegar", "category": "Condiments", "price": 3.99, "unit": "16 oz"},
+  {"name": "Apple Cider Vinegar", "category": "Condiments", "price": 4.99, "unit": "32 oz"},
+  {"name": "Rice Vinegar", "category": "Condiments", "price": 4.29, "unit": "12 oz"},
+  {"name": "Salad Croutons", "category": "Pantry", "price": 2.99, "unit": "5 oz"},
+  {"name": "Bacon Bits (real)", "category": "Pantry", "price": 4.99, "unit": "4.4 oz"},
+  {"name": "Parmesan (shaker)", "category": "Pantry", "price": 4.49, "unit": "8 oz"},
+  {"name": "Taco Kit", "category": "Pantry", "price": 5.99, "unit": "kit"},
+  {"name": "Sloppy Joe Sauce", "category": "Pantry", "price": 2.49, "unit": "15 oz"},
+  {"name": "Canned Ravioli", "category": "Pantry", "price": 2.29, "unit": "15 oz"},
+  {"name": "Canned SpaghettiOs", "category": "Pantry", "price": 1.99, "unit": "15 oz"},
+  {"name": "Instant Pudding", "category": "Pantry", "price": 1.79, "unit": "box"},
+  {"name": "Jell-O Gelatin", "category": "Pantry", "price": 1.49, "unit": "box"},
+  {"name": "Canned Frosting", "category": "Pantry", "price": 2.49, "unit": "16 oz"},
+  {"name": "Candles (birthday)", "category": "Household", "price": 2.99, "unit": "24-pack"},
+  {"name": "Light Bulbs (LED 60W equiv)", "category": "Household", "price": 9.99, "unit": "4-pack"},
+  {"name": "AA Batteries (8-pack)", "category": "Household", "price": 8.99, "unit": "8-pack"},
+  {"name": "AAA Batteries (8-pack)", "category": "Household", "price": 8.99, "unit": "8-pack"},
+  {"name": "Charcoal Briquettes", "category": "Household", "price": 12.99, "unit": "15 lb bag"},
+  {"name": "Lighter Fluid", "category": "Household", "price": 5.99, "unit": "32 oz"},
+  {"name": "Aluminum Trays", "category": "Household", "price": 4.99, "unit": "10-pack"},
+  {"name": "Plastic Cutlery (48-pack)", "category": "Household", "price": 3.99, "unit": "48-pack"},
+  {"name": "Paper Plates (100-count)", "category": "Household", "price": 9.99, "unit": "100-pack"},
+  {"name": "Napkins (250-count)", "category": "Household", "price": 4.99, "unit": "250-pack"},
+  {"name": "Food Storage Containers (set)", "category": "Household", "price": 14.99, "unit": "set"},
+  {"name": "Coffee Filters", "category": "Household", "price": 3.99, "unit": "100-count"},
+  {"name": "Dryer Sheets", "category": "Household", "price": 6.99, "unit": "120-count"},
+  {"name": "Fabric Softener", "category": "Household", "price": 8.99, "unit": "64 oz"},
+  {"name": "Dishwasher Tabs", "category": "Household", "price": 11.99, "unit": "60-count"},
+  {"name": "Hand Soap (pump)", "category": "Personal Care", "price": 3.49, "unit": "12 oz"},
+  {"name": "Facial Cleanser", "category": "Personal Care", "price": 8.99, "unit": "6 oz"},
+  {"name": "Moisturizer", "category": "Personal Care", "price": 12.99, "unit": "4 oz"},
+  {"name": "Lip Balm", "category": "Personal Care", "price": 3.99, "unit": "3-pack"},
+  {"name": "Sunscreen SPF 50", "category": "Personal Care", "price": 9.99, "unit": "8 oz"},
+  {"name": "Band-Aids (assorted)", "category": "Personal Care", "price": 4.99, "unit": "100-count"},
+  {"name": "Ibuprofen (200 mg)", "category": "Medicine", "price": 8.99, "unit": "200-count"},
+  {"name": "Antacid Tablets", "category": "Medicine", "price": 7.99, "unit": "100-count"},
+  {"name": "Cough Drops", "category": "Medicine", "price": 3.99, "unit": "bag"},
+  {"name": "Allergy Medicine (generic)", "category": "Medicine", "price": 14.99, "unit": "30-count"},
+  {"name": "Cat Litter (clumping)", "category": "Pet", "price": 14.99, "unit": "25 lb"},
+  {"name": "Dog Treats (large bag)", "category": "Pet", "price": 12.99, "unit": "40 oz"},
+  {"name": "Bird Seed", "category": "Pet", "price": 9.99, "unit": "10 lb"},
+  {"name": "Aquarium Fish Food", "category": "Pet", "price": 6.99, "unit": "jar"}
+]
+
