@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, List, Search, ShoppingCart, Settings as SettingsIcon, HelpCircle } from 'lucide-react';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 export const BottomNav: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { darkMode } = useDarkMode();
 
     const [showPriceCheck, setShowPriceCheck] = React.useState(false);
     // Import PriceCheckModal dynamically or use the one from features if available globally
@@ -75,6 +77,7 @@ export const BottomNav: React.FC = () => {
                 <PriceCheckModalWrapper
                     isOpen={showPriceCheck}
                     onClose={() => setShowPriceCheck(false)}
+                    darkMode={darkMode}
                 />
             )}
         </>
