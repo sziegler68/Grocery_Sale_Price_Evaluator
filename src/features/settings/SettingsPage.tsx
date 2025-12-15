@@ -310,18 +310,18 @@ export function SettingsPage() {
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Your Name
                         </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={userName}
-                                onChange={(e) => setUserName(e.target.value)}
-                                placeholder="Enter your name"
-                                className="flex-1 px-4 py-2 rounded-lg border bg-input border-input text-sm"
-                            />
+                        <input
+                            type="text"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                            placeholder="Enter your name"
+                            className="w-full px-4 py-2 rounded-lg border bg-input border-input text-sm"
+                        />
+                        <div className="flex justify-center">
                             <button
                                 onClick={handleUserNameSave}
                                 disabled={!userName.trim()}
-                                className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 text-sm font-medium whitespace-nowrap"
+                                className="px-6 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 text-sm font-medium"
                             >
                                 Save
                             </button>
@@ -340,6 +340,13 @@ export function SettingsPage() {
                         Enter your zip code to automatically sync local sales tax rates, or manually adjust the rate below.
                     </p>
 
+                    {/* Info about coverage */}
+                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p className="text-xs text-blue-800 dark:text-blue-200">
+                            <strong>ℹ️ Coverage:</strong> We have tax rates for over 40,000 zip codes across all 50 US states, DC, and territories. If your zip code isn't found, you can manually enter your local tax rate.
+                        </p>
+                    </div>
+
                     {/* Zip Validation Warning */}
                     {zipValidationWarning && (
                         <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-start gap-2">
@@ -355,18 +362,18 @@ export function SettingsPage() {
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Zip Code
                             </label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={zipCode}
-                                    onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                                    placeholder="12345"
-                                    className="flex-1 px-4 py-2 rounded-lg border bg-input border-input text-sm"
-                                />
+                            <input
+                                type="text"
+                                value={zipCode}
+                                onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                                placeholder="12345"
+                                className="w-full px-4 py-2 rounded-lg border bg-input border-input text-sm"
+                            />
+                            <div className="flex justify-center">
                                 <button
                                     onClick={handleSyncTax}
                                     disabled={isSyncingTax || zipCode.length < 5}
-                                    className="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 text-sm font-medium whitespace-nowrap"
+                                    className="px-6 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 text-sm font-medium"
                                 >
                                     {isSyncingTax ? 'Syncing...' : 'Sync Tax'}
                                 </button>
