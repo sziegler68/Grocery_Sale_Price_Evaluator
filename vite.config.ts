@@ -118,7 +118,13 @@ const getIcons = () => {
       purpose: 'any',
     },
     {
-      src: toIconPath('icons/512x512.png'),
+      src: toIconPath('icons/1024x1024.png'),
+      sizes: '1024x1024',
+      type: 'image/png',
+      purpose: 'any',
+    },
+    {
+      src: toIconPath('icons/maskable-icon-512x512.png'),
       sizes: '512x512',
       type: 'image/png',
       purpose: 'maskable',
@@ -164,7 +170,7 @@ export default defineConfig(({ command }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: getManifest(),
-      includeAssets: ['icons/192x192.png', 'icons/512x512.png'],
+      includeAssets: ['icons/192x192.png', 'icons/512x512.png', 'icons/1024x1024.png', 'icons/maskable-icon-512x512.png'],
       devOptions: {
         enabled: true,
         suppressWarnings: true,
