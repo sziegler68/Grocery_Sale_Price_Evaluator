@@ -9,6 +9,7 @@ import { PasteListModal, type MatchedItem } from './PasteListModal';
 import { ScanListModal } from './ScanListModal';
 import { ListStats } from './ListStats';
 import { CategoryGroup } from './CategoryGroup';
+import { MiniAssistant } from './MiniAssistant';
 import SetNameModal from '../../../shared/components/SetNameModal';
 import StartShoppingTripModal from '../../shopping-trips/components/StartShoppingTripModal';
 import ShoppingTripView from '../../shopping-trips/components/ShoppingTripView';
@@ -1144,6 +1145,24 @@ const ShoppingListDetail: React.FC = () => {
             onComplete={handleCompleteTrip}
           />
         </div>
+      )}
+      {/* Mini-Assistant FAB */}
+      {list && !viewingTrip && (
+        <MiniAssistant
+          listId={list.id}
+          onAddItems={async (items) => {
+            for (const item of items) {
+              await addItemToList({
+                list_id: list.id,
+                item_name: item.name,
+                category: item.category,
+                quantity: item.quantity,
+                unit_type: item.unit || undefined,
+              });
+            }
+            loadListData();
+          }}
+        />
       )}
     </div>
   );
