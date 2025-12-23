@@ -9,7 +9,7 @@ import { PasteListModal, type MatchedItem } from './PasteListModal';
 import { ScanListModal } from './ScanListModal';
 import { ListStats } from './ListStats';
 import { CategoryGroup } from './CategoryGroup';
-import { MiniAssistant } from './MiniAssistant';
+import { useLuna } from '../../../shared/components/Luna';
 import SetNameModal from '../../../shared/components/SetNameModal';
 import StartShoppingTripModal from '../../shopping-trips/components/StartShoppingTripModal';
 import ShoppingTripView from '../../shopping-trips/components/ShoppingTripView';
@@ -70,6 +70,9 @@ const ShoppingListDetail: React.FC = () => {
   const [allGroceryItems, setAllGroceryItems] = useState<{ id: string; name: string; category: string; target_price: number | null; unit_type?: string }[]>([]);
   const loadDataTimeoutRef = useRef<number | null>(null);
   const optimisticUpdatesRef = useRef<Set<string>>(new Set()); // Track items with pending optimistic updates
+
+  // Luna context - sync current list ID for global assistant
+  const { setCurrentListId } = useLuna();
 
   // Batched checkbox sync queue
   const checkboxSyncQueueRef = useRef<Map<string, boolean>>(new Map()); // itemId -> newCheckedState
@@ -283,6 +286,14 @@ const ShoppingListDetail: React.FC = () => {
       setViewingTrip(true);
     }
   }, [activeTrip]);
+
+  // Sync current list ID with Luna context for global add-to-list
+  useEffect(() => {
+    if (list?.id) {
+      setCurrentListId(list.id);
+    }
+    return () => setCurrentListId(null);
+  }, [list?.id, setCurrentListId]);
 
   // Real-time subscription for list items using store
   useEffect(() => {
@@ -1145,24 +1156,6 @@ const ShoppingListDetail: React.FC = () => {
             onComplete={handleCompleteTrip}
           />
         </div>
-      )}
-      {/* Mini-Assistant FAB */}
-      {list && !viewingTrip && (
-        <MiniAssistant
-          listId={list.id}
-          onAddItems={async (items) => {
-            for (const item of items) {
-              await addItemToList({
-                list_id: list.id,
-                item_name: item.name,
-                category: item.category,
-                quantity: item.quantity,
-                unit_type: item.unit || undefined,
-              });
-            }
-            loadListData();
-          }}
-        />
       )}
     </div>
   );

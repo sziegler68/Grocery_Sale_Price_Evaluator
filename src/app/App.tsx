@@ -21,6 +21,7 @@ import StandaloneScanner from '@features/price-tracker/components/StandaloneScan
 import { BottomNav } from '@shared/components/BottomNav';
 import { useLocation } from 'react-router-dom';
 import { ActiveTripRedirect } from '../features/shopping-trips/components/ActiveTripRedirect';
+import { Luna, LunaProvider } from '@shared/components/Luna';
 
 declare const __APP_NAME__: string;
 
@@ -74,38 +75,43 @@ const AppContent: React.FC = () => {
     location.pathname.startsWith('/trip/'); // Active trip view (if using /trip/:id route)
 
   return (
-    <main className="min-h-screen font-inter pb-14"> {/* Reduced padding to match new nav height */}
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/add-item" element={<AddItem />} />
-        <Route path="/edit-item/:id" element={<EditItem />} />
-        <Route path="/items" element={<Items />} />
-        <Route path="/item/:id" element={<ItemDetail />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/shopping-lists" element={<ShoppingLists />} />
-        <Route path="/shopping-lists/:shareCode" element={<ShoppingListDetail />} />
-        <Route path="/scan" element={<StandaloneScanner />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/help" element={<Help />} />
+    <LunaProvider>
+      <main className="min-h-screen font-inter pb-14"> {/* Reduced padding to match new nav height */}
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/add-item" element={<AddItem />} />
+          <Route path="/edit-item/:id" element={<EditItem />} />
+          <Route path="/items" element={<Items />} />
+          <Route path="/item/:id" element={<ItemDetail />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/shopping-lists" element={<ShoppingLists />} />
+          <Route path="/shopping-lists/:shareCode" element={<ShoppingListDetail />} />
+          <Route path="/scan" element={<StandaloneScanner />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/help" element={<Help />} />
 
-        {/* Trip Routes */}
-        <Route path="/active-trip" element={<ActiveTripRedirect />} />
-        <Route path="/trip/:id" element={<ActiveTripRedirect />} />
-        <Route path="/start-trip" element={<ShoppingLists />} /> {/* Fallback to lists for now */}
+          {/* Trip Routes */}
+          <Route path="/active-trip" element={<ActiveTripRedirect />} />
+          <Route path="/trip/:id" element={<ActiveTripRedirect />} />
+          <Route path="/start-trip" element={<ShoppingLists />} /> {/* Fallback to lists for now */}
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
 
-      {!hideBottomNav && <BottomNav />}
+        {!hideBottomNav && <BottomNav />}
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-      />
-    </main>
+        {/* Global Luna Assistant */}
+        {!hideBottomNav && <Luna />}
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+        />
+      </main>
+    </LunaProvider>
   );
 }
 
