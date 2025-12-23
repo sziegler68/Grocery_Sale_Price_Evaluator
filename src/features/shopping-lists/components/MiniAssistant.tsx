@@ -282,7 +282,7 @@ export function MiniAssistant({ onAddItems }: MiniAssistantProps) {
                 {/* Listening indicator */}
                 {isListening && (
                     <p className="text-xs text-violet-400 mt-2 text-center animate-pulse">
-                        🎤 Listening... {transcript && `"${transcript}"`}
+                        🎤 Listening... Tap stop when done. {transcript && `"${transcript}"`}
                     </p>
                 )}
             </div>

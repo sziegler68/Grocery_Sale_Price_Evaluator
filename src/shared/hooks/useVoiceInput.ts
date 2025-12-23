@@ -66,7 +66,7 @@ export function useVoiceInput(): UseVoiceInputResult {
         const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognitionClass();
 
-        recognition.continuous = false; // Stop after one utterance
+        recognition.continuous = true; // Keep listening until user stops
         recognition.interimResults = true; // Show partial results
         recognition.lang = 'en-US';
 
