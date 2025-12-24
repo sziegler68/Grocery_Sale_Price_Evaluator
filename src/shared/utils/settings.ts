@@ -142,3 +142,25 @@ export const saveTaxRateOverride = (isOverridden: boolean): void => {
         console.error('Failed to save tax override flag:', error);
     }
 };
+
+// Luna suggestions setting
+const LUNA_SUGGESTIONS_KEY = 'luna-suggestions-enabled';
+
+export const getLunaSuggestionsEnabled = (): boolean => {
+    try {
+        const stored = localStorage.getItem(LUNA_SUGGESTIONS_KEY);
+        // Default to true if not set
+        return stored === null ? true : stored === 'true';
+    } catch (error) {
+        console.error('Failed to load Luna suggestions setting:', error);
+        return true;
+    }
+};
+
+export const saveLunaSuggestionsEnabled = (enabled: boolean): void => {
+    try {
+        localStorage.setItem(LUNA_SUGGESTIONS_KEY, enabled.toString());
+    } catch (error) {
+        console.error('Failed to save Luna suggestions setting:', error);
+    }
+};

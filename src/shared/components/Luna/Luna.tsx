@@ -13,6 +13,7 @@ import { getGeminiApiKey } from '@shared/lib/ai/geminiChat';
 import { classifyIntent, type IntentResult, type ParsedItem } from '@shared/lib/ai/geminiIntent';
 import { matchIntent, SUGGESTED_PROMPTS } from '@shared/lib/keywordMatcher';
 import { findHelpAnswer } from '@shared/lib/helpContent';
+import { getLunaSuggestionsEnabled } from '@shared/utils/settings';
 import { useLuna } from './LunaContext';
 
 interface Message {
@@ -30,6 +31,7 @@ export function Luna() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState('');
     const [pendingItems, setPendingItems] = useState<ParsedItem[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(true);
 
     // Multi-turn conversation state
     type PendingAction =
@@ -45,12 +47,16 @@ export function Luna() {
     const { speak, stop: stopSpeaking, isEnabled: ttsEnabled, setEnabled: setTtsEnabled } = useTextToSpeech();
     const luna = useLuna();
 
-    // Add welcome message when opened
+    // Add welcome message when opened and load settings
     useEffect(() => {
         if (isOpen && messages.length === 0) {
             const welcomeMsg = "Hi! I'm Luna. How can I help?";
             addMessage('assistant', welcomeMsg);
             speak(welcomeMsg);
+        }
+        if (isOpen) {
+            // Reload suggestions preference when opened
+            setShowSuggestions(getLunaSuggestionsEnabled());
         }
     }, [isOpen]);
 
@@ -414,8 +420,8 @@ export function Luna() {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Suggested Prompts - show when few messages */}
-            {messages.length <= 2 && state === 'idle' && (
+            {/* Suggested Prompts - show when few messages and enabled */}
+            {showSuggestions && messages.length <= 2 && state === 'idle' && (
                 <div className="px-3 pb-2">
                     <p className="text-xs text-slate-400 mb-2">Try saying:</p>
                     <div className="flex flex-wrap gap-1.5">

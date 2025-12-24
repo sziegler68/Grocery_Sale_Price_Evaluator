@@ -17,6 +17,8 @@ import {
     saveUserName,
     getTaxRateOverride,
     saveTaxRateOverride,
+    getLunaSuggestionsEnabled,
+    saveLunaSuggestionsEnabled,
     ALL_UNITS
 } from '../../shared/utils/settings';
 
@@ -32,6 +34,7 @@ export function SettingsPage() {
     const [zipValidationWarning, setZipValidationWarning] = useState('');
     const [unitPreferences, setUnitPreferences] = useState<UnitPreferences>(getUnitPreferences());
     const [showCustomUnits, setShowCustomUnits] = useState(false);
+    const [lunaSuggestionsEnabled, setLunaSuggestionsEnabled] = useState(true);
 
     // Notification Store
     const {
@@ -55,6 +58,7 @@ export function SettingsPage() {
         setZipCode(getZipCode());
         setTaxRate(getSalesTaxRate() * 100); // Convert to percentage for display
         setTaxOverride(getTaxRateOverride());
+        setLunaSuggestionsEnabled(getLunaSuggestionsEnabled());
         loadNotificationSettings();
     }, []);
 
@@ -293,6 +297,44 @@ export function SettingsPage() {
                             </p>
                         </div>
                     )}
+                </div>
+
+                {/* Luna Assistant Section */}
+                <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <span className="text-xl">🌙</span>
+                        <h2 className="text-lg font-semibold text-primary">Luna Assistant</h2>
+                    </div>
+
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Configure your voice assistant preferences.
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Show Suggested Prompts
+                            </span>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Display quick action buttons when Luna opens
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => {
+                                const newValue = !lunaSuggestionsEnabled;
+                                setLunaSuggestionsEnabled(newValue);
+                                saveLunaSuggestionsEnabled(newValue);
+                                toast.success(newValue ? 'Suggestions enabled' : 'Suggestions disabled');
+                            }}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${lunaSuggestionsEnabled ? 'bg-violet-600' : 'bg-gray-300 dark:bg-gray-600'
+                                }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${lunaSuggestionsEnabled ? 'translate-x-6' : 'translate-x-1'
+                                    }`}
+                            />
+                        </button>
+                    </div>
                 </div>
 
                 {/* User Profile Section */}
