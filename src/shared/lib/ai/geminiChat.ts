@@ -5,7 +5,7 @@
  * Uses the same API key pattern as geminiVision.ts and geminiList.ts.
  */
 
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 export interface ParsedShoppingItem {
     name: string;
@@ -93,7 +93,7 @@ export async function parseShoppingInput(
         if (!response.ok) {
             const errorText = await response.text();
             console.error('[GeminiChat] API error:', errorText);
-            
+
             if (response.status === 401 || response.status === 403) {
                 return {
                     success: false,
@@ -102,7 +102,7 @@ export async function parseShoppingInput(
                     error: "INVALID_API_KEY"
                 };
             }
-            
+
             return {
                 success: false,
                 items: [],

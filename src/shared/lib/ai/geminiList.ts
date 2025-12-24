@@ -4,7 +4,7 @@
  * Extracts grocery items from handwritten or printed list images using AI.
  */
 
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 const EXTRACTION_PROMPT = `Analyze this image of a grocery list. Extract all items and their quantities.
 Return the result as a simple text list, one item per line.
