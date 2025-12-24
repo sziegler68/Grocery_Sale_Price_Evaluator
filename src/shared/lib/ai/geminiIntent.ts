@@ -74,9 +74,12 @@ Intent types and their parameters:
 
 3. "create_list" - User wants to create a NEW shopping list
    params: { listName: "the list name the user specified" }
-   Examples: "make a new list called Costco" → listName: "Costco"
-             "create list for Trader Joes" → listName: "Trader Joes"
-             "new list" → listName: "New List"
+   Examples:
+   - "create a new list" → listName: "New List"
+   - "make a new list called Costco" → listName: "Costco"
+   - "create list for Trader Joes" → listName: "Trader Joes"
+   - "new list" → listName: "New List"
+   - "start a list" → listName: "New List"
 
 4. "open_list" - User wants to OPEN an existing list
    params: { listName: "the list name" }
