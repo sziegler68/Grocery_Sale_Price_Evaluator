@@ -30,6 +30,13 @@ export function Luna() {
     const [inputText, setInputText] = useState('');
     const [pendingItems, setPendingItems] = useState<ParsedItem[]>([]);
 
+    // Multi-turn conversation state
+    type PendingAction =
+        | { type: 'awaiting_list_name' }
+        | { type: 'awaiting_user_name'; listShareCode: string }
+        | null;
+    const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+
     const { isListening, isSupported: voiceSupported, transcript, error: voiceError, startListening, stopListening, resetTranscript } = useVoiceInput();
     const { speak, stop: stopSpeaking, isEnabled: ttsEnabled, setEnabled: setTtsEnabled } = useTextToSpeech();
     const luna = useLuna();
@@ -76,11 +83,60 @@ export function Luna() {
         setInputText('');
         setState('processing');
 
+        // Check if we're awaiting follow-up input
+        if (pendingAction) {
+            await handlePendingAction(text);
+            return;
+        }
+
         const apiKey = getGeminiApiKey();
         const result = await classifyIntent(text, apiKey || '');
 
         await processIntent(result);
-    }, [addMessage]);
+    }, [addMessage, pendingAction]);
+
+    // Handle responses to pending prompts
+    const handlePendingAction = useCallback(async (text: string) => {
+        const action = pendingAction;
+        setPendingAction(null);
+
+        if (action?.type === 'awaiting_list_name') {
+            const listName = text.trim() || 'My List';
+            const createResult = await luna.createList(listName);
+
+            if (createResult.success && createResult.shareCode) {
+                // Ask for user name
+                const response = `${createResult.message}. What's your name so we know who added items?`;
+                addMessage('assistant', response);
+                speak(response);
+                setPendingAction({ type: 'awaiting_user_name', listShareCode: createResult.shareCode });
+                setState('idle');
+            } else {
+                addMessage('assistant', createResult.message);
+                speak(createResult.message);
+                setState('idle');
+            }
+            return;
+        }
+
+        if (action?.type === 'awaiting_user_name') {
+            const userName = text.trim();
+            if (userName) {
+                // Set user name for this list
+                const { setUserNameForList } = await import('../../../shared/utils/listUserNames');
+                setUserNameForList(action.listShareCode, userName);
+                const response = `Got it, ${userName}! Your list is ready. Say 'add' followed by items to get started.`;
+                addMessage('assistant', response);
+                speak(response);
+            } else {
+                const response = "No problem! You can set your name later in the list. Say 'add' followed by items to get started.";
+                addMessage('assistant', response);
+                speak(response);
+            }
+            setState('idle');
+            return;
+        }
+    }, [pendingAction, luna, addMessage, speak]);
 
     const processIntent = useCallback(async (result: IntentResult) => {
         const { intent, params } = result;
@@ -124,12 +180,32 @@ export function Luna() {
                 }
                 break;
 
-            case 'create_list':
-                if (params.listName) {
-                    const createResult = await luna.createList(params.listName);
+            case 'create_list': {
+                const listName = params.listName;
+                if (!listName || listName.toLowerCase() === 'new list') {
+                    // Ask what to name the list
+                    response = "Sure! What would you like to call this list?";
+                    setPendingAction({ type: 'awaiting_list_name' });
+                    addMessage('assistant', response);
+                    speak(response);
+                    setState('idle');
+                    return;
+                }
+
+                const createResult = await luna.createList(listName);
+                if (createResult.success && createResult.shareCode) {
+                    // Ask for user name
+                    response = `${createResult.message}. What's your name so we know who added items?`;
+                    setPendingAction({ type: 'awaiting_user_name', listShareCode: createResult.shareCode });
+                    addMessage('assistant', response);
+                    speak(response);
+                    setState('idle');
+                    return;
+                } else {
                     response = createResult.message;
                 }
                 break;
+            }
 
             case 'open_list':
                 if (params.listName) {
