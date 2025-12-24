@@ -5,7 +5,7 @@
  * price checks, list management, and help capabilities.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Mic, MicOff, Send, X, MessageCircle, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { useVoiceInput } from '@shared/hooks/useVoiceInput';
 import { useTextToSpeech } from '@shared/hooks/useTextToSpeech';
@@ -37,6 +37,9 @@ export function Luna() {
         | null;
     const [pendingAction, setPendingAction] = useState<PendingAction>(null);
 
+    // Ref for auto-scrolling to latest message
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
     const { isListening, isSupported: voiceSupported, transcript, error: voiceError, startListening, stopListening, resetTranscript } = useVoiceInput();
     const { speak, stop: stopSpeaking, isEnabled: ttsEnabled, setEnabled: setTtsEnabled } = useTextToSpeech();
     const luna = useLuna();
@@ -66,6 +69,13 @@ export function Luna() {
             setState('idle');
         }
     }, [voiceError]);
+
+    // Auto-scroll to latest message
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
 
     const addMessage = useCallback((type: 'user' | 'assistant', text: string, items?: ParsedItem[]) => {
         setMessages(prev => [...prev, {
@@ -295,6 +305,7 @@ export function Luna() {
         stopSpeaking();
         setState('idle');
         setPendingItems([]);
+        setPendingAction(null); // Clear any pending conversation
     }, [stopListening, stopSpeaking]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -319,7 +330,7 @@ export function Luna() {
 
     // Chat Panel (open state)
     return (
-        <div className="fixed bottom-20 right-4 z-50 w-80 max-h-[70vh] bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden">
+        <div className="fixed bottom-20 right-2 left-2 sm:left-auto sm:right-4 z-50 sm:w-80 max-h-[70vh] bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between p-3 bg-violet-600 text-white">
                 <span className="font-semibold">Luna</span>
@@ -377,6 +388,9 @@ export function Luna() {
                         </div>
                     </div>
                 )}
+
+                {/* Scroll anchor */}
+                <div ref={messagesEndRef} />
             </div>
 
             {/* Confirmation buttons */}
