@@ -8,6 +8,7 @@ import { createContext, useContext, useCallback, useState, type ReactNode } from
 import { useNavigate } from 'react-router-dom';
 import { getStoredShareCodes, addShareCode } from '@shared/utils/shoppingListStorage';
 import { getShoppingListByCode, createShoppingList, addItemToList } from '@features/shopping-lists/api';
+import { useShoppingListStore } from '@features/shopping-lists/store/useShoppingListStore';
 import { fetchAllItems } from '@features/price-tracker/api/groceryData';
 import { convertPrice } from '../../../utils/unitConversion';
 import type { ParsedShoppingItem } from '@shared/lib/ai/geminiChat';
@@ -84,6 +85,12 @@ export function LunaProvider({ children }: LunaProviderProps) {
             const match = lists.find(l => l.name.toLowerCase().includes(searchLower));
 
             if (match) {
+                // Need to get the list ID to set currentListId
+                const fullList = await getShoppingListByCode(match.code);
+                if (fullList) {
+                    setCurrentListId(fullList.id);
+                    console.log('[Luna] Opened list, set currentListId to:', fullList.id);
+                }
                 navigate(`/shopping-lists/${match.code}`);
                 return { success: true, message: `Opening ${match.name}` };
             }
@@ -144,6 +151,12 @@ export function LunaProvider({ children }: LunaProviderProps) {
                 });
             }
             console.log('[Luna] ✅ Successfully added', items.length, 'items');
+
+            // Refresh the store's items so UI updates immediately
+            const { loadListItems } = useShoppingListStore.getState();
+            await loadListItems(currentListId);
+            console.log('[Luna] 🔄 Refreshed store items');
+
             return {
                 success: true,
                 message: `Added ${items.length} item${items.length > 1 ? 's' : ''} to your list!`

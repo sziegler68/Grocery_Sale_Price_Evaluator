@@ -86,8 +86,10 @@ export function Luna() {
     }, [messages]);
 
     const addMessage = useCallback((type: 'user' | 'assistant', text: string, items?: ParsedItem[], usedAI?: boolean) => {
+        // Use counter to ensure unique IDs even if multiple messages added in same millisecond
+        const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         setMessages(prev => [...prev, {
-            id: Date.now().toString(),
+            id: uniqueId,
             type,
             text,
             items,

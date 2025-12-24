@@ -180,13 +180,91 @@ function parseItemsFromText(text: string): ParsedItem[] {
     const parts = text.split(/\s*(?:,|and)\s*/i).filter(p => p.trim());
     console.log('[Keyword] Split parts:', parts);
 
+    // Unit patterns: singular and plural forms
+    const unitPatterns: { pattern: RegExp; unit: string }[] = [
+        { pattern: /^gallons?$/i, unit: 'gallon' },
+        { pattern: /^quarts?$/i, unit: 'quart' },
+        { pattern: /^pints?$/i, unit: 'pint' },
+        { pattern: /^liters?$/i, unit: 'liter' },
+        { pattern: /^lbs?$/i, unit: 'lb' },
+        { pattern: /^pounds?$/i, unit: 'lb' },
+        { pattern: /^oz$/i, unit: 'oz' },
+        { pattern: /^ounces?$/i, unit: 'oz' },
+        { pattern: /^kgs?$/i, unit: 'kg' },
+        { pattern: /^kilograms?$/i, unit: 'kg' },
+        { pattern: /^packs?$/i, unit: 'pack' },
+        { pattern: /^packages?$/i, unit: 'pack' },
+        { pattern: /^cartons?$/i, unit: 'carton' },
+        { pattern: /^bottles?$/i, unit: 'bottle' },
+        { pattern: /^cans?$/i, unit: 'can' },
+        { pattern: /^bags?$/i, unit: 'bag' },
+        { pattern: /^boxes?$/i, unit: 'box' },
+        { pattern: /^dozens?$/i, unit: 'dozen' },
+        { pattern: /^bunche?s?$/i, unit: 'bunch' },
+        { pattern: /^loave?s?$/i, unit: 'loaf' },
+    ];
+
+    function matchUnit(word: string): string | null {
+        for (const { pattern, unit } of unitPatterns) {
+            if (pattern.test(word)) {
+                return unit;
+            }
+        }
+        return null;
+    }
+
     const items = parts.map(part => {
-        // Try to extract quantity: "2 apples", "a dozen eggs", "some milk"
+        // First try: "2 gallons of milk", "3 lbs of chicken"
+        // Pattern: <quantity> <unit> of <item>
+        const unitOfMatch = part.match(/^(\d+)\s+(\w+)\s+of\s+(.+)$/i);
+
+        if (unitOfMatch) {
+            const quantity = parseInt(unitOfMatch[1]);
+            const possibleUnit = unitOfMatch[2];
+            const name = unitOfMatch[3].trim();
+            const unit = matchUnit(possibleUnit);
+
+            if (unit) {
+                const item = {
+                    name,
+                    quantity,
+                    unit,
+                    category: guessCategory(name)
+                };
+                console.log('[Keyword] Parsed item with unit:', item);
+                return item;
+            }
+        }
+
+        // Second try: "a gallon of milk", "a dozen eggs"
+        const aUnitOfMatch = part.match(/^(a|an)\s+(\w+)\s+of\s+(.+)$/i);
+
+        if (aUnitOfMatch) {
+            const possibleUnit = aUnitOfMatch[2];
+            const name = aUnitOfMatch[3].trim();
+            const unit = matchUnit(possibleUnit);
+
+            if (unit) {
+                // "a dozen" = 12, "a gallon" = 1
+                const quantity = unit === 'dozen' ? 12 : 1;
+                const item = {
+                    name,
+                    quantity,
+                    unit: unit === 'dozen' ? null : unit, // dozen is a quantity not a unit
+                    category: guessCategory(name)
+                };
+                console.log('[Keyword] Parsed item with unit:', item);
+                return item;
+            }
+        }
+
+        // Fallback: original parsing without units
         // Handle "a couple of", "a few" with optional "of"
         const quantityMatch = part.match(/^(\d+|a\s+couple(?:\s+of)?|a\s+few|a\s+dozen|a|an|some)\s+(.+)$/i);
 
         let quantity = 1;
         let name = part.trim();
+        const unit: string | null = null;
 
         if (quantityMatch) {
             const qStr = quantityMatch[1].toLowerCase().trim();
@@ -208,7 +286,7 @@ function parseItemsFromText(text: string): ParsedItem[] {
         const item = {
             name,
             quantity,
-            unit: null,
+            unit,
             category: guessCategory(name)
         };
         console.log('[Keyword] Parsed item:', item);
