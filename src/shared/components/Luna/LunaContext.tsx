@@ -105,6 +105,9 @@ export function LunaProvider({ children }: LunaProviderProps) {
         try {
             const list = await createShoppingList({ name });
             addShareCode(list.share_code);
+            // Set currentListId immediately so Luna can add items right away
+            setCurrentListId(list.id);
+            console.log('[Luna] Created list, set currentListId to:', list.id);
             // Navigate with flag to skip name modal (Luna handles name prompt itself)
             navigate(`/shopping-lists/${list.share_code}`, { state: { skipNameModal: true } });
             return {
@@ -120,12 +123,18 @@ export function LunaProvider({ children }: LunaProviderProps) {
 
     // Add items to current list
     const addItemsToCurrentList = useCallback(async (items: ParsedShoppingItem[]): Promise<{ success: boolean; message: string }> => {
+        console.log('[Luna] addItemsToCurrentList called with', items.length, 'items');
+        console.log('[Luna] currentListId:', currentListId);
+
         if (!currentListId) {
+            console.log('[Luna] ❌ No currentListId - cannot add items');
             return { success: false, message: "You need to open a list first. Say 'open [list name]' or go to Shopping Lists." };
         }
 
         try {
+            console.log('[Luna] Adding items to list:', currentListId);
             for (const item of items) {
+                console.log('[Luna] Adding item:', item.name);
                 await addItemToList({
                     list_id: currentListId,
                     item_name: item.name,
@@ -134,6 +143,7 @@ export function LunaProvider({ children }: LunaProviderProps) {
                     unit_type: item.unit || undefined,
                 });
             }
+            console.log('[Luna] ✅ Successfully added', items.length, 'items');
             return {
                 success: true,
                 message: `Added ${items.length} item${items.length > 1 ? 's' : ''} to your list!`

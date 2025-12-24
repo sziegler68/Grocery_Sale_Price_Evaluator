@@ -4,12 +4,12 @@
  */
 
 import { getSupabaseClient, isSupabaseConfigured } from '@shared/api/supabaseClient';
-import type { 
-  ShoppingList, 
-  ShoppingListItem, 
+import type {
+  ShoppingList,
+  ShoppingListItem,
   CreateShoppingListInput,
   AddItemToListInput,
-  UpdateItemInput 
+  UpdateItemInput
 } from '../types';
 
 /**
@@ -41,7 +41,7 @@ export const createShoppingList = async (
   }
 
   const client = getSupabaseClient();
-  
+
   // Generate share code
   const shareCode = await generateShareCode();
 
@@ -168,6 +168,8 @@ export const addItemToList = async (
     throw new Error('Supabase is not configured');
   }
 
+  console.log('[API] addItemToList called with:', input);
+
   const client = getSupabaseClient();
   const { data, error } = await client
     .from('shopping_list_items')
@@ -192,9 +194,11 @@ export const addItemToList = async (
     .single();
 
   if (error || !data) {
+    console.error('[API] addItemToList ERROR:', error);
     throw new Error(error?.message || 'Failed to add item');
   }
 
+  console.log('[API] addItemToList SUCCESS - item saved:', data);
   return data;
 };
 
@@ -210,7 +214,7 @@ export const updateItem = async (
   }
 
   const client = getSupabaseClient();
-  
+
   // If checking/unchecking, update checked_at timestamp
   const updateData: any = { ...updates };
   if (updates.is_checked !== undefined) {
@@ -292,11 +296,11 @@ export const subscribeToListItems = (
   onDelete?: (itemId: string) => void
 ) => {
   if (!isSupabaseConfigured) {
-    return () => {}; // Return no-op unsubscribe
+    return () => { }; // Return no-op unsubscribe
   }
 
   const client = getSupabaseClient();
-  
+
   const channel = client
     .channel(`shopping-list-${listId}`)
     .on(
