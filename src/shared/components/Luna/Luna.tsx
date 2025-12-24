@@ -21,6 +21,7 @@ interface Message {
     type: 'user' | 'assistant';
     text: string;
     items?: ParsedItem[];
+    usedAI?: boolean; // Debug: track if AI was used for this response
 }
 
 type AssistantState = 'idle' | 'listening' | 'processing' | 'confirming' | 'saving';
@@ -84,12 +85,13 @@ export function Luna() {
         }
     }, [messages]);
 
-    const addMessage = useCallback((type: 'user' | 'assistant', text: string, items?: ParsedItem[]) => {
+    const addMessage = useCallback((type: 'user' | 'assistant', text: string, items?: ParsedItem[], usedAI?: boolean) => {
         setMessages(prev => [...prev, {
             id: Date.now().toString(),
             type,
             text,
-            items
+            items,
+            usedAI
         }]);
     }, []);
 
@@ -110,7 +112,7 @@ export function Luna() {
         const keywordResult = matchIntent(text);
         if (keywordResult.matched && keywordResult.result) {
             console.log('[Luna] Keyword match:', keywordResult.result.intent);
-            await processIntent(keywordResult.result);
+            await processIntent(keywordResult.result, false); // usedAI = false
             return;
         }
 
@@ -126,7 +128,7 @@ export function Luna() {
         }
 
         const result = await classifyIntent(text, apiKey);
-        await processIntent(result);
+        await processIntent(result, true); // usedAI = true
     }, [addMessage, pendingAction, speak]);
 
     // Handle responses to pending prompts
@@ -172,7 +174,7 @@ export function Luna() {
         }
     }, [pendingAction, luna, addMessage, speak]);
 
-    const processIntent = useCallback(async (result: IntentResult) => {
+    const processIntent = useCallback(async (result: IntentResult, usedAI: boolean = false) => {
         const { intent, params } = result;
         let response = result.message;
 
@@ -277,7 +279,7 @@ export function Luna() {
                 response = result.message || "I didn't quite catch that. Try asking me to add items, open a list, check a price, or get help.";
         }
 
-        addMessage('assistant', response);
+        addMessage('assistant', response, undefined, usedAI);
         speak(response);
         setState('idle');
     }, [luna, addMessage, speak]);
@@ -394,6 +396,10 @@ export function Luna() {
                                 }`}
                         >
                             {msg.text}
+                            {/* Debug: Show AI indicator */}
+                            {msg.usedAI && msg.type === 'assistant' && (
+                                <span className="ml-1.5 text-[10px] opacity-60" title="Response powered by AI">✨AI</span>
+                            )}
                             {msg.items && msg.items.length > 0 && (
                                 <ul className="mt-2 space-y-1 text-xs opacity-90">
                                     {msg.items.map((item, i) => (
