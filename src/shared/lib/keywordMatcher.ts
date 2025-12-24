@@ -174,38 +174,48 @@ function normalizeUnit(unit: string | undefined): string {
 }
 
 function parseItemsFromText(text: string): ParsedItem[] {
+    console.log('[Keyword] Parsing items from:', text);
+
     // Split by "and", commas, or just parse as single item
     const parts = text.split(/\s*(?:,|and)\s*/i).filter(p => p.trim());
+    console.log('[Keyword] Split parts:', parts);
 
-    return parts.map(part => {
+    const items = parts.map(part => {
         // Try to extract quantity: "2 apples", "a dozen eggs", "some milk"
-        const quantityMatch = part.match(/^(\d+|a|an|some|a few|a couple|a dozen)\s+(.+)$/i);
+        // Handle "a couple of", "a few" with optional "of"
+        const quantityMatch = part.match(/^(\d+|a\s+couple(?:\s+of)?|a\s+few|a\s+dozen|a|an|some)\s+(.+)$/i);
 
         let quantity = 1;
         let name = part.trim();
 
         if (quantityMatch) {
-            const qStr = quantityMatch[1].toLowerCase();
+            const qStr = quantityMatch[1].toLowerCase().trim();
             name = quantityMatch[2].trim();
 
             if (/^\d+$/.test(qStr)) {
                 quantity = parseInt(qStr);
             } else if (qStr === 'a' || qStr === 'an' || qStr === 'some') {
                 quantity = 1;
-            } else if (qStr === 'a couple' || qStr === 'a few') {
+            } else if (qStr.includes('couple')) {
                 quantity = 2;
-            } else if (qStr === 'a dozen') {
+            } else if (qStr.includes('few')) {
+                quantity = 3;
+            } else if (qStr.includes('dozen')) {
                 quantity = 12;
             }
         }
 
-        return {
+        const item = {
             name,
             quantity,
             unit: null,
             category: guessCategory(name)
         };
+        console.log('[Keyword] Parsed item:', item);
+        return item;
     });
+
+    return items;
 }
 
 function guessCategory(itemName: string): string {
