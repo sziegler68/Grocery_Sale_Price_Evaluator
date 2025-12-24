@@ -172,6 +172,9 @@ export function Luna() {
                         speak(response);
                         return;
                     }
+                } else {
+                    // No items extracted - ask for clarification
+                    response = "I couldn't identify the items. Try saying something like 'add 2 ribeye steaks' or 'add milk and eggs'.";
                 }
                 break;
 

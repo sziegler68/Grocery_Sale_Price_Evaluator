@@ -61,7 +61,13 @@ Return ONLY a JSON object (no markdown, no explanation):
 
 Intent types and their parameters:
 1. "add_items" - User wants to add items to shopping list
-   params: { items: [{name, quantity, unit, category}] }
+   params: { items: [{name: string, quantity: number, unit: string|null, category: string}] }
+   Examples:
+   - "add 2 ribeye steaks" → items: [{name: "ribeye steaks", quantity: 2, unit: null, category: "Meat"}]
+   - "add milk and eggs" → items: [{name: "milk", quantity: 1, unit: null, category: "Dairy"}, {name: "eggs", quantity: 1, unit: null, category: "Dairy"}]
+   - "add 3 lb chicken" → items: [{name: "chicken", quantity: 3, unit: "lb", category: "Meat"}]
+   - "add apples" → items: [{name: "apples", quantity: 1, unit: null, category: "Produce"}]
+   - "put bread on the list" → items: [{name: "bread", quantity: 1, unit: null, category: "Bakery"}]
 
 2. "navigation" - User wants to go to a page
    params: { target: "home"|"settings"|"help"|"lists"|"price-checker"|"items" }
@@ -86,7 +92,7 @@ Intent types and their parameters:
 
 8. "unknown" - Cannot determine intent
 
-Categories for items: Meat, Seafood, Dairy, Produce, Deli, Prepared Food, Bakery, Frozen, Pantry, Condiments, Beverages, Snacks, Household, Personal Care, Baby, Pet, Electronics, Other
+Categories: Meat, Seafood, Dairy, Produce, Deli, Prepared Food, Bakery, Frozen, Pantry, Condiments, Beverages, Snacks, Household, Personal Care, Baby, Pet, Electronics, Other
 
 User: `;
 
