@@ -272,8 +272,12 @@ const ShoppingListDetail: React.FC = () => {
       if (savedName) {
         setUserName(savedName);
       } else {
-        // Show name prompt after a brief delay
-        setTimeout(() => setShowNameModal(true), 500);
+        // Check if we should skip the name modal (e.g., navigating from Luna)
+        const skipNameModal = (location.state as any)?.skipNameModal || false;
+        if (!skipNameModal) {
+          // Show name prompt after a brief delay
+          setTimeout(() => setShowNameModal(true), 500);
+        }
       }
     }
   }, [shareCode, loadListData]);

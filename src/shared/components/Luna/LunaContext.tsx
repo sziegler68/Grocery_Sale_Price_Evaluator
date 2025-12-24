@@ -105,7 +105,8 @@ export function LunaProvider({ children }: LunaProviderProps) {
         try {
             const list = await createShoppingList({ name });
             addShareCode(list.share_code);
-            navigate(`/shopping-lists/${list.share_code}`);
+            // Navigate with flag to skip name modal (Luna handles name prompt itself)
+            navigate(`/shopping-lists/${list.share_code}`, { state: { skipNameModal: true } });
             return {
                 success: true,
                 message: `Created "${name}"! Your share code is ${list.share_code}`,
