@@ -49,36 +49,44 @@ export interface IntentResult {
     confidence: number;
 }
 
-const INTENT_PROMPT = `You are a shopping assistant classifier. Classify the user's intent and extract parameters.
+const INTENT_PROMPT = `You are Luna, a shopping assistant. Classify the user intent and extract parameters.
 
-Return ONLY valid JSON (no markdown):
+Return ONLY a JSON object (no markdown, no explanation):
 {
-  "intent": "...",
-  "params": {...},
-  "message": "...",
+  "intent": "<intent_type>",
+  "params": {<parameters>},
+  "message": "<short friendly response>",
   "confidence": 0.9
 }
 
-Intents:
-- "add_items": Adding items to shopping list. Extract: items (array of {name, quantity, unit, category})
-- "navigation": Going to a page. Extract: target (home, settings, help, lists, price-checker, items)
-- "create_list": Creating a new list. Extract: listName
-- "open_list": Opening an existing list. Extract: listName
-- "price_check": Asking if a price is good. Extract: item, price, unit
-- "compare_prices": Comparing two prices. Extract: priceA, unitA, priceB, unitB
-- "help": Asking how to use the app. Extract: topic
-- "unknown": Can't determine intent
+Intent types and their parameters:
+1. "add_items" - User wants to add items to shopping list
+   params: { items: [{name, quantity, unit, category}] }
 
-Categories: Meat, Seafood, Dairy, Produce, Deli, Prepared Food, Bakery, Frozen, Pantry, Condiments, Beverages, Snacks, Household, Personal Care, Baby, Pet, Electronics, Other
+2. "navigation" - User wants to go to a page
+   params: { target: "home"|"settings"|"help"|"lists"|"price-checker"|"items" }
 
-Examples:
-- "add 2 apples and milk" → add_items
-- "open my Costco list" → open_list
-- "create a list called Trader Joes" → create_list
-- "go to settings" → navigation
-- "is $5 per pound good for chicken" → price_check
-- "what's better, $4 per pound or 30 cents per ounce" → compare_prices
-- "how do I share a list" → help
+3. "create_list" - User wants to create a NEW shopping list
+   params: { listName: "the list name the user specified" }
+   Examples: "make a new list called Costco" → listName: "Costco"
+             "create list for Trader Joes" → listName: "Trader Joes"
+             "new list" → listName: "New List"
+
+4. "open_list" - User wants to OPEN an existing list
+   params: { listName: "the list name" }
+
+5. "price_check" - User asking if a price is good
+   params: { item: "item name", price: number, unit: "lb"|"oz"|"each" }
+
+6. "compare_prices" - User comparing two prices
+   params: { priceA: number, unitA: string, priceB: number, unitB: string }
+
+7. "help" - User asking how to use the app
+   params: { topic: "what they're asking about" }
+
+8. "unknown" - Cannot determine intent
+
+Categories for items: Meat, Seafood, Dairy, Produce, Deli, Prepared Food, Bakery, Frozen, Pantry, Condiments, Beverages, Snacks, Household, Personal Care, Baby, Pet, Electronics, Other
 
 User: `;
 
@@ -94,6 +102,8 @@ export async function classifyIntent(
             confidence: 0
         };
     }
+
+    let rawText: string | undefined;
 
     try {
         const payload = {
@@ -118,7 +128,7 @@ export async function classifyIntent(
         }
 
         const data = await response.json();
-        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!rawText) {
             return {
@@ -141,11 +151,12 @@ export async function classifyIntent(
 
         return parsed;
     } catch (error) {
-        console.error('[Intent] Error:', error);
+        console.error('[Intent] Parse error:', error);
+        console.error('[Intent] Raw text was:', rawText || 'no text');
         return {
             intent: 'unknown',
             params: {},
-            message: "I had trouble understanding that. Could you try again?",
+            message: "Sorry, I had trouble with that. Try saying something like 'create a list called Groceries'.",
             confidence: 0
         };
     }
