@@ -11,6 +11,7 @@ import { useVoiceInput } from '@shared/hooks/useVoiceInput';
 import { useTextToSpeech } from '@shared/hooks/useTextToSpeech';
 import { getGeminiApiKey } from '@shared/lib/ai/geminiChat';
 import { classifyIntent, type IntentResult, type ParsedItem } from '@shared/lib/ai/geminiIntent';
+import { matchIntent, SUGGESTED_PROMPTS } from '@shared/lib/keywordMatcher';
 import { findHelpAnswer } from '@shared/lib/helpContent';
 import { useLuna } from './LunaContext';
 
@@ -99,11 +100,28 @@ export function Luna() {
             return;
         }
 
-        const apiKey = getGeminiApiKey();
-        const result = await classifyIntent(text, apiKey || '');
+        // Try keyword matching first (fast, free)
+        const keywordResult = matchIntent(text);
+        if (keywordResult.matched && keywordResult.result) {
+            console.log('[Luna] Keyword match:', keywordResult.result.intent);
+            await processIntent(keywordResult.result);
+            return;
+        }
 
+        // Fall back to AI for complex queries
+        console.log('[Luna] No keyword match, trying AI...');
+        const apiKey = getGeminiApiKey();
+        if (!apiKey) {
+            const msg = "I didn't understand that. Try a simpler command like 'add milk' or 'create list'.";
+            addMessage('assistant', msg);
+            speak(msg);
+            setState('idle');
+            return;
+        }
+
+        const result = await classifyIntent(text, apiKey);
         await processIntent(result);
-    }, [addMessage, pendingAction]);
+    }, [addMessage, pendingAction, speak]);
 
     // Handle responses to pending prompts
     const handlePendingAction = useCallback(async (text: string) => {
@@ -395,6 +413,24 @@ export function Luna() {
                 {/* Scroll anchor */}
                 <div ref={messagesEndRef} />
             </div>
+
+            {/* Suggested Prompts - show when few messages */}
+            {messages.length <= 2 && state === 'idle' && (
+                <div className="px-3 pb-2">
+                    <p className="text-xs text-slate-400 mb-2">Try saying:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                        {SUGGESTED_PROMPTS.map((prompt, i) => (
+                            <button
+                                key={i}
+                                onClick={() => handleInput(prompt.text)}
+                                className="px-2.5 py-1 bg-slate-700 hover:bg-violet-600 text-slate-200 text-xs rounded-full transition-colors"
+                            >
+                                {prompt.icon} {prompt.text}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Confirmation buttons */}
             {state === 'confirming' && pendingItems.length > 0 && (
