@@ -115,6 +115,8 @@ export async function classifyIntent(
     let rawText: string | undefined;
 
     try {
+        console.log('[Intent] Classifying input:', userInput);
+
         const payload = {
             contents: [{ parts: [{ text: INTENT_PROMPT + userInput }] }],
             generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
@@ -126,24 +128,31 @@ export async function classifyIntent(
             body: JSON.stringify(payload)
         });
 
+        console.log('[Intent] API response status:', response.status);
+
         if (!response.ok) {
-            console.error('[Intent] API error:', response.status);
+            const errorText = await response.text();
+            console.error('[Intent] API error:', response.status, errorText);
             return {
                 intent: 'unknown',
                 params: {},
-                message: "I had trouble understanding that. Could you try again?",
+                message: "I had trouble connecting. Check your internet or API key in Settings.",
                 confidence: 0
             };
         }
 
         const data = await response.json();
+        console.log('[Intent] Response data:', JSON.stringify(data).substring(0, 500));
+
         rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        console.log('[Intent] Raw text:', rawText);
 
         if (!rawText) {
+            console.error('[Intent] No text in response:', data);
             return {
                 intent: 'unknown',
                 params: {},
-                message: "I didn't catch that. Try again?",
+                message: "I didn't get a response. Try again?",
                 confidence: 0
             };
         }
@@ -156,7 +165,7 @@ export async function classifyIntent(
         }
 
         const parsed = JSON.parse(cleanedText) as IntentResult;
-        console.log('[Intent] Classified:', parsed.intent, parsed.params);
+        console.log('[Intent] Classified:', parsed.intent, JSON.stringify(parsed.params));
 
         return parsed;
     } catch (error) {
