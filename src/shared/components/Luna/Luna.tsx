@@ -183,16 +183,16 @@ export function Luna() {
         switch (intent) {
             case 'add_items':
                 if (params.items && params.items.length > 0) {
-                    // Check if we have a current list
-                    if (luna.currentListId) {
-                        const lunaResult = await luna.addItemsToCurrentList(params.items.map(item => ({
-                            name: item.name,
-                            quantity: item.quantity,
-                            unit: item.unit,
-                            category: item.category
-                        })));
-                        response = lunaResult.message;
-                    } else {
+                    // Always try to add - addItemsToCurrentList will check internally using ref
+                    const lunaResult = await luna.addItemsToCurrentList(params.items.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity,
+                        unit: item.unit,
+                        category: item.category
+                    })));
+
+                    if (!lunaResult.success && lunaResult.message.includes('open a list')) {
+                        // No list open - save items for later
                         setPendingItems(params.items);
                         response = `I found ${params.items.length} item${params.items.length > 1 ? 's' : ''}. Open a list first, then I can add them.`;
                         setState('confirming');
@@ -200,6 +200,7 @@ export function Luna() {
                         speak(response);
                         return;
                     }
+                    response = lunaResult.message;
                 } else {
                     // No items extracted - ask for clarification
                     response = "I couldn't identify the items. Try saying something like 'add 2 ribeye steaks' or 'add milk and eggs'.";

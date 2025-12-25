@@ -4,7 +4,7 @@
  * Provides Luna with access to navigation, list operations, and app state.
  */
 
-import { createContext, useContext, useCallback, useState, type ReactNode } from 'react';
+import { createContext, useContext, useCallback, useState, useRef, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStoredShareCodes, addShareCode } from '@shared/utils/shoppingListStorage';
 import { getShoppingListByCode, createShoppingList, addItemToList } from '@features/shopping-lists/api';
@@ -49,6 +49,15 @@ export function LunaProvider({ children }: LunaProviderProps) {
     const navigate = useNavigate();
     const [currentListId, setCurrentListId] = useState<string | null>(null);
 
+    // Use ref to always have latest value in callbacks (avoids stale closures)
+    const currentListIdRef = useRef<string | null>(null);
+
+    // Keep ref in sync with state
+    useEffect(() => {
+        currentListIdRef.current = currentListId;
+        console.log('[Luna] currentListIdRef updated to:', currentListId);
+    }, [currentListId]);
+
     // Navigate to a path
     const navigateTo = useCallback((path: string) => {
         navigate(path);
@@ -88,7 +97,9 @@ export function LunaProvider({ children }: LunaProviderProps) {
                 // Need to get the list ID to set currentListId
                 const fullList = await getShoppingListByCode(match.code);
                 if (fullList) {
+                    // Set both state AND ref immediately (ref avoids stale closure issues)
                     setCurrentListId(fullList.id);
+                    currentListIdRef.current = fullList.id;
                     console.log('[Luna] Opened list, set currentListId to:', fullList.id);
                 }
                 navigate(`/shopping-lists/${match.code}`);
@@ -112,8 +123,9 @@ export function LunaProvider({ children }: LunaProviderProps) {
         try {
             const list = await createShoppingList({ name });
             addShareCode(list.share_code);
-            // Set currentListId immediately so Luna can add items right away
+            // Set both state AND ref immediately (ref avoids stale closure issues)
             setCurrentListId(list.id);
+            currentListIdRef.current = list.id;
             console.log('[Luna] Created list, set currentListId to:', list.id);
             // Navigate with flag to skip name modal (Luna handles name prompt itself)
             navigate(`/shopping-lists/${list.share_code}`, { state: { skipNameModal: true } });
@@ -130,20 +142,22 @@ export function LunaProvider({ children }: LunaProviderProps) {
 
     // Add items to current list
     const addItemsToCurrentList = useCallback(async (items: ParsedShoppingItem[]): Promise<{ success: boolean; message: string }> => {
+        // Use ref to get latest value (avoids stale closure)
+        const listId = currentListIdRef.current;
         console.log('[Luna] addItemsToCurrentList called with', items.length, 'items');
-        console.log('[Luna] currentListId:', currentListId);
+        console.log('[Luna] currentListId from ref:', listId);
 
-        if (!currentListId) {
+        if (!listId) {
             console.log('[Luna] ❌ No currentListId - cannot add items');
             return { success: false, message: "You need to open a list first. Say 'open [list name]' or go to Shopping Lists." };
         }
 
         try {
-            console.log('[Luna] Adding items to list:', currentListId);
+            console.log('[Luna] Adding items to list:', listId);
             for (const item of items) {
                 console.log('[Luna] Adding item:', item.name);
                 await addItemToList({
-                    list_id: currentListId,
+                    list_id: listId,
                     item_name: item.name,
                     category: item.category,
                     quantity: item.quantity,
@@ -154,7 +168,7 @@ export function LunaProvider({ children }: LunaProviderProps) {
 
             // Refresh the store's items so UI updates immediately
             const { loadListItems } = useShoppingListStore.getState();
-            await loadListItems(currentListId);
+            await loadListItems(listId);
             console.log('[Luna] 🔄 Refreshed store items');
 
             return {
@@ -165,7 +179,7 @@ export function LunaProvider({ children }: LunaProviderProps) {
             console.error('[Luna] Error adding items:', error);
             return { success: false, message: "Couldn't add those items. Please try again." };
         }
-    }, [currentListId]);
+    }, []); // No dependency on currentListId - we use the ref
 
     // Check if a price is good
     const checkPrice = useCallback(async (item: string, price: number, unit: string): Promise<{ success: boolean; message: string }> => {
