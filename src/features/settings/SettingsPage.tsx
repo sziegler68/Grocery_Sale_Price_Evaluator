@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { Key, ExternalLink, CheckCircle, XCircle, MapPin, Calculator, Bell, User, AlertTriangle, Settings as SettingsIcon } from 'lucide-react';
 import { WeightPreferences } from './components/WeightPreferences';
 import { CustomUnitPreferences } from './components/CustomUnitPreferences';
+import { AlexaSettings } from './components/AlexaSettings';
 import { useNotificationStore } from '../notifications/store/useNotificationStore';
 import { taxService } from '../../shared/services/taxService';
 import {
@@ -715,6 +716,11 @@ export function SettingsPage() {
                 {/* Weight Preferences Section */}
                 <div className="bg-card rounded-lg shadow-lg p-6 border border-primary mt-6">
                     <WeightPreferences />
+                </div>
+
+                {/* Alexa Integration Section */}
+                <div className="mt-6">
+                    <AlexaSettings />
                 </div>
 
                 {/* App Settings Section */}
