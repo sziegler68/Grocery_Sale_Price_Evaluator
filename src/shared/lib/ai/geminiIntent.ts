@@ -12,6 +12,7 @@ export type IntentType =
     | 'navigation'
     | 'create_list'
     | 'open_list'
+    | 'list_lists'
     | 'price_check'
     | 'compare_prices'
     | 'help'

@@ -63,6 +63,17 @@ const INTENT_PATTERNS: PatternConfig[] = [
         }
     },
 
+    // LIST LISTS - "show my lists", "what lists do I have"
+    {
+        intent: 'list_lists',
+        patterns: [
+            /^(show|list|what are)(\s+my|\s+all(\s+my)?)?(\s+shopping)?\s+lists$/i,
+            /^what\s+lists\s+do\s+i\s+have$/i,
+            /^which\s+lists\s+do\s+i\s+have$/i,
+            /^my\s+lists$/i,
+        ],
+    },
+
     // NAVIGATION - "go to settings", "open help", "show home"
     {
         intent: 'navigation',

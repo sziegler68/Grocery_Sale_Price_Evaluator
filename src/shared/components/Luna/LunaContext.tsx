@@ -21,6 +21,7 @@ export interface LunaContextValue {
     // List operations
     createList: (name: string) => Promise<{ success: boolean; message: string; shareCode?: string }>;
     addItemsToCurrentList: (items: ParsedShoppingItem[]) => Promise<{ success: boolean; message: string }>;
+    listLists: () => Promise<{ success: boolean; message: string; lists?: string[] }>;
 
     // Price operations
     checkPrice: (item: string, price: number, unit: string) => Promise<{ success: boolean; message: string }>;
@@ -181,6 +182,44 @@ export function LunaProvider({ children }: LunaProviderProps) {
         }
     }, []); // No dependency on currentListId - we use the ref
 
+    // List all user's lists
+    const listLists = useCallback(async (): Promise<{ success: boolean; message: string; lists?: string[] }> => {
+        try {
+            const shareCodes = getStoredShareCodes();
+
+            if (shareCodes.length === 0) {
+                return { success: false, message: "You don't have any lists yet. Say 'create a list' to make one." };
+            }
+
+            // Load all list names
+            const listNames: string[] = [];
+            for (const code of shareCodes) {
+                try {
+                    const list = await getShoppingListByCode(code);
+                    if (list) {
+                        listNames.push(list.name);
+                    }
+                } catch {
+                    // Skip invalid codes
+                }
+            }
+
+            if (listNames.length === 0) {
+                return { success: false, message: "Couldn't load your lists. Please try again." };
+            }
+
+            const listStr = listNames.join(', ');
+            return {
+                success: true,
+                message: `You have ${listNames.length} list${listNames.length > 1 ? 's' : ''}: ${listStr}. Say 'open [list name]' to open one.`,
+                lists: listNames
+            };
+        } catch (error) {
+            console.error('[Luna] Error listing lists:', error);
+            return { success: false, message: "Something went wrong. Please try again." };
+        }
+    }, []);
+
     // Check if a price is good
     const checkPrice = useCallback(async (item: string, price: number, unit: string): Promise<{ success: boolean; message: string }> => {
         try {
@@ -265,6 +304,7 @@ export function LunaProvider({ children }: LunaProviderProps) {
         openList,
         createList: createListFn,
         addItemsToCurrentList,
+        listLists,
         checkPrice,
         comparePrices,
         currentListId,

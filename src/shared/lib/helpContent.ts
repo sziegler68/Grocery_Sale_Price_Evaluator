@@ -60,9 +60,9 @@ export const HELP_TOPICS: HelpTopic[] = [
 
     // Shopping Trip
     {
-        keywords: ['trip', 'shopping trip', 'budget', 'start trip'],
-        question: 'What is a Shopping Trip?',
-        answer: 'A Shopping Trip tracks your spending in real-time. Set a budget, and as you add items to your cart, I\'ll show you how much you\'ve spent. The meter turns yellow at 90% and red when you go over.'
+        keywords: ['trip', 'shopping trip', 'budget', 'start trip', 'how do i start', 'begin trip'],
+        question: 'How do I start a Shopping Trip?',
+        answer: 'To start a shopping trip: 1) Open a shopping list (say \'open [list name]\' or \'show my lists\'), 2) Tap \'Start Shopping Trip\', 3) Enter your budget, and begin! Tell me which list you want to open and I can help you get started.'
     },
     {
         keywords: ['budget meter', 'over budget', 'spending'],

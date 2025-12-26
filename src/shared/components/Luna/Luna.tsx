@@ -256,6 +256,12 @@ export function Luna() {
                 }
                 break;
 
+            case 'list_lists': {
+                const listResult = await luna.listLists();
+                response = listResult.message;
+                break;
+            }
+
             case 'price_check':
                 if (params.item && params.price && params.unit) {
                     const priceResult = await luna.checkPrice(params.item, params.price, params.unit);
