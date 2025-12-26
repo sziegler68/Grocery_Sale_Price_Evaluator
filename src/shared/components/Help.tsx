@@ -1,19 +1,147 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { HelpCircle, ShoppingCart, DollarSign, Bell, Settings as SettingsIcon, ArrowRight } from 'lucide-react';
+import {
+  HelpCircle, ShoppingCart, DollarSign, Settings as SettingsIcon,
+  ArrowRight, ChevronDown, ChevronRight, Search, Bot, Sparkles
+} from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import { useDarkMode } from '../hooks/useDarkMode';
 
+interface HelpSectionProps {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  isExpanded: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+  searchMatch?: boolean;
+}
+
+const HelpSection: React.FC<HelpSectionProps> = ({
+  id, title, icon, isExpanded, onToggle, children, searchMatch
+}) => {
+  return (
+    <div className={`rounded-xl shadow-lg mb-4 bg-card overflow-hidden transition-all ${searchMatch ? 'ring-2 ring-brand' : ''
+      }`}>
+      <button
+        onClick={onToggle}
+        className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors"
+        aria-expanded={isExpanded}
+        aria-controls={`section-${id}`}
+      >
+        <div className="flex items-center space-x-3">
+          {icon}
+          <h2 className="text-lg font-bold text-left">{title}</h2>
+        </div>
+        {isExpanded ? (
+          <ChevronDown className="h-5 w-5 text-secondary" />
+        ) : (
+          <ChevronRight className="h-5 w-5 text-secondary" />
+        )}
+      </button>
+      {isExpanded && (
+        <div id={`section-${id}`} className="px-6 pb-6 animate-in fade-in slide-in-from-top-2 duration-200">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Help: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Section definitions with searchable content
+  const sections = useMemo(() => [
+    {
+      id: 'overview',
+      title: '🌙 What is LunaCart?',
+      keywords: ['lunacart', 'app', 'features', 'price', 'shopping', 'list', 'budget', 'trip']
+    },
+    {
+      id: 'luna',
+      title: '🤖 Luna - Your Mini Assistant',
+      keywords: ['luna', 'assistant', 'voice', 'commands', 'add', 'rename', 'delete', 'help', 'ai', 'suggestions']
+    },
+    {
+      id: 'price-checker',
+      title: '💵 Price Checker',
+      keywords: ['price', 'check', 'target', 'deal', 'compare', 'unit', 'conversion']
+    },
+    {
+      id: 'shopping-lists',
+      title: '🛒 Shopping Lists',
+      keywords: ['list', 'share', 'code', 'create', 'join', 'items', 'category']
+    },
+    {
+      id: 'shopping-trip',
+      title: '🛍️ Active Shopping Trip',
+      keywords: ['trip', 'budget', 'cart', 'tax', 'crv', 'spending', 'meter']
+    },
+    {
+      id: 'settings',
+      title: '⚙️ Settings',
+      keywords: ['settings', 'preferences', 'units', 'tax', 'notifications', 'alexa']
+    },
+    {
+      id: 'tips',
+      title: '💡 Tips & Tricks',
+      keywords: ['tips', 'workflow', 'filter', 'best', 'security']
+    },
+    {
+      id: 'reference',
+      title: '📚 Quick Reference',
+      keywords: ['reference', 'navigation', 'colors', 'quick']
+    }
+  ], []);
+
+  // Filter sections based on search
+  const matchingSections = useMemo(() => {
+    if (!searchQuery.trim()) return new Set<string>();
+    const query = searchQuery.toLowerCase();
+    return new Set(
+      sections
+        .filter(s =>
+          s.title.toLowerCase().includes(query) ||
+          s.keywords.some(k => k.includes(query))
+        )
+        .map(s => s.id)
+    );
+  }, [searchQuery, sections]);
+
+  // Auto-expand matching sections when searching
+  const visibleExpanded = useMemo(() => {
+    if (searchQuery.trim()) {
+      return matchingSections;
+    }
+    return expandedSections;
+  }, [searchQuery, matchingSections, expandedSections]);
+
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const isExpanded = (id: string) => visibleExpanded.has(id);
+  const isMatch = (id: string) => searchQuery.trim() !== '' && matchingSections.has(id);
 
   return (
     <div className={`min-h-screen bg-secondary ${darkMode ? 'dark' : ''}`}>
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
+        {/* Header */}
+        <div className="mb-6">
           <div className="flex items-center space-x-2 mb-2">
             <HelpCircle className="h-8 w-8 text-brand" />
             <h1 className="text-3xl font-bold">Help & Guide</h1>
@@ -23,527 +151,348 @@ const Help: React.FC = () => {
           </p>
         </div>
 
-        {/* What is this app */}
-        <div className="p-6 rounded-xl shadow-lg mb-6 bg-card">
-          <h2 className="text-2xl font-bold mb-4">🌙 What is LunaCart?</h2>
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-secondary" />
+          <input
+            type="text"
+            placeholder="Search help topics..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-xl border bg-card border-primary focus:ring-2 focus:ring-brand focus:border-transparent text-base"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Sections */}
+        <HelpSection
+          id="overview"
+          title="🌙 What is LunaCart?"
+          icon={<Sparkles className="h-5 w-5 text-purple-500" />}
+          isExpanded={isExpanded('overview')}
+          onToggle={() => toggleSection('overview')}
+          searchMatch={isMatch('overview')}
+        >
           <p className="text-primary mb-4">
             This app has <strong>three main features</strong> that work together:
           </p>
           <div className="space-y-4">
-            <div className={`p-4 rounded-lg bg-brand-light`}>
+            <div className="p-4 rounded-lg bg-brand-light">
               <div className="flex items-center space-x-2 mb-2">
                 <DollarSign className="h-5 w-5 text-purple-600" />
                 <h3 className="font-semibold">1. Price Checker</h3>
               </div>
               <p className="text-sm text-primary">
-                Check if the current price of an item is a good deal by comparing it to your target price. 
-                Build a database of target prices for items you buy regularly.
+                Check if prices are good deals by comparing to your targets. Build a database of prices for items you buy regularly.
               </p>
             </div>
-            <div className={`p-4 rounded-lg bg-secondary`}>
+            <div className="p-4 rounded-lg bg-secondary">
               <div className="flex items-center space-x-2 mb-2">
                 <ShoppingCart className="h-5 w-5 text-green-600" />
                 <h3 className="font-semibold">2. Shopping Lists</h3>
               </div>
               <p className="text-sm text-primary">
-                Create and share shopping lists with family and friends. See target prices while shopping 
-                to quickly determine if something is a good deal.
+                Create and share lists with family. See target prices while shopping to quickly spot good deals.
               </p>
             </div>
-            <div className={`p-4 rounded-lg bg-secondary`}>
+            <div className="p-4 rounded-lg bg-secondary">
               <div className="flex items-center space-x-2 mb-2">
                 <ShoppingCart className="h-5 w-5 text-blue-600" />
                 <h3 className="font-semibold">3. Active Shopping Trip</h3>
               </div>
               <p className="text-sm text-primary">
-                Track your spending in real-time with a budget meter. Add items to your cart, compare actual prices to targets, 
-                and stay on budget. Automatically checks off items when you complete the trip.
+                Track spending in real-time with a budget meter. Add items, compare prices, and stay on budget.
               </p>
             </div>
           </div>
-        </div>
+        </HelpSection>
 
-        {/* Price Tracker Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
-          <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
-            <DollarSign className="h-6 w-6 text-purple-600" />
-            <span>Price Checker</span>
-          </h2>
+        <HelpSection
+          id="luna"
+          title="🤖 Luna - Your Mini Assistant"
+          icon={<Bot className="h-5 w-5 text-purple-500" />}
+          isExpanded={isExpanded('luna')}
+          onToggle={() => toggleSection('luna')}
+          searchMatch={isMatch('luna')}
+        >
+          <div className="space-y-4">
+            <p className="text-primary">
+              Luna is your voice-enabled shopping assistant that appears at the bottom of your shopping list.
+              She helps you manage items quickly without navigating menus.
+            </p>
 
+            <div className="p-4 rounded-lg bg-brand-light">
+              <h3 className="font-semibold mb-2">What Luna Can Do:</h3>
+              <ul className="space-y-2 text-sm text-primary">
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
+                  <span><strong>Add items:</strong> "add milk" or "add 2 pounds of chicken"</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
+                  <span><strong>Remove items:</strong> "remove eggs" or "delete the bread"</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
+                  <span><strong>Rename lists:</strong> "rename my list to Weekly Groceries"</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
+                  <span><strong>Delete lists:</strong> "delete my Weekly list"</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
+                  <span><strong>Get help:</strong> "help" or "what can you do?"</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-lg bg-secondary">
+              <h3 className="font-semibold mb-2">How to Use Luna:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-primary">
+                <li>Open any shopping list</li>
+                <li>Look for Luna's input bar at the bottom</li>
+                <li>Type a command or tap the microphone to speak</li>
+                <li>Luna will confirm and execute the action</li>
+              </ol>
+            </div>
+
+            <div className={`p-4 rounded-lg ${darkMode ? 'bg-purple-900/20' : 'bg-purple-50'}`}>
+              <h3 className="font-semibold mb-2">💡 Luna Suggestions</h3>
+              <p className="text-sm text-primary">
+                Luna can suggest items based on your shopping patterns. Toggle this feature in
+                <strong> Settings → Luna Suggestions</strong>.
+              </p>
+            </div>
+
+            <p className="text-sm text-secondary italic">
+              Note: Luna is action-focused, not a chatbot. She executes shopping commands rather than having conversations.
+            </p>
+          </div>
+        </HelpSection>
+
+        <HelpSection
+          id="price-checker"
+          title="💵 Price Checker"
+          icon={<DollarSign className="h-5 w-5 text-purple-600" />}
+          isExpanded={isExpanded('price-checker')}
+          onToggle={() => toggleSection('price-checker')}
+          searchMatch={isMatch('price-checker')}
+        >
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold mb-2">How to Check Prices:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
-                <li>At the store, click <strong>"Price Checker"</strong></li>
-                <li>Start typing item name - it auto-suggests from database</li>
-                <li>Select category (Beef, Chicken, Produce, etc.)</li>
-                <li>Select quality if applicable (e.g., Organic, Choice)</li>
-                <li>Choose store from dropdown</li>
-                <li>Enter price - just type numbers, it auto-formats (type "1234" ? "$12.34")</li>
-                <li>Enter quantity and unit type</li>
-                <li>Set target price (optional) - this auto-fills for future checks</li>
-                <li>See if it's above/below/at target - decide if it's a good deal!</li>
+                <li>Click <strong>"Price Checker"</strong></li>
+                <li>Start typing item name - auto-suggests from database</li>
+                <li>Select category and quality if applicable</li>
+                <li>Enter price - type numbers, it auto-formats (1234 → $12.34)</li>
+                <li>Set target price - auto-fills for future checks</li>
+                <li>See if it's above/below/at target!</li>
               </ol>
             </div>
-
             <div>
-              <h3 className="font-semibold mb-2">Comparing Prices:</h3>
+              <h3 className="font-semibold mb-2">Color Indicators:</h3>
               <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Items are automatically normalized to your preferred units (set in Settings)</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Red border = Above target price 🔴</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Cyan border = Below target price 🔵</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Green border = Best price ever! 🟢</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Amber flag 🚩 = Price converted using estimated weight</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Smart Features:</h3>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span><strong>Target Price Memory:</strong> Set it once for "Milk", it auto-fills next time</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span><strong>Unit Conversion:</strong> Compare 1 quart vs 1 gallon easily</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span><strong>Smart Estimates:</strong> Bananas priced "each" convert to per-pound automatically</span>
-                </li>
+                <li><span className="text-red-600">🔴</span> Red = Above target (expensive)</li>
+                <li><span className="text-cyan-600">🔵</span> Cyan = Below target (good deal)</li>
+                <li><span className="text-green-600">🟢</span> Green = Best price ever!</li>
+                <li><span className="text-amber-500">🚩</span> Flag = Estimated weight used</li>
               </ul>
             </div>
           </div>
-        </div>
+        </HelpSection>
 
-        {/* Shopping Lists Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
-          <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
-            <ShoppingCart className="h-6 w-6 text-green-600" />
-            <span>Shopping Lists</span>
-          </h2>
-
+        <HelpSection
+          id="shopping-lists"
+          title="🛒 Shopping Lists"
+          icon={<ShoppingCart className="h-5 w-5 text-green-600" />}
+          isExpanded={isExpanded('shopping-lists')}
+          onToggle={() => toggleSection('shopping-lists')}
+          searchMatch={isMatch('shopping-lists')}
+        >
           <div className="space-y-6">
             <div>
               <h3 className="font-semibold mb-2">Creating a List:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
                 <li>Click <strong>"Shopping Lists"</strong> in navigation</li>
                 <li>Click <strong>"Create New List"</strong></li>
-                <li>Enter a name (e.g., "Smith Family Groceries")</li>
-                <li>You'll get a share code like <code className="bg-purple-100 dark:bg-zinc-700 px-2 py-1 rounded text-purple-900 dark:text-purple-300 font-semibold">SHOP-K7P2M9</code></li>
-                <li>Copy and share the code with family/friends</li>
+                <li>Enter a name (e.g., "Weekly Groceries")</li>
+                <li>You'll get a share code like <code className="bg-purple-100 dark:bg-zinc-700 px-2 py-1 rounded">SHOP-K7P2M9</code></li>
+                <li>Share the code with family/friends</li>
               </ol>
             </div>
-
             <div>
               <h3 className="font-semibold mb-2">Joining a List:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
                 <li>Get a share code from someone</li>
                 <li>Click <strong>"Join Existing List"</strong></li>
                 <li>Enter the code</li>
-                <li>You'll see their list and can add/edit items!</li>
+                <li>You can now add/edit items!</li>
               </ol>
             </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Adding Items to List:</h3>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Click <strong>"Add Item to List"</strong></span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Start typing and it suggests items from the price database</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Target prices auto-fill from your price history</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Or type manually if item isn't in database yet</span>
-                </li>
-              </ul>
-            </div>
-
             <div>
               <h3 className="font-semibold mb-2">While Shopping:</h3>
               <ul className="space-y-2 text-sm text-primary">
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Items are grouped by category (Meats, Dairy, Produce, etc.)</span>
+                  <span>Items grouped by category</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Check off items as you buy them - they move to bottom</span>
+                  <span>Check off items as you buy - they move to bottom</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Target price shown for quick reference</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span>Compare shelf price to target - buy if it's lower!</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">After Shopping:</h3>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span><strong>"Mark as Complete"</strong> - Notify others you're done</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span><strong>"Missing Items - Notify"</strong> - Alert others items weren't available</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span><strong>"Clear All Items"</strong> - Remove items, keep list & share code</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
-                  <span><strong>"Delete List"</strong> - Permanently delete (careful!)</span>
+                  <span>Target prices shown for quick reference</span>
                 </li>
               </ul>
             </div>
           </div>
-        </div>
+        </HelpSection>
 
-        {/* Active Shopping Trip Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
-          <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
-            <ShoppingCart className="h-6 w-6 text-blue-600" />
-            <span>Active Shopping Trip (Budget Tracking)</span>
-          </h2>
-
+        <HelpSection
+          id="shopping-trip"
+          title="🛍️ Active Shopping Trip"
+          icon={<ShoppingCart className="h-5 w-5 text-blue-600" />}
+          isExpanded={isExpanded('shopping-trip')}
+          onToggle={() => toggleSection('shopping-trip')}
+          searchMatch={isMatch('shopping-trip')}
+        >
           <div className="space-y-6">
             <div className={`p-4 rounded-lg ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
               <p className="text-sm text-primary">
-                <strong>NEW!</strong> Track your spending in real-time while shopping. Set a budget, add items to your cart, 
-                and watch the budget meter update instantly. Compare actual prices to target prices and stay on budget!
+                Track spending in real-time. Set a budget, add items, and watch the meter update instantly!
               </p>
             </div>
-
             <div>
-              <h3 className="font-semibold mb-2">Starting a Shopping Trip:</h3>
+              <h3 className="font-semibold mb-2">Starting a Trip:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
                 <li>Open a shopping list</li>
-                <li>Click <strong>"Start Shopping Trip"</strong> button</li>
-                <li>Set your budget in whole dollars (e.g., type "150" for $150)</li>
-                <li>Select the store you're shopping at</li>
-                <li>Set sales tax rate (defaults from Settings, can override)</li>
+                <li>Click <strong>"Start Shopping Trip"</strong></li>
+                <li>Set budget (type "150" for $150)</li>
+                <li>Select store and tax rate</li>
                 <li>Click <strong>"Start Shopping"</strong></li>
               </ol>
             </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Adding Items to Cart:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
-                <li>Click any item from "On the List" section</li>
-                <li>Enter the <strong>total price</strong> you see on the shelf (type numbers like 699 → $6.99)</li>
-                <li>Enter the <strong>quantity</strong> (how many units)</li>
-                <li>See <strong>unit price comparison</strong>:</li>
-              </ol>
-              <ul className="space-y-2 text-sm text-primary ml-8 mt-2">
-                <li className="flex items-start space-x-2">
-                  <span className="text-green-600">✓</span>
-                  <span><strong className="text-green-600">Green</strong> = At or below target price (Good deal!)</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-red-600">✗</span>
-                  <span><strong className="text-red-600">Red</strong> = Above target price (Expensive!)</span>
-                </li>
-              </ul>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4 mt-2" start={5}>
-                <li>(Optional) Check "Item has CRV" and enter CRV amount (e.g., $0.05 per bottle)</li>
-                <li>(Optional) Check "Update target price" if you want to save this as your new target</li>
-                <li>Click <strong>"Add to Cart"</strong></li>
-              </ol>
-            </div>
-
             <div>
               <h3 className="font-semibold mb-2">Budget Meter:</h3>
               <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-                  <span><strong className="text-green-600">Green (0-89%)</strong> - Under budget, you're good!</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-                  <span><strong className="text-yellow-600">Yellow (90-99%)</strong> - Approaching limit, slow down</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-                  <span><strong className="text-red-600">Red (100%+)</strong> - Over budget! Remove items or increase budget</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-                  <span>Updates instantly after every add/remove</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Managing Cart Items:</h3>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-                  <span><strong>Edit:</strong> Click any item in cart to change price/quantity</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-                  <span><strong>Remove:</strong> Click the X button to take item out of cart (goes back to list)</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-                  <span>Items in cart show Target vs Actual price for easy comparison</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Completing the Trip:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
-                <li>Click the <strong>checkmark</strong> button (top right)</li>
-                <li>Confirm "Complete this shopping trip?"</li>
-                <li>Choose whether to save prices to Price Tracker database</li>
-                <li>All cart items automatically check off in the shopping list</li>
-                <li>See trip summary (total spent, over/under budget)</li>
-                <li>Return to shopping list view</li>
-              </ol>
-            </div>
-
-            <div className={`p-4 rounded-lg bg-secondary`}>
-              <h3 className="font-semibold text-sm mb-3">Pro Tips:</h3>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <span>💡</span>
-                  <span>Cart total includes item prices + sales tax + CRV (just like at checkout!)</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span>💡</span>
-                  <span>CRV is NOT taxed - it's added after sales tax calculation</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span>💡</span>
-                  <span>If you go over budget, remove items by clicking the X to get back under</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span>💡</span>
-                  <span>Saving prices to database helps build better target prices over time</span>
-                </li>
+                <li><span className="text-green-600">●</span> <strong>Green (0-89%)</strong> - Under budget</li>
+                <li><span className="text-yellow-600">●</span> <strong>Yellow (90-99%)</strong> - Approaching limit</li>
+                <li><span className="text-red-600">●</span> <strong>Red (100%+)</strong> - Over budget!</li>
               </ul>
             </div>
           </div>
-        </div>
+        </HelpSection>
 
-        {/* Notifications Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
-          <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
-            <Bell className="h-6 w-6 text-purple-600" />
-            <span>Notifications</span>
-          </h2>
-
-          <div className="space-y-4">
-            <p className="text-sm text-primary">
-              Get notified when others update shared shopping lists. Notifications are smart and throttled to prevent spam.
-            </p>
-
-            <div className={`p-4 rounded-lg bg-secondary`}>
-              <h3 className="font-semibold text-sm mb-3">How Throttling Works:</h3>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Someone adds 10 items in 30 minutes ? You get <strong>1 notification</strong> ("Added 10 items")</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Someone checks off 15 items at the store ? You get <strong>1 notification</strong> ("Checked off 15 items")</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>"Mark Complete" button ? <strong>Always sends</strong> notification (not throttled)</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">To Enable Notifications:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
-                <li>Go to <Link to="/settings" className="text-purple-600 hover:underline">Settings</Link></li>
-                <li>Scroll to "Notification Settings"</li>
-                <li>Toggle "Enable Notifications" ON</li>
-                <li>(Optional) Enable "Push Notifications" for alerts when app is closed</li>
-                <li>Choose which notification types you want</li>
-                <li>Click "Save All Settings"</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        {/* Settings Section */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
-          <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
-            <SettingsIcon className="h-6 w-6 text-purple-600" />
-            <span>Settings</span>
-          </h2>
-
+        <HelpSection
+          id="settings"
+          title="⚙️ Settings"
+          icon={<SettingsIcon className="h-5 w-5 text-purple-600" />}
+          isExpanded={isExpanded('settings')}
+          onToggle={() => toggleSection('settings')}
+          searchMatch={isMatch('settings')}
+        >
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold mb-2">Unit Preferences:</h3>
-              <p className="text-sm text-primary mb-3">
-                Set your preferred units for each category so prices are normalized for easy comparison:
+              <p className="text-sm text-primary mb-2">
+                Set preferred units per category for normalized price comparison:
               </p>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span><strong>Meat:</strong> Choose pound or ounce</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span><strong>Fruit & Veggies:</strong> Separate preferences for each</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span><strong>Milk, Dairy, Drinks, Soda:</strong> Choose gallon, quart, pint, liter, or ml</span>
-                </li>
+              <ul className="space-y-1 text-sm text-primary ml-4">
+                <li><strong>Meat:</strong> pound or ounce</li>
+                <li><strong>Dairy/Drinks:</strong> gallon, quart, liter, etc.</li>
+                <li><strong>Produce:</strong> pound or each</li>
               </ul>
             </div>
-
             <div>
-              <h3 className="font-semibold mb-2">Sales Tax Rate:</h3>
-              <p className="text-sm text-primary mb-3">
-                Set your local sales tax rate (e.g., 8.5 for 8.5%). This is used by the Active Shopping Trip feature 
-                to calculate accurate cart totals including tax. You can override it per-trip if shopping in a different area.
+              <h3 className="font-semibold mb-2">Sales Tax:</h3>
+              <p className="text-sm text-primary">
+                Set your local tax rate for accurate cart totals during shopping trips.
               </p>
             </div>
-
-            <div className={`p-4 rounded-lg bg-brand-light`}>
+            <div>
+              <h3 className="font-semibold mb-2">Alexa Integration:</h3>
               <p className="text-sm text-primary">
-                <strong>Example:</strong> If you set meat to "pound", a $3.99 steak sold in 8 oz will show as 
-                <strong> $7.98/lb</strong> for easy comparison with a 2 lb steak at $12.99 (<strong>$6.50/lb</strong>).
+                Generate a sync code to connect your Echo device. Say "Alexa, open Luna Cart" to manage lists by voice!
               </p>
             </div>
           </div>
-        </div>
+        </HelpSection>
 
-        {/* Tips & Tricks */}
-        <div className={`p-6 rounded-xl shadow-lg mb-6 bg-card`}>
-          <h2 className="text-2xl font-bold mb-4">💡 Tips & Tricks</h2>
-
+        <HelpSection
+          id="tips"
+          title="💡 Tips & Tricks"
+          icon={<Sparkles className="h-5 w-5 text-yellow-500" />}
+          isExpanded={isExpanded('tips')}
+          onToggle={() => toggleSection('tips')}
+          searchMatch={isMatch('tips')}
+        >
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold mb-2">Best Workflow (With Shopping Trip):</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
-                <li>Use <strong>Price Checker</strong> to build target prices for items you buy regularly</li>
-                <li>Create a <strong>Shopping List</strong> with those target prices</li>
-                <li>Share list with family so everyone can add forgotten items</li>
-                <li>At the store, tap <strong>"Start Shopping Trip"</strong> and set your budget</li>
-                <li>Add items to cart - see instant unit price comparison (green = good deal!)</li>
-                <li>Watch the budget meter - remove items if you go over</li>
-                <li>Tap checkmark when done - items auto-check off the list</li>
-                <li>Choose to save prices to database for better target prices next time</li>
-                <li>Clear the list and reuse it next week!</li>
+              <h3 className="font-semibold mb-2">Best Workflow:</h3>
+              <ol className="list-decimal list-inside space-y-1 text-sm text-primary ml-4">
+                <li>Build target prices with <strong>Price Checker</strong></li>
+                <li>Create a <strong>Shopping List</strong> with those targets</li>
+                <li>At store, tap <strong>"Start Shopping Trip"</strong></li>
+                <li>Add items - green = good deal!</li>
+                <li>Watch budget meter, remove items if over</li>
+                <li>Save prices to database when done</li>
               </ol>
             </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Alternative Workflow (Without Shopping Trip):</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-primary ml-4">
-                <li>Use <strong>Price Checker</strong> to build target prices for items you buy</li>
-                <li>Create a <strong>Shopping List</strong> with those target prices</li>
-                <li>At the store, compare shelf prices to targets shown on the list</li>
-                <li>Check off items as you buy them</li>
-                <li>Click "Mark as Complete" when done</li>
-              </ol>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Smart Filtering:</h3>
-              <ul className="space-y-2 text-sm text-primary">
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Use "Below Target Only" to find the best deals in Search Database</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Use "Above Target Only" to review overpriced purchases</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <ArrowRight className="h-4 w-4 mt-0.5 text-purple-600 flex-shrink-0" />
-                  <span>Use "Best Prices Only" to see the lowest price for each item</span>
-                </li>
-              </ul>
-            </div>
-
             <div>
               <h3 className="font-semibold mb-2">Security Note:</h3>
               <p className="text-sm text-primary">
-                <strong>Price Database:</strong> Public - everyone can see and add prices (crowdsourced)
-              </p>
-              <p className="text-sm text-primary mt-2">
-                <strong>Shopping Lists:</strong> Private - only people with the share code can see them
+                <strong>Price Database:</strong> Public - everyone can add prices<br />
+                <strong>Shopping Lists:</strong> Private - only share code holders can see them
               </p>
             </div>
           </div>
-        </div>
+        </HelpSection>
 
-        {/* Quick Reference */}
-        <div className={`p-6 rounded-xl shadow-lg bg-card`}>
-          <h2 className="text-2xl font-bold mb-4">📚 Quick Reference</h2>
-
+        <HelpSection
+          id="reference"
+          title="📚 Quick Reference"
+          icon={<HelpCircle className="h-5 w-5 text-blue-500" />}
+          isExpanded={isExpanded('reference')}
+          onToggle={() => toggleSection('reference')}
+          searchMatch={isMatch('reference')}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className={`p-4 rounded-lg bg-secondary`}>
+            <div className="p-4 rounded-lg bg-secondary">
               <h3 className="font-semibold mb-2 text-sm">Navigation</h3>
               <ul className="space-y-1 text-xs text-primary">
-                <li><strong>Home:</strong> Quick access to all features</li>
-                <li><strong>Price Checker:</strong> Check if prices are good deals</li>
+                <li><strong>Home:</strong> Quick access to features</li>
+                <li><strong>Price Checker:</strong> Check deals</li>
                 <li><strong>Shopping Lists:</strong> Your shared lists</li>
-                <li><strong>Search Database:</strong> Browse all tracked prices</li>
-                <li><strong>Settings:</strong> Preferences & notifications</li>
-                <li><strong>Help:</strong> This guide</li>
+                <li><strong>Search Database:</strong> All prices</li>
+                <li><strong>Settings:</strong> Preferences</li>
               </ul>
             </div>
-
-            <div className={`p-4 rounded-lg bg-secondary`}>
+            <div className="p-4 rounded-lg bg-secondary">
               <h3 className="font-semibold mb-2 text-sm">Color Codes</h3>
               <ul className="space-y-1 text-xs text-primary">
-                <li><span className="text-red-600">🔴</span> Red = Above target price</li>
-                <li><span className="text-cyan-600">🔵</span> Cyan = Below target price</li>
-                <li><span className="text-green-600">🟢</span> Green = Best price ever</li>
+                <li><span className="text-red-600">🔴</span> Red = Above target</li>
+                <li><span className="text-cyan-600">🔵</span> Cyan = Below target</li>
+                <li><span className="text-green-600">🟢</span> Green = Best price</li>
                 <li><span className="text-purple-600">🟣</span> Purple = Normal</li>
-                <li><span className="text-amber-500">🚩</span> Flag = Estimated weight used</li>
               </ul>
             </div>
           </div>
-        </div>
+        </HelpSection>
 
         {/* Call to Action */}
-        <div className={`p-6 rounded-xl shadow-lg text-center ${darkMode ? 'bg-gradient-to-r from-purple-900 to-pink-900' : 'bg-gradient-to-r from-purple-100 to-pink-100'}`}>
+        <div className={`p-6 rounded-xl shadow-lg text-center mt-6 ${darkMode ? 'bg-gradient-to-r from-purple-900 to-pink-900' : 'bg-gradient-to-r from-purple-100 to-pink-100'}`}>
           <h2 className="text-2xl font-bold mb-4">Ready to Illuminate the Best Deals?</h2>
-          <p className="text-primary mb-6">
-            Start using LunaCart to never overpay again!
-          </p>
+          <p className="text-primary mb-6">Start using LunaCart to never overpay again!</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/add-item"
