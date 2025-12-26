@@ -7,7 +7,7 @@
 import { createContext, useContext, useCallback, useState, useRef, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStoredShareCodes, addShareCode } from '@shared/utils/shoppingListStorage';
-import { getShoppingListByCode, createShoppingList, addItemToList } from '@features/shopping-lists/api';
+import { getShoppingListByCode, createShoppingList, addItemToList, updateShoppingList, softDeleteList } from '@features/shopping-lists/api';
 import { useShoppingListStore } from '@features/shopping-lists/store/useShoppingListStore';
 import { fetchAllItems } from '@features/price-tracker/api/groceryData';
 import { convertPrice } from '../../../utils/unitConversion';
@@ -22,6 +22,8 @@ export interface LunaContextValue {
     createList: (name: string) => Promise<{ success: boolean; message: string; shareCode?: string }>;
     addItemsToCurrentList: (items: ParsedShoppingItem[]) => Promise<{ success: boolean; message: string }>;
     listLists: () => Promise<{ success: boolean; message: string; lists?: string[] }>;
+    renameList: (oldName: string, newName: string) => Promise<{ success: boolean; message: string }>;
+    deleteListByName: (listName: string) => Promise<{ success: boolean; message: string }>;
 
     // Price operations
     checkPrice: (item: string, price: number, unit: string) => Promise<{ success: boolean; message: string }>;
@@ -220,6 +222,59 @@ export function LunaProvider({ children }: LunaProviderProps) {
         }
     }, []);
 
+    // Rename a list by finding it by name
+    const renameList = useCallback(async (oldName: string, newName: string): Promise<{ success: boolean; message: string }> => {
+        try {
+            const shareCodes = getStoredShareCodes();
+
+            // Find the list with matching name
+            for (const code of shareCodes) {
+                try {
+                    const list = await getShoppingListByCode(code);
+                    if (list && list.name.toLowerCase() === oldName.toLowerCase()) {
+                        await updateShoppingList(list.id, { name: newName });
+                        return { success: true, message: `Renamed "${oldName}" to "${newName}".` };
+                    }
+                } catch {
+                    // Skip invalid codes
+                }
+            }
+
+            return { success: false, message: `I couldn't find a list called "${oldName}". Say 'show my lists' to see your lists.` };
+        } catch (error) {
+            console.error('[Luna] Error renaming list:', error);
+            return { success: false, message: "Something went wrong. Please try again." };
+        }
+    }, []);
+
+    // Delete a list by name (soft delete)
+    const deleteListByName = useCallback(async (listName: string): Promise<{ success: boolean; message: string }> => {
+        try {
+            const shareCodes = getStoredShareCodes();
+
+            // Find the list with matching name
+            for (const code of shareCodes) {
+                try {
+                    const list = await getShoppingListByCode(code);
+                    if (list && list.name.toLowerCase() === listName.toLowerCase()) {
+                        await softDeleteList(list.id);
+                        return {
+                            success: true,
+                            message: `Deleted "${list.name}". You can restore it from the Shopping Lists page within 24 hours.`
+                        };
+                    }
+                } catch {
+                    // Skip invalid codes
+                }
+            }
+
+            return { success: false, message: `I couldn't find a list called "${listName}". Say 'show my lists' to see your lists.` };
+        } catch (error) {
+            console.error('[Luna] Error deleting list:', error);
+            return { success: false, message: "Something went wrong. Please try again." };
+        }
+    }, []);
+
     // Check if a price is good
     const checkPrice = useCallback(async (item: string, price: number, unit: string): Promise<{ success: boolean; message: string }> => {
         try {
@@ -305,6 +360,8 @@ export function LunaProvider({ children }: LunaProviderProps) {
         createList: createListFn,
         addItemsToCurrentList,
         listLists,
+        renameList,
+        deleteListByName,
         checkPrice,
         comparePrices,
         currentListId,

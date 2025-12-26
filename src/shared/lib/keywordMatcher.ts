@@ -74,6 +74,34 @@ const INTENT_PATTERNS: PatternConfig[] = [
         ],
     },
 
+    // RENAME LIST - "rename my costco list to weekly groceries"
+    {
+        intent: 'rename_list',
+        patterns: [
+            /^rename\s+(my\s+)?(.+?)\s+list\s+to\s+(.+)$/i,
+            /^change\s+(my\s+)?(.+?)\s+list\s+(name\s+)?to\s+(.+)$/i,
+            /^call\s+(my\s+)?(.+?)\s+list\s+(.+)$/i,
+        ],
+        extract: (match) => {
+            // Handle different capture group positions
+            const oldName = match[2];
+            const newName = match[4] || match[3];
+            return { oldName: oldName?.trim(), newName: newName?.trim() };
+        }
+    },
+
+    // DELETE LIST - "delete my christmas list"
+    {
+        intent: 'delete_list',
+        patterns: [
+            /^delete\s+(my\s+)?(.+?)\s+list$/i,
+            /^remove\s+(my\s+)?(.+?)\s+list$/i,
+        ],
+        extract: (match) => {
+            return { listName: match[2]?.trim() };
+        }
+    },
+
     // NAVIGATION - "go to settings", "open help", "show home"
     {
         intent: 'navigation',

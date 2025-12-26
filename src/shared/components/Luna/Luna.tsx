@@ -262,6 +262,26 @@ export function Luna() {
                 break;
             }
 
+            case 'rename_list': {
+                if (params.oldName && params.newName) {
+                    const renameResult = await luna.renameList(params.oldName, params.newName);
+                    response = renameResult.message;
+                } else {
+                    response = "Please say 'rename my [old name] list to [new name]'.";
+                }
+                break;
+            }
+
+            case 'delete_list': {
+                if (params.listName) {
+                    const deleteResult = await luna.deleteListByName(params.listName);
+                    response = deleteResult.message;
+                } else {
+                    response = "Please say 'delete my [list name] list'.";
+                }
+                break;
+            }
+
             case 'price_check':
                 if (params.item && params.price && params.unit) {
                     const priceResult = await luna.checkPrice(params.item, params.price, params.unit);

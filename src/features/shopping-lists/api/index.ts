@@ -91,6 +91,7 @@ export const getShoppingListByCode = async (
 
 /**
  * Get multiple shopping lists by share codes
+ * Excludes soft-deleted lists
  */
 export const getShoppingListsByCodes = async (
   shareCodes: string[]
@@ -104,6 +105,7 @@ export const getShoppingListsByCodes = async (
     .from('shopping_lists')
     .select('*')
     .in('share_code', shareCodes)
+    .is('deleted_at', null) // Exclude soft-deleted lists
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -114,7 +116,96 @@ export const getShoppingListsByCodes = async (
 };
 
 /**
- * Delete a shopping list (and all its items via CASCADE)
+ * Update a shopping list (e.g., rename)
+ */
+export const updateShoppingList = async (
+  listId: string,
+  updates: { name?: string }
+): Promise<ShoppingList> => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured');
+  }
+
+  const client = getSupabaseClient();
+  const { data, error } = await client
+    .from('shopping_lists')
+    .update(updates)
+    .eq('id', listId)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Failed to update shopping list');
+  }
+
+  return data;
+};
+
+/**
+ * Soft delete a shopping list (sets deleted_at timestamp)
+ * List can be restored within 24 hours
+ */
+export const softDeleteList = async (listId: string): Promise<void> => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured');
+  }
+
+  const client = getSupabaseClient();
+  const { error } = await client
+    .from('shopping_lists')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', listId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * Restore a soft-deleted shopping list
+ */
+export const restoreList = async (listId: string): Promise<void> => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured');
+  }
+
+  const client = getSupabaseClient();
+  const { error } = await client
+    .from('shopping_lists')
+    .update({ deleted_at: null })
+    .eq('id', listId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+/**
+ * Get soft-deleted lists (for recovery UI)
+ */
+export const getDeletedLists = async (shareCodes: string[]): Promise<ShoppingList[]> => {
+  if (!isSupabaseConfigured || shareCodes.length === 0) {
+    return [];
+  }
+
+  const client = getSupabaseClient();
+  const { data, error } = await client
+    .from('shopping_lists')
+    .select('*')
+    .in('share_code', shareCodes)
+    .not('deleted_at', 'is', null)
+    .order('deleted_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
+};
+
+/**
+ * Permanently delete a shopping list (and all its items via CASCADE)
+ * Use softDeleteList for recoverable deletion
  */
 export const deleteShoppingList = async (listId: string): Promise<void> => {
   if (!isSupabaseConfigured) {

@@ -9,6 +9,7 @@ export interface ShoppingList {
   name: string;
   share_code: string;
   created_at: string;
+  deleted_at?: string | null;
 }
 
 export interface ShoppingListItem {

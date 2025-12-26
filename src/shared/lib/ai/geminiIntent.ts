@@ -13,6 +13,8 @@ export type IntentType =
     | 'create_list'
     | 'open_list'
     | 'list_lists'
+    | 'rename_list'
+    | 'delete_list'
     | 'price_check'
     | 'compare_prices'
     | 'help'
@@ -32,8 +34,11 @@ export interface IntentResult {
         items?: ParsedItem[];
         // navigation
         target?: 'home' | 'settings' | 'help' | 'lists' | 'price-checker' | 'items';
-        // create_list / open_list
+        // create_list / open_list / delete_list
         listName?: string;
+        // rename_list
+        oldName?: string;
+        newName?: string;
         // price_check
         item?: string;
         price?: number;
