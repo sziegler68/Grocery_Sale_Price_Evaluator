@@ -126,12 +126,16 @@ const INTENT_PATTERNS: PatternConfig[] = [
         }
     },
 
-    // HELP - "how do I share a list?", "help with settings"
+    // HELP - "how do I share a list?", "help with settings", "what can you do?"
     {
         intent: 'help',
         patterns: [
             /^(how\s+(do\s+i|can\s+i|to)|help(\s+with)?|what\s+is)\s+(.+)/i,
             /^help$/i,
+            /^what\s+(can\s+you|do\s+you)\s+(do|help|help\s+me\s+with)/i,
+            /^what\s+are\s+(you|your)\s+(capable|features|abilities)/i,
+            /^(tell me|show me)\s+what\s+you\s+(can|do)/i,
+            /^(what|how)\s+can\s+i\s+do\s+(here|with\s+you)/i,
         ],
         extract: (match) => {
             return { topic: match[4] || 'general' };

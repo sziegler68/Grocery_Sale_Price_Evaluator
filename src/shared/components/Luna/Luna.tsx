@@ -271,10 +271,11 @@ export function Luna() {
                 break;
 
             case 'help':
-                if (params.topic) {
+                if (params.topic && params.topic !== 'general') {
                     response = findHelpAnswer(params.topic);
                 } else {
-                    response = "What would you like help with? Ask about price checking, shopping lists, trips, or settings.";
+                    // General help - list Luna's capabilities
+                    response = "I can help you with: Adding items to lists (say 'add milk and eggs'), Creating new lists ('create a new list'), Opening lists ('open my Costco list'), Checking prices ('is $5/lb good for chicken?'), Comparing prices ('$4/lb vs $0.30/oz'), and Navigating ('go to settings'). What would you like to do?";
                 }
                 break;
 
