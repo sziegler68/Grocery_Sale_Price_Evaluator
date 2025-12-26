@@ -12,7 +12,7 @@ import { useTextToSpeech } from '@shared/hooks/useTextToSpeech';
 import { getGeminiApiKey } from '@shared/lib/ai/geminiChat';
 import { classifyIntent, type IntentResult, type ParsedItem } from '@shared/lib/ai/geminiIntent';
 import { matchIntent, SUGGESTED_PROMPTS } from '@shared/lib/keywordMatcher';
-import { findHelpAnswer } from '@shared/lib/helpContent';
+import { findHelpAnswer, LUNA_CAPABILITIES } from '@shared/lib/helpContent';
 import { getLunaSuggestionsEnabled } from '@shared/utils/settings';
 import { useLuna } from './LunaContext';
 
@@ -274,8 +274,8 @@ export function Luna() {
                 if (params.topic && params.topic !== 'general') {
                     response = findHelpAnswer(params.topic);
                 } else {
-                    // General help - list Luna's capabilities
-                    response = "I can help you with: Adding items to lists (say 'add milk and eggs'), Creating new lists ('create a new list'), Opening lists ('open my Costco list'), Checking prices ('is $5/lb good for chicken?'), Comparing prices ('$4/lb vs $0.30/oz'), and Navigating ('go to settings'). What would you like to do?";
+                    // General help - use shared capabilities text
+                    response = LUNA_CAPABILITIES;
                 }
                 break;
 

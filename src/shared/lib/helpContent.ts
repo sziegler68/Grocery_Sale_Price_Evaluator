@@ -10,6 +10,9 @@ export interface HelpTopic {
     answer: string;
 }
 
+// Luna's capabilities - used both in help topics and when Luna responds to "what can you do"
+export const LUNA_CAPABILITIES = "I can help you with: Adding items to lists (say 'add milk and eggs'), Creating new lists ('create a new list'), Opening lists ('open my Costco list'), Checking prices ('is $5/lb good for chicken?'), Comparing prices ('$4/lb vs $0.30/oz'), and Navigating ('go to settings'). What would you like to do?";
+
 export const HELP_TOPICS: HelpTopic[] = [
     // Price Checker
     {
@@ -102,6 +105,13 @@ export const HELP_TOPICS: HelpTopic[] = [
         keywords: ['scan', 'camera', 'photo', 'receipt', 'price tag'],
         question: 'How do I scan prices?',
         answer: 'Use the camera icon to scan price tags. I\'ll read the item name, price, and unit automatically using AI vision!'
+    },
+
+    // Luna
+    {
+        keywords: ['luna', 'assistant', 'voice', 'what can you do', 'help me with', 'capabilities'],
+        question: 'What can Luna help me with?',
+        answer: LUNA_CAPABILITIES
     }
 ];
 
