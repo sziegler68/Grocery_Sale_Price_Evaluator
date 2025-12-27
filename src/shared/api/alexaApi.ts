@@ -35,15 +35,9 @@ export const generateAlexaSyncCode = async (): Promise<{ success: boolean; syncC
             return { success: false, error: 'No shopping lists found. Create a list first.' };
         }
 
-        // Generate a unique sync code using the database function
-        const { data: codeData, error: codeError } = await client.rpc('generate_alexa_sync_code');
-
-        if (codeError || !codeData) {
-            console.error('Failed to generate sync code:', codeError);
-            return { success: false, error: 'Failed to generate sync code' };
-        }
-
-        const syncCode = codeData as string;
+        // Generate a 6-digit numeric code client-side
+        // This avoids complex LUNA-XXXX format for easier voice interaction
+        const syncCode = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Check if user already has a sync code (update it) or create new
         const { data: existing } = await client

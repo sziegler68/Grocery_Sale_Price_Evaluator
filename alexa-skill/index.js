@@ -104,16 +104,34 @@ const LinkAccountIntentHandler = {
 
         if (!syncCode) {
             return handlerInput.responseBuilder
-                .speak("I didn't catch the code. Please say the full code from your Luna Cart app, like LUNA-A-B-C-1-2-3.")
+                .speak("I didn't catch the code. Please say the full code from your Luna Cart app, like LUNA-A-B-1-2.")
                 .reprompt("What's your sync code?")
                 .getResponse();
         }
 
-        // Normalize the code (handle spoken letters)
-        syncCode = syncCode.toUpperCase().replace(/\s+/g, '');
-        if (!syncCode.startsWith('LUNA-')) {
-            syncCode = 'LUNA-' + syncCode.replace('LUNA', '');
-        }
+        // Helper to convert word numbers to digits
+        const numberMap = {
+            'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+            'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9'
+        };
+
+        // Normalize the code:
+        // 1. Lowercase for processing
+        // 2. Replace number words with digits
+        // 3. Remove spaces and periods
+        // 4. Uppercase for final code (if letters exist)
+        let cleanCode = syncCode.toLowerCase();
+
+        // Replace words like 'one', 'two' with '1', '2'
+        Object.keys(numberMap).forEach(word => {
+            const regex = new RegExp(`\\b${word}\\b`, 'g');
+            cleanCode = cleanCode.replace(regex, numberMap[word]);
+        });
+
+        // Remove spaces, dots, dashes
+        cleanCode = cleanCode.replace(/[\s\.\-]+/g, '').toUpperCase();
+
+        console.log(`Sync attempt: Raw="${syncCode}" Clean="${cleanCode}"`);
 
         // Try to find and update the sync code
         const { data, error } = await supabase
@@ -122,13 +140,18 @@ const LinkAccountIntentHandler = {
                 alexa_user_id: alexaUserId,
                 linked_at: new Date().toISOString()
             })
-            .eq('sync_code', syncCode)
-            .select()
-            .single();
+            .eq('sync_code', cleanCode) // Format in DB should be LUNA-XXXXXX
+            .select() // Return the updated row to confirm it worked
+            .maybeSingle(); // specific query returns 0 or 1 row
 
         if (error || !data) {
+            console.log('Sync failed:', error || 'Code not found');
+            // Try adding dash if missing: LUNA123 -> LUNA-123
+            // Hypothetically the user might say LUNA 1 2 3 and we stripped spaces
+            // But strict matching is better to avoid collisions.
+
             return handlerInput.responseBuilder
-                .speak("I couldn't find that code. Make sure you've generated a sync code in the Luna Cart app's Settings page.")
+                .speak(`I couldn't find code ${cleanCode.split('').join(' ')}. Please check the code in your app settings and try again.`)
                 .reprompt("Try saying your sync code again.")
                 .getResponse();
         }
@@ -159,15 +182,36 @@ const AddItemIntentHandler = {
         const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
         const slots = handlerInput.requestEnvelope.request.intent.slots;
 
-        const itemName = slots.item?.value;
-        let listName = slots.listName?.value;
-        const quantity = slots.quantity?.value || '1';
+        // Get the single catch-all query slot
+        const rawQuery = slots.query?.value;
 
-        if (!itemName) {
+        if (!rawQuery) {
             return handlerInput.responseBuilder
                 .speak("What would you like to add?")
                 .reprompt("Tell me what item to add to your list.")
                 .getResponse();
+        }
+
+        // Parse query: "milk to my grocery list" -> item: "milk", list: "grocery"
+        // Regex looks for " to ", " on ", " in " as separators
+        const match = rawQuery.match(/^(.+?)(?:\s+(?:to|on|in)\s+(?:my\s+)?(.+?)(?:\s+list)?)?$/i);
+
+        let itemName = rawQuery;
+        let listName = null;
+        let quantity = '1';
+
+        if (match) {
+            itemName = match[1].trim(); // "milk"
+            if (match[2]) {
+                listName = match[2].trim(); // "grocery"
+            }
+        }
+
+        // Parse quantity if present at start: "2 milk"
+        const qtyMatch = itemName.match(/^(\d+)\s+(.+)/);
+        if (qtyMatch) {
+            quantity = qtyMatch[1];
+            itemName = qtyMatch[2];
         }
 
         // Get user's lists
@@ -186,11 +230,17 @@ const AddItemIntentHandler = {
         } else if (lists.length === 1) {
             targetList = lists[0];
         } else {
-            const listNames = lists.map(l => l.name).join(', or ');
-            return handlerInput.responseBuilder
-                .speak(`Which list? You have ${listNames}.`)
-                .reprompt("Which list should I add to?")
-                .getResponse();
+            // Default to "Grocery" if exists and ambiguous
+            const groceryList = lists.find(l => l.name.toLowerCase().includes('grocery'));
+            if (groceryList) {
+                targetList = groceryList;
+            } else {
+                const listNames = lists.map(l => l.name).join(', or ');
+                return handlerInput.responseBuilder
+                    .speak(`Which list? You have ${listNames}.`)
+                    .reprompt("Which list should I add to?")
+                    .getResponse();
+            }
         }
 
         if (!targetList) {

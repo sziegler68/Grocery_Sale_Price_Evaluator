@@ -24,6 +24,9 @@
                         }
                     ],
                     "samples": [
+                        "link my account",
+                        "link account",
+                        "start linking",
                         "link my account with code {syncCode}",
                         "link with code {syncCode}",
                         "connect my account {syncCode}",
@@ -37,32 +40,17 @@
                     "name": "AddItemIntent",
                     "slots": [
                         {
-                            "name": "item",
-                            "type": "AMAZON.Food"
-                        },
-                        {
-                            "name": "listName",
+                            "name": "query",
                             "type": "AMAZON.SearchQuery"
-                        },
-                        {
-                            "name": "quantity",
-                            "type": "AMAZON.NUMBER"
                         }
                     ],
                     "samples": [
-                        "add {item}",
-                        "add {item} to my list",
-                        "add {item} to my {listName} list",
-                        "add {item} to {listName}",
-                        "put {item} on my list",
-                        "put {item} on my {listName} list",
-                        "add {quantity} {item}",
-                        "add {quantity} {item} to my list",
-                        "add {quantity} {item} to my {listName} list",
-                        "I need {item}",
-                        "I need {quantity} {item}",
-                        "remember to get {item}",
-                        "don't forget {item}"
+                        "add {query}",
+                        "put {query}",
+                        "buy {query}",
+                        "i need {query}",
+                        "remember {query}",
+                        "don't forget {query}"
                     ]
                 },
                 {
@@ -99,7 +87,171 @@
                     ]
                 }
             ],
-            "types": []
+            "types": [
+                {
+                    "name": "LIST_NAME",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "grocery"
+                            },
+                            "synonyms": [
+                                "groceries"
+                            ]
+                        },
+                        {
+                            "name": {
+                                "value": "shopping"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "weekly"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "daily"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "costco"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "target"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "walmart"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "sams club"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "pharmacy"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "drug store"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "hardware"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "home depot"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "lowes"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "party"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "camping"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "vacation"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "amazon"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "online"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "errands"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "to do"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "wish list"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "christmas"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "holiday"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "food"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "trader joes"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "whole foods"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "sprouts"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "safeway"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "kroger"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "publix"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "aldi"
+                            }
+                        }
+                    ]
+                }
+            ]
         }
     }
 }
