@@ -16,6 +16,7 @@ import {
   restoreList,
   deleteShoppingList
 } from '../api';
+import { syncAlexaLists } from '../../../shared/api/alexaApi';
 import type { ShoppingList } from '../types';
 import { toast } from 'react-toastify';
 
@@ -31,6 +32,13 @@ const ShoppingLists: React.FC = () => {
   const loadLists = useCallback(async () => {
     setIsLoading(true);
     try {
+      // Auto-sync from Alexa on load
+      try {
+        await syncAlexaLists();
+      } catch (e) {
+        console.warn('Background Alexa sync failed:', e);
+      }
+
       const shareCodes = getStoredShareCodes();
 
       if (shareCodes.length === 0) {

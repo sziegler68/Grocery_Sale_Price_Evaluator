@@ -119,6 +119,9 @@
                     ],
                     "samples": [
                         "make me a new list",
+                        "create a list called {listName}",
+                        "create a new list called {listName}",
+                        "make a list called {listName}",
                         "set up a list called {listName}",
                         "set up a new list called {listName}",
                         "add a new list called {listName}",
