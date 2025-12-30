@@ -52,13 +52,24 @@
                         "remember to get {query}",
                         "don't forget {query}",
                         "we need {query}",
-                        "get me {query}",
                         "pick up {query}",
                         "grab {query}",
                         "add {query}",
                         "add {query} to my list",
                         "add {query} to list",
-                        "{query}"
+                        "plus {query}",
+                        "and {query}",
+                        "one {query}",
+                        "two {query}",
+                        "three {query}",
+                        "four {query}",
+                        "five {query}",
+                        "six {query}",
+                        "ten {query}",
+                        "a {query}",
+                        "an {query}",
+                        "some {query}",
+                        "buy {query}"
                     ]
                 },
                 {
