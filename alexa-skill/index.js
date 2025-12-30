@@ -545,7 +545,8 @@ const OpenListIntentHandler = {
 
         if (!lists || lists.length === 0) {
             return handlerInput.responseBuilder
-                .speak("You don't have any lists linked yet.")
+                .speak("You don't have any lists linked yet. Say 'link my account with code' followed by your sync code.")
+                .reprompt("Please link your account to continue.")
                 .getResponse();
         }
 
@@ -555,6 +556,7 @@ const OpenListIntentHandler = {
         if (!targetList) {
             return handlerInput.responseBuilder
                 .speak(`I couldn't find a list called ${listName}.`)
+                .reprompt("Which list would you like to open?")
                 .getResponse();
         }
 
@@ -598,13 +600,19 @@ const GetShareCodeIntentHandler = {
         }
 
         const lists = await getListsForUser(alexaUserId);
-        if (!lists) return handlerInput.responseBuilder.speak("Please link your account first.").getResponse();
+        if (!lists) {
+            return handlerInput.responseBuilder
+                .speak("Please link your account first.")
+                .reprompt("Say 'link my account' to get started.")
+                .getResponse();
+        }
 
         const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
 
         if (!targetList) {
             return handlerInput.responseBuilder
                 .speak(`I couldn't find a list called ${listName}.`)
+                .reprompt("Which list logic do you need?")
                 .getResponse();
         }
 
@@ -612,6 +620,7 @@ const GetShareCodeIntentHandler = {
         const code = targetList.share_code;
         return handlerInput.responseBuilder
             .speak(`The share code for ${targetList.name} is <say-as interpret-as="digits">${code}</say-as>. You can enter this in the Luna Cart app to join the list.`)
+            .reprompt("What else can I help you with?")
             .getResponse();
     }
 };
@@ -630,17 +639,26 @@ const DeleteListIntentHandler = {
         let listName = slots.listName?.value;
 
         if (!listName) {
-            return handlerInput.responseBuilder.speak("Which list would you like to delete?").getResponse();
+            return handlerInput.responseBuilder
+                .speak("Which list would you like to delete?")
+                .reprompt("Tell me which list to delete.")
+                .getResponse();
         }
 
         const lists = await getListsForUser(alexaUserId);
-        if (!lists) return handlerInput.responseBuilder.speak("Please link your account first.").getResponse();
+        if (!lists) {
+            return handlerInput.responseBuilder
+                .speak("Please link your account first.")
+                .reprompt("Say 'link my account' to get started.")
+                .getResponse();
+        }
 
         const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
 
         if (!targetList) {
             return handlerInput.responseBuilder
                 .speak(`I couldn't find a list called ${listName}.`)
+                .reprompt("Which list would you like to delete?")
                 .getResponse();
         }
 
@@ -652,7 +670,10 @@ const DeleteListIntentHandler = {
 
         if (error) {
             console.error('Delete failed:', error);
-            return handlerInput.responseBuilder.speak("Sorry, I couldn't delete the list.").getResponse();
+            return handlerInput.responseBuilder
+                .speak("Sorry, I couldn't delete the list.")
+                .reprompt("Try again later.")
+                .getResponse();
         }
 
         // Update sync codes to trigger app refresh if needed (optional)
@@ -660,6 +681,7 @@ const DeleteListIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(`I've deleted the ${targetList.name} list. You can restore it in the app or ask me to restore it within 24 hours.`)
+            .reprompt("What would you like to do now?")
             .getResponse();
     }
 };
@@ -678,7 +700,10 @@ const RestoreListIntentHandler = {
         let listName = slots.listName?.value;
 
         if (!listName) {
-            return handlerInput.responseBuilder.speak("Which list would you like to restore?").getResponse();
+            return handlerInput.responseBuilder
+                .speak("Which list would you like to restore?")
+                .reprompt("Tell me which list to restore.")
+                .getResponse();
         }
 
         // Get DELETED lists
@@ -686,6 +711,7 @@ const RestoreListIntentHandler = {
         if (!lists || lists.length === 0) {
             return handlerInput.responseBuilder
                 .speak("I didn't find any recently deleted lists to restore.")
+                .reprompt("What else would you like to do?")
                 .getResponse();
         }
 
@@ -694,6 +720,7 @@ const RestoreListIntentHandler = {
         if (!targetList) {
             return handlerInput.responseBuilder
                 .speak(`I couldn't find a deleted list called ${listName}.`)
+                .reprompt("Which list would you like to restore?")
                 .getResponse();
         }
 
@@ -704,11 +731,15 @@ const RestoreListIntentHandler = {
             .eq('id', targetList.id);
 
         if (error) {
-            return handlerInput.responseBuilder.speak("Sorry, I couldn't restore the list.").getResponse();
+            return handlerInput.responseBuilder
+                .speak("Sorry, I couldn't restore the list.")
+                .reprompt("Try again later.")
+                .getResponse();
         }
 
         return handlerInput.responseBuilder
             .speak(`I've restored the ${targetList.name} list.`)
+            .reprompt("What would you like to do with it?")
             .getResponse();
     }
 };
@@ -732,18 +763,27 @@ const ClearListIntentHandler = {
             if (sessionAttributes.currentListName) {
                 listName = sessionAttributes.currentListName;
             } else {
-                return handlerInput.responseBuilder.speak("Which list would you like to clear?").getResponse();
+                return handlerInput.responseBuilder
+                    .speak("Which list would you like to clear?")
+                    .reprompt("Tell me which list to clear.")
+                    .getResponse();
             }
         }
 
         const lists = await getListsForUser(alexaUserId);
-        if (!lists) return handlerInput.responseBuilder.speak("Please link your account first.").getResponse();
+        if (!lists) {
+            return handlerInput.responseBuilder
+                .speak("Please link your account first.")
+                .reprompt("Say 'link my account' to get started.")
+                .getResponse();
+        }
 
         const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
 
         if (!targetList) {
             return handlerInput.responseBuilder
                 .speak(`I couldn't find a list called ${listName}.`)
+                .reprompt("Which list would you like to clear?")
                 .getResponse();
         }
 
@@ -754,11 +794,15 @@ const ClearListIntentHandler = {
             .eq('list_id', targetList.id);
 
         if (error) {
-            return handlerInput.responseBuilder.speak("Sorry, I couldn't clear the list.").getResponse();
+            return handlerInput.responseBuilder
+                .speak("Sorry, I couldn't clear the list.")
+                .reprompt("Try again later.")
+                .getResponse();
         }
 
         return handlerInput.responseBuilder
             .speak(`I've cleared all items from the ${targetList.name} list.`)
+            .reprompt("What would you like to add instead?")
             .getResponse();
     }
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, UserPlus, ShoppingCart, RotateCcw, Trash2 } from 'lucide-react';
+import { Plus, UserPlus, ShoppingCart, RotateCcw, Trash2, Download } from 'lucide-react';
 import Header from '../../../shared/components/Header';
 import Footer from '../../../shared/components/Footer';
 import ShoppingListCard from './ShoppingListCard';
@@ -28,6 +28,30 @@ const ShoppingLists: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [hasAlexaCode, setHasAlexaCode] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncAlexa = async () => {
+    setIsSyncing(true);
+    try {
+      const result = await syncAlexaLists();
+      if (result.success) {
+        if (result.newListsCount > 0) {
+          toast.success(`Synced ${result.newListsCount} new list(s) from Alexa!`);
+          loadLists(); // Refresh lists
+        } else {
+          toast.info('All Alexa lists are already synced.');
+        }
+      } else {
+        toast.error(result.error || 'Failed to sync lists');
+      }
+    } catch (error) {
+      console.error('Failed to sync:', error);
+      toast.error('Failed to sync lists');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const loadLists = useCallback(async () => {
     setIsLoading(true);
@@ -47,6 +71,10 @@ const ShoppingLists: React.FC = () => {
         setIsLoading(false);
         return;
       }
+
+      // Check if user has Alexa sync code
+      const alexaCode = localStorage.getItem('alexa-sync-code');
+      setHasAlexaCode(!!alexaCode);
 
       // Load active lists
       const loadedLists = await getShoppingListsByCodes(shareCodes);
@@ -183,6 +211,18 @@ const ShoppingLists: React.FC = () => {
             <UserPlus className="h-5 w-5" />
             <span>Join Existing List</span>
           </button>
+
+          {hasAlexaCode && (
+            <button
+              onClick={handleSyncAlexa}
+              disabled={isSyncing}
+              className="flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+              title="Sync lists from Alexa"
+            >
+              <Download className={`h-5 w-5 ${isSyncing ? 'animate-bounce' : ''}`} />
+              <span>{isSyncing ? 'Syncing...' : 'Sync Alexa Lists'}</span>
+            </button>
+          )}
         </div>
 
         {/* Active Lists */}

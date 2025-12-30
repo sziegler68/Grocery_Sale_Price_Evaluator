@@ -54,7 +54,11 @@
                         "we need {query}",
                         "get me {query}",
                         "pick up {query}",
-                        "grab {query}"
+                        "grab {query}",
+                        "add {query}",
+                        "add {query} to my list",
+                        "add {query} to list",
+                        "{query}"
                     ]
                 },
                 {
@@ -121,6 +125,9 @@
                         "make me a new list",
                         "create a list called {listName}",
                         "create a new list called {listName}",
+                        "create new list",
+                        "create a list",
+                        "create list",
                         "make a list called {listName}",
                         "set up a list called {listName}",
                         "set up a new list called {listName}",
