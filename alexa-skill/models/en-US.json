@@ -45,12 +45,16 @@
                         }
                     ],
                     "samples": [
-                        "add {query}",
-                        "put {query}",
-                        "buy {query}",
-                        "i need {query}",
-                        "remember {query}",
-                        "don't forget {query}"
+                        "put down {query}",
+                        "write down {query}",
+                        "note {query}",
+                        "i need to get {query}",
+                        "remember to get {query}",
+                        "don't forget {query}",
+                        "we need {query}",
+                        "get me {query}",
+                        "pick up {query}",
+                        "grab {query}"
                     ]
                 },
                 {
@@ -84,6 +88,47 @@
                         "what are my lists",
                         "which lists do I have",
                         "my lists"
+                    ]
+                },
+                {
+                    "name": "DoneIntent",
+                    "slots": [],
+                    "samples": [
+                        "done",
+                        "that's all",
+                        "that is all",
+                        "finished",
+                        "I'm done",
+                        "I am done",
+                        "nothing else",
+                        "that's it",
+                        "all done",
+                        "no more",
+                        "goodbye",
+                        "bye",
+                        "exit"
+                    ]
+                },
+                {
+                    "name": "CreateListIntent",
+                    "slots": [
+                        {
+                            "name": "listName",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "make me a new list",
+                        "set up a list called {listName}",
+                        "set up a new list called {listName}",
+                        "add a new list called {listName}",
+                        "build a list called {listName}",
+                        "start a new list called {listName}",
+                        "i want a list called {listName}",
+                        "i need a list called {listName}",
+                        "new list {listName}",
+                        "call it {listName}",
+                        "name it {listName}"
                     ]
                 }
             ],

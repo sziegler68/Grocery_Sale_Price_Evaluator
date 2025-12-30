@@ -4,9 +4,9 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Mic, RefreshCw, CheckCircle, Copy, Loader2 } from 'lucide-react';
+import { Mic, RefreshCw, CheckCircle, Copy, Loader2, Download } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { generateAlexaSyncCode, getAlexaSyncCode } from '@shared/api/alexaApi';
+import { generateAlexaSyncCode, getAlexaSyncCode, syncAlexaLists } from '@shared/api/alexaApi';
 
 interface AlexaSettingsProps {
     darkMode?: boolean;
@@ -17,6 +17,7 @@ export function AlexaSettings({ darkMode }: AlexaSettingsProps) {
     const [isLinked, setIsLinked] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
 
     useEffect(() => {
         loadSyncCode();
@@ -51,6 +52,29 @@ export function AlexaSettings({ darkMode }: AlexaSettingsProps) {
             toast.error('Failed to generate sync code');
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    const handleSyncLists = async () => {
+        setIsSyncing(true);
+        try {
+            const result = await syncAlexaLists();
+            if (result.success) {
+                if (result.newListsCount > 0) {
+                    toast.success(`Synced ${result.newListsCount} new list(s) from Alexa!`);
+                    // Reload page to refresh lists store
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    toast.info('All Alexa lists are already synced.');
+                }
+            } else {
+                toast.error(result.error || 'Failed to sync lists');
+            }
+        } catch (error) {
+            console.error('Failed to sync:', error);
+            toast.error('Failed to sync lists');
+        } finally {
+            setIsSyncing(false);
         }
     };
 
@@ -113,17 +137,28 @@ export function AlexaSettings({ darkMode }: AlexaSettingsProps) {
                         </ol>
                     </div>
 
-                    {/* Regenerate Button */}
-                    <button
-                        onClick={handleGenerateCode}
-                        disabled={isGenerating}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-brand text-brand rounded-lg hover:bg-purple-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
-                    >
-                        <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-                        {isGenerating ? 'Generating...' : 'Generate New Code'}
-                    </button>
+                    {/* Actions */}
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={handleSyncLists}
+                            disabled={isSyncing}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                        >
+                            <Download className={`h-4 w-4 ${isSyncing ? 'animate-bounce' : ''}`} />
+                            {isSyncing ? 'Syncing...' : 'Sync Lists from Alexa'}
+                        </button>
+
+                        <button
+                            onClick={handleGenerateCode}
+                            disabled={isGenerating}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-brand text-brand rounded-lg hover:bg-purple-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
+                        >
+                            <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                            {isGenerating ? 'Generating...' : 'Generate New Code'}
+                        </button>
+                    </div>
                     <p className="text-xs text-secondary text-center">
-                        This will unlink current Alexa devices
+                        Generating new code will unlink current Alexa devices
                     </p>
                 </div>
             ) : (

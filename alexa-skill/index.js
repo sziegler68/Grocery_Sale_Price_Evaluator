@@ -104,7 +104,7 @@ const LinkAccountIntentHandler = {
 
         if (!syncCode) {
             return handlerInput.responseBuilder
-                .speak("I didn't catch the code. Please say the full code from your Luna Cart app, like LUNA-A-B-1-2.")
+                .speak("I didn't catch the code. Please say the full 6-digit code from your Luna Cart app, like 1-2-3-4-5-6.")
                 .reprompt("What's your sync code?")
                 .getResponse();
         }
@@ -171,6 +171,99 @@ const LinkAccountIntentHandler = {
 };
 
 /**
+ * Create List Intent - "create a list called X"
+ */
+const CreateListIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CreateListIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const currentIntent = handlerInput.requestEnvelope.request.intent;
+        const slots = currentIntent.slots;
+        let listName = slots.listName?.value;
+
+        // If list name is missing, teach the user the correct phrase
+        if (!listName) {
+            return handlerInput.responseBuilder
+                .speak("Sure! Say 'create a list called' followed by the name. For example, 'create a list called party'.")
+                .reprompt("Say 'create a list called' followed by the name you want.")
+                .getResponse();
+        }
+
+        // Clean list name - remove common carrier phrases that might be captured
+        listName = listName
+            .replace(/^(a|the)\s+/i, '')
+            .replace(/^(called|named|titled)\s+/i, '')
+            .replace(/^(a|the)\s+/i, ''); // Run again in case "called a..."
+
+        // Capitalize first letter
+        listName = listName.charAt(0).toUpperCase() + listName.slice(1);
+
+        // Generate a share code for the new list.
+        const shareCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        // 1. Get current sync record
+        const { data: syncData, error: syncError } = await supabase
+            .from('alexa_sync_codes')
+            .select('id, share_codes')
+            .eq('alexa_user_id', alexaUserId)
+            .single();
+
+        if (syncError || !syncData) {
+            return handlerInput.responseBuilder
+                .speak("You need to link your account first. Say 'link my account' followed by your code.")
+                .getResponse();
+        }
+
+        // 2. Create the list in shopping_lists table
+        const { data: newList, error: listError } = await supabase
+            .from('shopping_lists')
+            .insert({
+                name: listName,
+                share_code: shareCode,
+                created_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (listError) {
+            console.error('Failed to create list:', listError);
+            return handlerInput.responseBuilder
+                .speak("Sorry, I couldn't create the list.")
+                .getResponse();
+        }
+
+        // 3. Update alexa_sync_codes with new share_code
+        const newShareCodes = [...(syncData.share_codes || []), shareCode];
+
+        const { error: updateError } = await supabase
+            .from('alexa_sync_codes')
+            .update({ share_codes: newShareCodes })
+            .eq('id', syncData.id);
+
+        if (updateError) {
+            console.error('Failed to link list:', updateError);
+            return handlerInput.responseBuilder
+                .speak(`I created the ${listName} list, but couldn't link it to your account.`)
+                .getResponse();
+        }
+
+        // Store current list context in session for follow-up "add item" commands
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        sessionAttributes.currentListId = newList.id;
+        sessionAttributes.currentListName = listName;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+        return handlerInput.responseBuilder
+            .speak(`I've created the ${listName} list. What would you like to add to it?`)
+            .reprompt("What would you like to add?")
+            .getResponse();
+    }
+};
+
+/**
  * Add Item Intent - "add milk to my grocery list"
  */
 const AddItemIntentHandler = {
@@ -196,22 +289,14 @@ const AddItemIntentHandler = {
         // Regex looks for " to ", " on ", " in " as separators
         const match = rawQuery.match(/^(.+?)(?:\s+(?:to|on|in)\s+(?:my\s+)?(.+?)(?:\s+list)?)?$/i);
 
-        let itemName = rawQuery;
+        let fullItemPart = rawQuery;
         let listName = null;
-        let quantity = '1';
 
         if (match) {
-            itemName = match[1].trim(); // "milk"
+            fullItemPart = match[1].trim(); // "milk and eggs"
             if (match[2]) {
                 listName = match[2].trim(); // "grocery"
             }
-        }
-
-        // Parse quantity if present at start: "2 milk"
-        const qtyMatch = itemName.match(/^(\d+)\s+(.+)/);
-        if (qtyMatch) {
-            quantity = qtyMatch[1];
-            itemName = qtyMatch[2];
         }
 
         // Get user's lists
@@ -219,7 +304,7 @@ const AddItemIntentHandler = {
 
         if (!lists || lists.length === 0) {
             return handlerInput.responseBuilder
-                .speak("You don't have any lists linked. Say 'link my account' with your sync code from the app.")
+                .speak("You don't have any lists linked. Say 'link my account' with your sync code from the Luna Cart app.")
                 .getResponse();
         }
 
@@ -230,11 +315,22 @@ const AddItemIntentHandler = {
         } else if (lists.length === 1) {
             targetList = lists[0];
         } else {
-            // Default to "Grocery" if exists and ambiguous
-            const groceryList = lists.find(l => l.name.toLowerCase().includes('grocery'));
-            if (groceryList) {
-                targetList = groceryList;
-            } else {
+            // Check for session context (e.g., just created a list)
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            if (sessionAttributes.currentListId) {
+                targetList = lists.find(l => l.id === sessionAttributes.currentListId);
+            }
+
+            // If still no target, try "Grocery" as default
+            if (!targetList) {
+                const groceryList = lists.find(l => l.name.toLowerCase().includes('grocery'));
+                if (groceryList) {
+                    targetList = groceryList;
+                }
+            }
+
+            // If still no target, ask the user
+            if (!targetList) {
                 const listNames = lists.map(l => l.name).join(', or ');
                 return handlerInput.responseBuilder
                     .speak(`Which list? You have ${listNames}.`)
@@ -249,23 +345,63 @@ const AddItemIntentHandler = {
                 .getResponse();
         }
 
-        // Add the item
-        const { error } = await supabase
-            .from('shopping_list_items')
-            .insert({
-                list_id: targetList.id,
-                item_name: itemName,
-                category: 'Other',
-                quantity: parseInt(quantity) || 1,
-                added_by: 'Alexa',
-                added_at: new Date().toISOString()
-            });
+        // Parse individual items by splitting on " and "
+        // "two gallons of milk and three lemons" -> ["two gallons of milk", "three lemons"]
+        const rawItems = fullItemPart.split(/\s+and\s+/i);
+        const addedItems = [];
+        const failedItems = [];
 
-        if (error) {
-            console.error('Failed to add item:', error);
-            return handlerInput.responseBuilder
-                .speak("Sorry, I couldn't add that item. Please try again.")
-                .getResponse();
+        for (const rawItem of rawItems) {
+            let itemName = rawItem.trim();
+            let quantity = 1;
+
+            // Parse quantity if present ("2 milk", "two gallons")
+            // We only handle digits here for simplicity, or we could re-use our word map
+            // Keeping it simple for now: regex for leading digits
+            const qtyMatch = itemName.match(/^(\d+)\s+(.+)/);
+            if (qtyMatch) {
+                quantity = parseInt(qtyMatch[1]) || 1;
+                itemName = qtyMatch[2];
+            }
+
+            // Insert into Supabase
+            const { error } = await supabase
+                .from('shopping_list_items')
+                .insert({
+                    list_id: targetList.id,
+                    item_name: itemName,
+                    category: 'Other',
+                    quantity: quantity,
+                    added_by: 'Alexa',
+                    added_at: new Date().toISOString()
+                });
+
+            if (error) {
+                console.error('Failed to add item:', itemName, error);
+                failedItems.push(itemName);
+            } else {
+                const qtyStr = quantity > 1 ? `${quantity} ` : '';
+                addedItems.push(`${qtyStr}${itemName}`);
+            }
+        }
+
+        // Construct response
+        let speakOutput = '';
+        if (addedItems.length > 0) {
+            // Join with commas and "and" for last item
+            const itemsStr = addedItems.length === 1
+                ? addedItems[0]
+                : `${addedItems.slice(0, -1).join(', ')} and ${addedItems[addedItems.length - 1]}`;
+
+            speakOutput = `Added ${itemsStr} to ${targetList.name}.`;
+        }
+
+        if (failedItems.length > 0) {
+            speakOutput += ` I had trouble adding ${failedItems.join(', ')}.`;
+        }
+
+        if (addedItems.length === 0 && failedItems.length > 0) {
+            speakOutput = "Sorry, I couldn't add those items. Please try again.";
         }
 
         // Update last_used_at
@@ -274,9 +410,8 @@ const AddItemIntentHandler = {
             .update({ last_used_at: new Date().toISOString() })
             .eq('alexa_user_id', alexaUserId);
 
-        const qtyText = quantity !== '1' ? `${quantity} ` : '';
         return handlerInput.responseBuilder
-            .speak(`Added ${qtyText}${itemName} to ${targetList.name}.`)
+            .speak(speakOutput)
             .reprompt("What else would you like to add?")
             .getResponse();
     }
@@ -377,6 +512,22 @@ const ListListsIntentHandler = {
 };
 
 /**
+ * Done Intent - "done", "that's all", "finished"
+ */
+const DoneIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'DoneIntent';
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .speak("Got it! Happy shopping!")
+            .withShouldEndSession(true)
+            .getResponse();
+    }
+};
+
+/**
  * Help Intent
  */
 const HelpIntentHandler = {
@@ -444,9 +595,11 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         LinkAccountIntentHandler,
+        CreateListIntentHandler,
         AddItemIntentHandler,
         ReadListIntentHandler,
         ListListsIntentHandler,
+        DoneIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler

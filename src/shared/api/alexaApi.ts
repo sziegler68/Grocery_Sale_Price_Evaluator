@@ -144,3 +144,51 @@ export const refreshAlexaSyncCodes = async (): Promise<void> => {
         console.error('Error refreshing sync codes:', error);
     }
 };
+
+/**
+ * Sync lists created via Alexa to this device
+ * Fetches the latest share codes from the alexa_sync_codes table
+ * and adds any missing ones to local storage.
+ */
+export const syncAlexaLists = async (): Promise<{ success: boolean; newListsCount: number; error?: string }> => {
+    const localCode = localStorage.getItem('alexa-sync-code');
+
+    if (!localCode || !isSupabaseConfigured) {
+        return { success: false, newListsCount: 0, error: 'Not linked to Alexa' };
+    }
+
+    const client = getSupabaseClient();
+    const { addShareCode, getStoredShareCodes } = await import('@shared/utils/shoppingListStorage');
+
+    try {
+        // 1. Fetch the authoritative list of share codes for this sync code
+        const { data, error } = await client
+            .from('alexa_sync_codes')
+            .select('share_codes')
+            .eq('sync_code', localCode)
+            .single();
+
+        if (error || !data || !data.share_codes) {
+            return { success: false, newListsCount: 0, error: 'Failed to fetch Alexa lists' };
+        }
+
+        // 2. Identify and add new codes to local storage
+        const currentCodes = getStoredShareCodes();
+        let newCount = 0;
+
+        data.share_codes.forEach((code: string) => {
+            if (!currentCodes.includes(code)) {
+                addShareCode(code);
+                newCount++;
+            }
+        });
+
+        // 3. If we found new lists, we might want to trigger a refresh of the shopping list store
+        // safely handled by the caller or by the app's auto-refresh logic
+
+        return { success: true, newListsCount: newCount };
+    } catch (error) {
+        console.error('Error syncing Alexa lists:', error);
+        return { success: false, newListsCount: 0, error: 'An unexpected error occurred' };
+    }
+};
