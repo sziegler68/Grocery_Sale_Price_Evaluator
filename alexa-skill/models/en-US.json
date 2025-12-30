@@ -133,6 +133,88 @@
                         "call it {listName}",
                         "name it {listName}"
                     ]
+                },
+                {
+                    "name": "OpenListIntent",
+                    "slots": [
+                        {
+                            "name": "listName",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "open {listName}",
+                        "open list {listName}",
+                        "open my {listName} list",
+                        "switch to {listName}",
+                        "switch to list {listName}",
+                        "go to {listName}",
+                        "use {listName}",
+                        "use {listName} list"
+                    ]
+                },
+                {
+                    "name": "GetShareCodeIntent",
+                    "slots": [
+                        {
+                            "name": "listName",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "what is the share code for {listName}",
+                        "what's the share code for {listName}",
+                        "get share code for {listName}",
+                        "share code for {listName}",
+                        "code for {listName}",
+                        "how do i share {listName}"
+                    ]
+                },
+                {
+                    "name": "DeleteListIntent",
+                    "slots": [
+                        {
+                            "name": "listName",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "delete {listName} list",
+                        "remove {listName} list",
+                        "delete list called {listName}"
+                    ]
+                },
+                {
+                    "name": "ClearListIntent",
+                    "slots": [
+                        {
+                            "name": "listName",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "clear {listName}",
+                        "clear {listName} list",
+                        "empty {listName}",
+                        "empty {listName} list",
+                        "remove all items from {listName}"
+                    ]
+                },
+                {
+                    "name": "RestoreListIntent",
+                    "slots": [
+                        {
+                            "name": "listName",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "restore {listName}",
+                        "restore {listName} list",
+                        "undo delete {listName}",
+                        "bring back {listName}",
+                        "recover {listName}"
+                    ]
                 }
             ],
             "types": [

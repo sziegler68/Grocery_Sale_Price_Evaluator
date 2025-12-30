@@ -45,6 +45,31 @@ async function getListsForUser(alexaUserId) {
 }
 
 /**
+ * Get user's deleted lists from sync code (for restoration)
+ */
+async function getDeletedListsForUser(alexaUserId) {
+    // Find sync code for this Alexa user
+    const { data: syncData, error } = await supabase
+        .from('alexa_sync_codes')
+        .select('share_codes')
+        .eq('alexa_user_id', alexaUserId)
+        .single();
+
+    if (error || !syncData) {
+        return null;
+    }
+
+    // Get deleted lists from share codes
+    const { data: lists } = await supabase
+        .from('shopping_lists')
+        .select('id, name, share_code')
+        .in('share_code', syncData.share_codes)
+        .not('deleted_at', 'is', null);
+
+    return lists || [];
+}
+
+/**
  * Find a list by name for user
  */
 async function findListByName(alexaUserId, listName) {
@@ -459,6 +484,12 @@ const ReadListIntentHandler = {
                 .getResponse();
         }
 
+        // Set session context for follow-up adds
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        sessionAttributes.currentListId = targetList.id;
+        sessionAttributes.currentListName = targetList.name;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
         // Get items
         const { data: items } = await supabase
             .from('shopping_list_items')
@@ -470,6 +501,7 @@ const ReadListIntentHandler = {
         if (!items || items.length === 0) {
             return handlerInput.responseBuilder
                 .speak(`Your ${targetList.name} is empty. Say 'add' followed by an item to get started.`)
+                .reprompt(`What would you like to add to ${targetList.name}?`)
                 .getResponse();
         }
 
@@ -481,6 +513,252 @@ const ReadListIntentHandler = {
         return handlerInput.responseBuilder
             .speak(`On your ${targetList.name}, you have: ${itemList}.`)
             .reprompt("Would you like to add something?")
+            .getResponse();
+    }
+};
+
+/**
+ * List Lists Intent - "what lists do I have"
+ */
+/**
+ * Open List Intent - "open my grocery list" (Sets context)
+ */
+const OpenListIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'OpenListIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        let listName = slots.listName?.value;
+
+        if (!listName) {
+            return handlerInput.responseBuilder
+                .speak("Which list would you like to open?")
+                .reprompt("Tell me which list to open.")
+                .getResponse();
+        }
+
+        // Get user's lists
+        const lists = await getListsForUser(alexaUserId);
+
+        if (!lists || lists.length === 0) {
+            return handlerInput.responseBuilder
+                .speak("You don't have any lists linked yet.")
+                .getResponse();
+        }
+
+        // Find the target list
+        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+
+        if (!targetList) {
+            return handlerInput.responseBuilder
+                .speak(`I couldn't find a list called ${listName}.`)
+                .getResponse();
+        }
+
+        // Set session context
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        sessionAttributes.currentListId = targetList.id;
+        sessionAttributes.currentListName = targetList.name;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+        return handlerInput.responseBuilder
+            .speak(`I've opened the ${targetList.name} list. What would you like to add?`)
+            .reprompt("What would you like to add?")
+            .getResponse();
+    }
+};
+
+/**
+ * Get Share Code Intent - "what's the share code for party"
+ */
+const GetShareCodeIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetShareCodeIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        let listName = slots.listName?.value;
+
+        if (!listName) {
+            // If context exists, use that
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            if (sessionAttributes.currentListName) {
+                listName = sessionAttributes.currentListName;
+            } else {
+                return handlerInput.responseBuilder
+                    .speak("Which list do you need the code for?")
+                    .reprompt("Which list's share code do you need?")
+                    .getResponse();
+            }
+        }
+
+        const lists = await getListsForUser(alexaUserId);
+        if (!lists) return handlerInput.responseBuilder.speak("Please link your account first.").getResponse();
+
+        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+
+        if (!targetList) {
+            return handlerInput.responseBuilder
+                .speak(`I couldn't find a list called ${listName}.`)
+                .getResponse();
+        }
+
+        // Read the code explicitly as digits
+        const code = targetList.share_code;
+        return handlerInput.responseBuilder
+            .speak(`The share code for ${targetList.name} is <say-as interpret-as="digits">${code}</say-as>. You can enter this in the Luna Cart app to join the list.`)
+            .getResponse();
+    }
+};
+
+/**
+ * Delete List Intent - "delete party list" (Soft Delete)
+ */
+const DeleteListIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'DeleteListIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        let listName = slots.listName?.value;
+
+        if (!listName) {
+            return handlerInput.responseBuilder.speak("Which list would you like to delete?").getResponse();
+        }
+
+        const lists = await getListsForUser(alexaUserId);
+        if (!lists) return handlerInput.responseBuilder.speak("Please link your account first.").getResponse();
+
+        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+
+        if (!targetList) {
+            return handlerInput.responseBuilder
+                .speak(`I couldn't find a list called ${listName}.`)
+                .getResponse();
+        }
+
+        // Soft delete (set deleted_at)
+        const { error } = await supabase
+            .from('shopping_lists')
+            .update({ deleted_at: new Date().toISOString() })
+            .eq('id', targetList.id);
+
+        if (error) {
+            console.error('Delete failed:', error);
+            return handlerInput.responseBuilder.speak("Sorry, I couldn't delete the list.").getResponse();
+        }
+
+        // Update sync codes to trigger app refresh if needed (optional)
+        await supabase.from('alexa_sync_codes').update({ last_used_at: new Date().toISOString() }).eq('alexa_user_id', alexaUserId);
+
+        return handlerInput.responseBuilder
+            .speak(`I've deleted the ${targetList.name} list. You can restore it in the app or ask me to restore it within 24 hours.`)
+            .getResponse();
+    }
+};
+
+/**
+ * Restore List Intent - "restore party list" (Undo Delete)
+ */
+const RestoreListIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'RestoreListIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        let listName = slots.listName?.value;
+
+        if (!listName) {
+            return handlerInput.responseBuilder.speak("Which list would you like to restore?").getResponse();
+        }
+
+        // Get DELETED lists
+        const lists = await getDeletedListsForUser(alexaUserId);
+        if (!lists || lists.length === 0) {
+            return handlerInput.responseBuilder
+                .speak("I didn't find any recently deleted lists to restore.")
+                .getResponse();
+        }
+
+        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+
+        if (!targetList) {
+            return handlerInput.responseBuilder
+                .speak(`I couldn't find a deleted list called ${listName}.`)
+                .getResponse();
+        }
+
+        // Restore list
+        const { error } = await supabase
+            .from('shopping_lists')
+            .update({ deleted_at: null })
+            .eq('id', targetList.id);
+
+        if (error) {
+            return handlerInput.responseBuilder.speak("Sorry, I couldn't restore the list.").getResponse();
+        }
+
+        return handlerInput.responseBuilder
+            .speak(`I've restored the ${targetList.name} list.`)
+            .getResponse();
+    }
+};
+
+/**
+ * Clear List Intent - "clear party list" (Remove all items)
+ */
+const ClearListIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ClearListIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        let listName = slots.listName?.value;
+
+        if (!listName) {
+            // Use context
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            if (sessionAttributes.currentListName) {
+                listName = sessionAttributes.currentListName;
+            } else {
+                return handlerInput.responseBuilder.speak("Which list would you like to clear?").getResponse();
+            }
+        }
+
+        const lists = await getListsForUser(alexaUserId);
+        if (!lists) return handlerInput.responseBuilder.speak("Please link your account first.").getResponse();
+
+        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+
+        if (!targetList) {
+            return handlerInput.responseBuilder
+                .speak(`I couldn't find a list called ${listName}.`)
+                .getResponse();
+        }
+
+        // Delete all items
+        const { error } = await supabase
+            .from('shopping_list_items')
+            .delete()
+            .eq('list_id', targetList.id);
+
+        if (error) {
+            return handlerInput.responseBuilder.speak("Sorry, I couldn't clear the list.").getResponse();
+        }
+
+        return handlerInput.responseBuilder
+            .speak(`I've cleared all items from the ${targetList.name} list.`)
             .getResponse();
     }
 };
@@ -537,7 +815,7 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak("You can say things like: add milk to my list, what's on my grocery list, or what lists do I have. What would you like to do?")
+            .speak("You can say things like: add milk to my list, create a list called party, open my grocery list, or delete my party list. What would you like to do?")
             .reprompt("Try saying 'add eggs to my list'.")
             .getResponse();
     }
@@ -598,6 +876,11 @@ exports.handler = Alexa.SkillBuilders.custom()
         CreateListIntentHandler,
         AddItemIntentHandler,
         ReadListIntentHandler,
+        OpenListIntentHandler,
+        GetShareCodeIntentHandler,
+        DeleteListIntentHandler,
+        ClearListIntentHandler,
+        RestoreListIntentHandler,
         ListListsIntentHandler,
         DoneIntentHandler,
         HelpIntentHandler,
