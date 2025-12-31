@@ -683,7 +683,10 @@ const ShoppingListDetail: React.FC = () => {
     try {
       // Add each matched item to the list
       for (const item of matchedItems) {
-        if (item.matchedItem) {
+        // Check if user chose to use original text OR if there's no match
+        const useMatchedData = item.matchedItem && !item.useOriginal;
+
+        if (useMatchedData && item.matchedItem) {
           // 1. Determine the Final Unit
           // Priority: User Input > User Preference > Database Default
           const userUnit = item.unit ? normalizeUnit(item.unit) : null;
@@ -716,14 +719,15 @@ const ShoppingListDetail: React.FC = () => {
             target_price: finalTargetPrice || undefined,
           });
         } else {
-          // Create new item (no match found)
+          // User chose original text OR no match found
+          // Use user's selected category (or default 'Other')
           const unit = item.unit ? normalizeUnit(item.unit) : null;
           const displayName = unit ? `${item.itemName} (${unit})` : item.itemName;
 
           await addItemToList({
             list_id: list.id,
             item_name: displayName,
-            category: 'Other', // Default category
+            category: item.selectedCategory || 'Other',
             quantity: item.quantity || 1,
             unit_type: unit || undefined,
           });
