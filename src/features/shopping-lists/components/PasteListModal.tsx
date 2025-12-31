@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ClipboardPaste, Check, AlertCircle, Plus } from 'lucide-react';
 import { parseListText, type ParsedItem, normalizeUnit } from '../../../utils/listParser';
 import { findBestFuzzyMatch } from '../../../shared/utils/fuzzyMatch';
+import { SHOPPING_LIST_CATEGORIES } from '../types';
 
 interface Item {
     id: string;
@@ -30,6 +31,7 @@ export interface MatchedItem extends ParsedItem {
     matchScore: number;
     suggestions: Item[];
     useOriginal: boolean; // User chose to use original text instead of match
+    selectedCategory: string; // Category for unmatched items
 }
 
 export const PasteListModal: React.FC<PasteListModalProps> = ({
@@ -85,6 +87,7 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
             matchScore,
             suggestions,
             useOriginal: matchScore < 0.7, // Default to original if no good match
+            selectedCategory: 'Other', // Default category for new items
         };
     };
 
@@ -198,8 +201,8 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                                                             setMatchedItems(updated);
                                                         }}
                                                         className={`text-xs px-2 py-1 rounded-full transition-colors ${!item.useOriginal
-                                                                ? 'bg-purple-600 text-white'
-                                                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                                                            ? 'bg-purple-600 text-white'
+                                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
                                                             }`}
                                                     >
                                                         Use: {item.matchedItem.name} ({Math.round(item.matchScore * 100)}%)
@@ -211,8 +214,8 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                                                             setMatchedItems(updated);
                                                         }}
                                                         className={`text-xs px-2 py-1 rounded-full transition-colors ${item.useOriginal
-                                                                ? 'bg-purple-600 text-white'
-                                                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                                                            ? 'bg-purple-600 text-white'
+                                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
                                                             }`}
                                                     >
                                                         Keep: "{item.itemName}"
@@ -228,6 +231,26 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                                                 <p className="text-xs text-gray-500 mt-1">
                                                     No match found - will add as "{item.itemName}"
                                                 </p>
+                                            )}
+                                            {/* Category selector for unmatched or original items */}
+                                            {(item.useOriginal || item.matchScore < 0.5) && (
+                                                <div className="mt-2 flex items-center gap-2">
+                                                    <span className="text-xs text-gray-500">Category:</span>
+                                                    <select
+                                                        value={item.selectedCategory}
+                                                        onChange={(e) => {
+                                                            const updated = [...matchedItems];
+                                                            updated[index] = { ...item, selectedCategory: e.target.value };
+                                                            setMatchedItems(updated);
+                                                        }}
+                                                        className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500"
+                                                        title="Select category"
+                                                    >
+                                                        {SHOPPING_LIST_CATEGORIES.map((cat) => (
+                                                            <option key={cat} value={cat}>{cat}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
