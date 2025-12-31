@@ -29,6 +29,7 @@ export interface MatchedItem extends ParsedItem {
     matchedItem: Item | null;
     matchScore: number;
     suggestions: Item[];
+    useOriginal: boolean; // User chose to use original text instead of match
 }
 
 export const PasteListModal: React.FC<PasteListModalProps> = ({
@@ -83,6 +84,7 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
             matchedItem,
             matchScore,
             suggestions,
+            useOriginal: matchScore < 0.7, // Default to original if no good match
         };
     };
 
@@ -178,7 +180,7 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-baseline gap-2">
                                                 <span className="font-medium text-gray-900 dark:text-white">
-                                                    {item.matchedItem?.name || item.itemName}
+                                                    {item.useOriginal || !item.matchedItem ? item.itemName : item.matchedItem.name}
                                                 </span>
                                                 {item.quantity && (
                                                     <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -186,14 +188,45 @@ export const PasteListModal: React.FC<PasteListModalProps> = ({
                                                     </span>
                                                 )}
                                             </div>
-                                            {item.matchScore < 0.9 && item.matchScore >= 0.7 && (
-                                                <p className="text-xs text-yellow-700 mt-1">
-                                                    Partial match ({Math.round(item.matchScore * 100)}%)
+                                            {/* Uncertain match: let user choose */}
+                                            {item.matchScore >= 0.5 && item.matchScore < 0.9 && item.matchedItem && (
+                                                <div className="mt-2 flex flex-wrap gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            const updated = [...matchedItems];
+                                                            updated[index] = { ...item, useOriginal: false };
+                                                            setMatchedItems(updated);
+                                                        }}
+                                                        className={`text-xs px-2 py-1 rounded-full transition-colors ${!item.useOriginal
+                                                                ? 'bg-purple-600 text-white'
+                                                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                                                            }`}
+                                                    >
+                                                        Use: {item.matchedItem.name} ({Math.round(item.matchScore * 100)}%)
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            const updated = [...matchedItems];
+                                                            updated[index] = { ...item, useOriginal: true };
+                                                            setMatchedItems(updated);
+                                                        }}
+                                                        className={`text-xs px-2 py-1 rounded-full transition-colors ${item.useOriginal
+                                                                ? 'bg-purple-600 text-white'
+                                                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                                                            }`}
+                                                    >
+                                                        Keep: "{item.itemName}"
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {item.matchScore >= 0.9 && (
+                                                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                                    Exact match ✓
                                                 </p>
                                             )}
-                                            {item.matchScore < 0.7 && (
+                                            {item.matchScore < 0.5 && (
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    No match found - will create new item
+                                                    No match found - will add as "{item.itemName}"
                                                 </p>
                                             )}
                                         </div>
