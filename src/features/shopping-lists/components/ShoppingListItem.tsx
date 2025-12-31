@@ -17,19 +17,20 @@ interface ShoppingListItemProps {
 const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, darkMode, onUpdate, onOptimisticCheck }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.item_name);
+  const [editQuantity, setEditQuantity] = useState(item.quantity || 1);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckToggle = () => {
     // Prevent double-clicks or redundant calls
     if (isLoading) return;
-    
+
     const newCheckedState = !item.is_checked;
-    
+
     // Immediately update UI (optimistic) - NO await, NO blocking
     if (onOptimisticCheck) {
       onOptimisticCheck(item.id, newCheckedState);
     }
-    
+
     // Lock for 150ms to prevent rapid re-clicks
     setIsLoading(true);
     setTimeout(() => setIsLoading(false), 150);
@@ -37,7 +38,7 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
 
   const handleDelete = async () => {
     if (!window.confirm('Delete this item?')) return;
-    
+
     setIsLoading(true);
     try {
       await deleteItem(item.id);
@@ -59,7 +60,10 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
 
     setIsLoading(true);
     try {
-      await updateItem(item.id, { item_name: editName.trim() });
+      await updateItem(item.id, {
+        item_name: editName.trim(),
+        quantity: editQuantity
+      });
       toast.success('Item updated');
       setIsEditing(false);
       onUpdate();
@@ -73,26 +77,25 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
 
   const handleCancelEdit = () => {
     setEditName(item.item_name);
+    setEditQuantity(item.quantity || 1);
     setIsEditing(false);
   };
 
   return (
     <div
-      className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
-        darkMode ? 'bg-zinc-700' : 'bg-gray-50'
-      } ${item.is_checked ? 'opacity-60' : ''}`}
+      className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'
+        } ${item.is_checked ? 'opacity-60' : ''}`}
     >
       {/* Checkbox */}
       <button
         onClick={handleCheckToggle}
         disabled={isLoading}
-        className={`flex-shrink-0 mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 transform active:scale-90 ${
-          item.is_checked
-            ? 'bg-green-600 border-green-600'
-            : darkMode
+        className={`flex-shrink-0 mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 transform active:scale-90 ${item.is_checked
+          ? 'bg-green-600 border-green-600'
+          : darkMode
             ? 'border-zinc-500 hover:border-purple-500'
             : 'border-gray-400 hover:border-purple-500'
-        }`}
+          }`}
       >
         {item.is_checked && <Check className="h-4 w-4 text-white transition-transform duration-200" />}
       </button>
@@ -100,34 +103,54 @@ const ShoppingListItemComponent: React.FC<ShoppingListItemProps> = ({ item, dark
       {/* Item Details */}
       <div className="flex-1 min-w-0">
         {isEditing ? (
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className={`flex-1 px-2 py-1 rounded border focus:ring-2 focus:ring-purple-500 ${
-                darkMode ? 'bg-zinc-600 border-zinc-500' : 'bg-white border-gray-300'
-              }`}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSaveEdit();
-                if (e.key === 'Escape') handleCancelEdit();
-              }}
-            />
-            <button
-              onClick={handleSaveEdit}
-              disabled={isLoading}
-              className="p-1 text-green-600 hover:text-green-700"
-            >
-              <Check className="h-4 w-4" />
-            </button>
-            <button
-              onClick={handleCancelEdit}
-              disabled={isLoading}
-              className="p-1 text-red-600 hover:text-red-700"
-            >
-              <X className="h-4 w-4" />
-            </button>
+          <div className="space-y-2">
+            {/* Name and Quantity on same row */}
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className={`flex-1 min-w-0 px-2 py-1 rounded border focus:ring-2 focus:ring-purple-500 ${darkMode ? 'bg-zinc-600 border-zinc-500' : 'bg-white border-gray-300'
+                  }`}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveEdit();
+                  if (e.key === 'Escape') handleCancelEdit();
+                }}
+                placeholder="Item name"
+              />
+              <input
+                type="number"
+                value={editQuantity}
+                onChange={(e) => setEditQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                className={`w-16 px-2 py-1 rounded border text-center focus:ring-2 focus:ring-purple-500 ${darkMode ? 'bg-zinc-600 border-zinc-500' : 'bg-white border-gray-300'
+                  }`}
+                min="1"
+                placeholder="Qty"
+                title="Quantity"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveEdit();
+                  if (e.key === 'Escape') handleCancelEdit();
+                }}
+              />
+            </div>
+            {/* Save/Cancel buttons below */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSaveEdit}
+                disabled={isLoading}
+                className="flex-1 py-1 px-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 flex items-center justify-center gap-1"
+              >
+                <Check className="h-4 w-4" /> Save
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                disabled={isLoading}
+                className="flex-1 py-1 px-2 bg-red-500 text-white rounded text-sm hover:bg-red-600 flex items-center justify-center gap-1"
+              >
+                <X className="h-4 w-4" /> Cancel
+              </button>
+            </div>
           </div>
         ) : (
           <>

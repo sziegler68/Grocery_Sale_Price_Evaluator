@@ -9,10 +9,27 @@
                 },
                 {
                     "name": "AMAZON.HelpIntent",
-                    "samples": []
+                    "samples": [
+                        "help",
+                        "help me",
+                        "what can you do",
+                        "what can I do",
+                        "what can I say",
+                        "give me examples",
+                        "example commands",
+                        "example prompts",
+                        "how do I use this",
+                        "how does this work",
+                        "what are my options",
+                        "what are the commands"
+                    ]
                 },
                 {
                     "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
                     "samples": []
                 },
                 {
@@ -73,6 +90,49 @@
                     ]
                 },
                 {
+                    "name": "RemoveItemIntent",
+                    "slots": [
+                        {
+                            "name": "itemName",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "remove {itemName}",
+                        "remove {itemName} from the list",
+                        "remove {itemName} from my list",
+                        "remove the {itemName}",
+                        "delete {itemName}",
+                        "delete the {itemName}",
+                        "take off {itemName}",
+                        "take off the {itemName}",
+                        "cross off {itemName}",
+                        "scratch {itemName}",
+                        "I don't need {itemName}",
+                        "I don't need the {itemName}",
+                        "never mind the {itemName}",
+                        "forget {itemName}",
+                        "forget the {itemName}"
+                    ]
+                },
+                {
+                    "name": "ModifyItemIntent",
+                    "slots": [
+                        {
+                            "name": "query",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "change {query}",
+                        "update {query}",
+                        "modify {query}",
+                        "set {query}",
+                        "make it {query}",
+                        "actually make it {query}"
+                    ]
+                },
+                {
                     "name": "ReadListIntent",
                     "slots": [
                         {
@@ -83,14 +143,23 @@
                     "samples": [
                         "what's on my list",
                         "what's on my {listName} list",
+                        "what's on the {listName} list",
+                        "what's on {listName}",
                         "read my list",
                         "read my {listName} list",
+                        "read {listName} list",
+                        "read the {listName} list",
+                        "read me my list",
+                        "read me the list",
+                        "read me the {listName} list",
                         "what do I need",
                         "what do I need from {listName}",
                         "show me my list",
                         "show me my {listName} list",
                         "what items are on my list",
-                        "tell me my list"
+                        "tell me my list",
+                        "tell me what's on my list",
+                        "tell me what's on {listName}"
                     ]
                 },
                 {
@@ -162,13 +231,23 @@
                     ],
                     "samples": [
                         "open {listName}",
+                        "open {listName} list",
                         "open list {listName}",
                         "open my {listName} list",
+                        "open the {listName} list",
                         "switch to {listName}",
+                        "switch to {listName} list",
                         "switch to list {listName}",
                         "go to {listName}",
+                        "go to {listName} list",
                         "use {listName}",
-                        "use {listName} list"
+                        "use {listName} list",
+                        "edit {listName}",
+                        "edit {listName} list",
+                        "edit the {listName} list",
+                        "edit my {listName} list",
+                        "work on {listName}",
+                        "work on {listName} list"
                     ]
                 },
                 {
@@ -197,9 +276,17 @@
                         }
                     ],
                     "samples": [
+                        "delete {listName}",
                         "delete {listName} list",
+                        "delete the {listName}",
+                        "delete the {listName} list",
+                        "delete my {listName}",
+                        "delete my {listName} list",
+                        "remove {listName}",
                         "remove {listName} list",
-                        "delete list called {listName}"
+                        "remove the {listName}",
+                        "delete list called {listName}",
+                        "get rid of {listName}"
                     ]
                 },
                 {
@@ -211,11 +298,20 @@
                         }
                     ],
                     "samples": [
+                        "clear the list",
+                        "clear this list",
+                        "clear my list",
                         "clear {listName}",
                         "clear {listName} list",
+                        "clear the {listName}",
+                        "clear the {listName} list",
                         "empty {listName}",
                         "empty {listName} list",
-                        "remove all items from {listName}"
+                        "empty the list",
+                        "empty this list",
+                        "wipe the list",
+                        "wipe {listName}",
+                        "start over"
                     ]
                 },
                 {

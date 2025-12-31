@@ -25,8 +25,10 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
   const [storeName, setStoreName] = useState<string>(defaultStore);
   const [zipCode, setZipCode] = useState<string>(defaultZipCode);
   const [zipOverride, setZipOverride] = useState<boolean>(false);
-  const [customSalesTax, setCustomSalesTax] = useState<number>(salesTaxRate);
-  const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(salesTaxRate > 0 ? salesTaxRate.toFixed(2) : '');
+  // Convert decimal tax rate (0.1025) to percentage display (10.25)
+  const taxAsPercent = salesTaxRate * 100;
+  const [customSalesTax, setCustomSalesTax] = useState<number>(taxAsPercent);
+  const [salesTaxDisplay, setSalesTaxDisplay] = useState<string>(taxAsPercent > 0 ? taxAsPercent.toFixed(2) : '');
   const [taxOverride, setTaxOverride] = useState<boolean>(false);
 
   if (!isOpen) return null;
@@ -80,10 +82,11 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
 
     const overridesUsed = {
       zip: zipOverride && zipCode !== defaultZipCode,
-      tax: taxOverride && customSalesTax !== salesTaxRate
+      tax: taxOverride && customSalesTax !== taxAsPercent
     };
 
-    onStart(budgetValue, storeName, customSalesTax, zipCode, overridesUsed);
+    // Convert percentage back to decimal for storage (10.25 → 0.1025)
+    onStart(budgetValue, storeName, customSalesTax / 100, zipCode, overridesUsed);
   };
 
   const stores = [
@@ -103,9 +106,9 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-xl shadow-2xl bg-card text-primary">
+      <div className="w-full max-w-md max-h-[90vh] flex flex-col rounded-xl shadow-2xl bg-card text-primary">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-primary">
+        <div className="flex items-center justify-between p-6 border-b border-primary flex-shrink-0">
           <div className="flex items-center space-x-3">
             <ShoppingCart className="h-6 w-6 text-brand" />
             <h2 className="text-xl font-bold">Start Shopping Trip</h2>
@@ -113,13 +116,14 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
           <button
             onClick={onClose}
             className="p-2 hover-bg rounded-lg transition-colors"
+            title="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
+        {/* Content - scrollable */}
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {/* List Name */}
           <div>
             <label className="block text-sm font-medium mb-2">Shopping List</label>
@@ -250,10 +254,10 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
             <p className="text-xs text-secondary mt-2">
               {taxOverride ? (
                 <span className="text-yellow-600 dark:text-yellow-400">
-                  ⚠️ Override enabled. Default: {salesTaxRate > 0 ? `${salesTaxRate.toFixed(2)}%` : 'Not set'}
+                  ⚠️ Override enabled. Default: {taxAsPercent > 0 ? `${taxAsPercent.toFixed(2)}%` : 'Not set'}
                 </span>
-              ) : salesTaxRate > 0 ? (
-                <>Using default from settings: {salesTaxRate.toFixed(2)}%</>
+              ) : taxAsPercent > 0 ? (
+                <>Using default from settings: {taxAsPercent.toFixed(2)}%</>
               ) : (
                 <>No default set. Enable override to enter manually.</>
               )}
@@ -261,8 +265,8 @@ const StartShoppingTripModal: React.FC<StartShoppingTripModalProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex space-x-3 p-6 border-t border-primary">
+        {/* Footer - always visible */}
+        <div className="flex space-x-3 p-6 border-t border-primary flex-shrink-0">
           <button
             onClick={onClose}
             className="flex-1 py-3 rounded-lg font-medium transition-colors bg-secondary hover-bg"

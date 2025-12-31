@@ -113,6 +113,12 @@ function extractQuantity(text: string): {
             regex: /^(\d+\.?\d*)\s+/,
             hasUnit: false,
         },
+        // Trailing quantity without unit: "mashed potatoes 12" or "Ice cream 2"
+        {
+            regex: /\s+(\d+)$/,
+            hasUnit: false,
+            isTrailing: true,
+        },
     ];
 
     for (const pattern of patterns) {

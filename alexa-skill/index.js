@@ -106,8 +106,8 @@ const LaunchRequestHandler = {
         const listNames = lists.map(l => l.name).join(', ');
 
         return handlerInput.responseBuilder
-            .speak(`Welcome back to Luna Cart! You have ${listCount} list${listCount !== 1 ? 's' : ''}: ${listNames}. What would you like to do?`)
-            .reprompt("You can say things like 'add milk to my grocery list' or 'what's on my list'.")
+            .speak(`Welcome back to Luna Cart! You have ${listCount} list${listCount !== 1 ? 's' : ''}: ${listNames}. What would you like to do? Say 'help' for example commands.`)
+            .reprompt("You can say 'open' followed by a list name, or 'help' for examples.")
             .getResponse();
     }
 };
@@ -282,8 +282,8 @@ const CreateListIntentHandler = {
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         return handlerInput.responseBuilder
-            .speak(`I've created the ${listName} list. What would you like to add to it?`)
-            .reprompt("What would you like to add?")
+            .speak(`I've created the ${listName} list. To add items, say the quantity then the item name. For example, 'two apples' or 'add milk'.`)
+            .reprompt("Say a quantity and item, like 'three bananas'.")
             .getResponse();
     }
 };
@@ -299,29 +299,27 @@ const AddItemIntentHandler = {
     async handle(handlerInput) {
         const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
         const slots = handlerInput.requestEnvelope.request.intent.slots;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        // Get the single catch-all query slot
-        const rawQuery = slots.query?.value;
+        // Get the item from the query slot
+        let rawQuery = slots.query?.value;
 
         if (!rawQuery) {
             return handlerInput.responseBuilder
-                .speak("What would you like to add?")
-                .reprompt("Tell me what item to add to your list.")
+                .speak("What item would you like to add? Please give me one item at a time.")
+                .reprompt("Tell me one item to add.")
                 .getResponse();
         }
 
-        // Parse query: "milk to my grocery list" -> item: "milk", list: "grocery"
-        // Regex looks for " to ", " on ", " in " as separators
-        const match = rawQuery.match(/^(.+?)(?:\s+(?:to|on|in)\s+(?:my\s+)?(.+?)(?:\s+list)?)?$/i);
+        // Parse list name from query if present (e.g., "milk to my grocery list")
+        let itemName = rawQuery;
+        let resolvedListName = null;
 
-        let fullItemPart = rawQuery;
-        let listName = null;
-
-        if (match) {
-            fullItemPart = match[1].trim(); // "milk and eggs"
-            if (match[2]) {
-                listName = match[2].trim(); // "grocery"
-            }
+        // Regex looks for " to ", " on ", " in " followed by list name at the end
+        const match = rawQuery.match(/^(.+?)\s+(?:to|on|in)\s+(?:my\s+|the\s+)?(.+?)(?:\s+list)?$/i);
+        if (match && match[2]) {
+            itemName = match[1].trim();
+            resolvedListName = match[2].trim();
         }
 
         // Get user's lists
@@ -330,104 +328,124 @@ const AddItemIntentHandler = {
         if (!lists || lists.length === 0) {
             return handlerInput.responseBuilder
                 .speak("You don't have any lists linked. Say 'link my account' with your sync code from the Luna Cart app.")
+                .reprompt("Say 'link my account' followed by your code.")
                 .getResponse();
         }
 
-        // Find the target list
+        // Find target list
         let targetList;
-        if (listName) {
-            targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
-        } else if (lists.length === 1) {
+
+        // First, check if a list name was in the query
+        if (resolvedListName) {
+            const cleanName = resolvedListName.replace(/^(the|my|a|an)\s+/i, '').replace(/\s+list$/i, '').trim().toLowerCase();
+            targetList = lists.find(l => l.name.toLowerCase().includes(cleanName));
+        }
+
+        // If no target yet, use session context
+        if (!targetList && sessionAttributes.currentListId) {
+            targetList = lists.find(l => l.id === sessionAttributes.currentListId);
+        }
+
+        // If still no target and only one list, use it
+        if (!targetList && lists.length === 1) {
             targetList = lists[0];
-        } else {
-            // Check for session context (e.g., just created a list)
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-            if (sessionAttributes.currentListId) {
-                targetList = lists.find(l => l.id === sessionAttributes.currentListId);
-            }
+        }
 
-            // If still no target, try "Grocery" as default
-            if (!targetList) {
-                const groceryList = lists.find(l => l.name.toLowerCase().includes('grocery'));
-                if (groceryList) {
-                    targetList = groceryList;
-                }
-            }
-
-            // If still no target, ask the user
-            if (!targetList) {
-                const listNames = lists.map(l => l.name).join(', or ');
-                return handlerInput.responseBuilder
-                    .speak(`Which list? You have ${listNames}.`)
-                    .reprompt("Which list should I add to?")
-                    .getResponse();
+        // If still no target, try "Grocery" as default
+        if (!targetList) {
+            const groceryList = lists.find(l => l.name.toLowerCase().includes('grocery'));
+            if (groceryList) {
+                targetList = groceryList;
             }
         }
 
+        // If we still have no target list, ask the user
         if (!targetList) {
+            const listNames = lists.map(l => l.name).join(', or ');
             return handlerInput.responseBuilder
-                .speak(`I couldn't find a list called ${listName}. Say 'what lists do I have' to see your lists.`)
+                .speak(`Which list should I add to? You have ${listNames}.`)
+                .reprompt("Which list?")
                 .getResponse();
         }
 
-        // Parse individual items by splitting on " and "
-        // "two gallons of milk and three lemons" -> ["two gallons of milk", "three lemons"]
-        const rawItems = fullItemPart.split(/\s+and\s+/i);
-        const addedItems = [];
-        const failedItems = [];
+        // Parse quantity from the FIRST word only
+        // "one twelve pack of coca-cola" → quantity=1, item="twelve pack of coca-cola"
+        // "two apples" → quantity=2, item="apples"
+        // "twelve pack of soda" → quantity=1, item="twelve pack of soda" (twelve is part of item name)
 
-        for (const rawItem of rawItems) {
-            let itemName = rawItem.trim();
-            let quantity = 1;
+        const wordToDigit = {
+            'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+            'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+            'eleven': 11, 'twelve': 12, 'a': 1, 'an': 1
+        };
 
-            // Parse quantity if present ("2 milk", "two gallons")
-            // We only handle digits here for simplicity, or we could re-use our word map
-            // Keeping it simple for now: regex for leading digits
-            const qtyMatch = itemName.match(/^(\d+)\s+(.+)/);
-            if (qtyMatch) {
-                quantity = parseInt(qtyMatch[1]) || 1;
-                itemName = qtyMatch[2];
+        // Special handling for pack sizes - if Alexa transcribes "one twelve pack" as "112 pack",
+        // detect this and keep it as item name with quantity 1
+        const packPattern = itemName.match(/^(\d+)\s*(pack|case|box|can|bottle|count)/i);
+        if (packPattern) {
+            const packNum = parseInt(packPattern[1]);
+            // Common pack sizes: 6, 12, 24, 36, etc. - treat as item description, not quantity
+            if ([6, 12, 18, 24, 30, 36, 48, 112].includes(packNum)) {
+                // Keep itemName as is, quantity = 1
+                // "112 pack of soda" → quantity=1, item="12 pack of soda" (fix the 112 → 12)
+                if (packNum === 112) {
+                    itemName = itemName.replace(/^112/, '12');
+                }
+                // quantity stays 1
             }
+        } else {
+            // Check if the FIRST word is a quantity word or number
+            const words = itemName.split(/\s+/);
+            const firstWord = words[0].toLowerCase();
 
-            // Insert into Supabase
-            const { error } = await supabase
-                .from('shopping_list_items')
-                .insert({
-                    list_id: targetList.id,
-                    item_name: itemName,
-                    category: 'Other',
-                    quantity: quantity,
-                    added_by: 'Alexa',
-                    added_at: new Date().toISOString()
-                });
+            if (wordToDigit[firstWord] !== undefined) {
+                // First word is a number word - check if it's a quantity or part of item name
+                // If the second word is ALSO a number word, the first is the quantity
+                // e.g., "one twelve pack" → "one" is quantity, "twelve pack" is item
+                // But "twelve pack" alone → "twelve pack" is the item, quantity=1
+                const secondWord = words[1]?.toLowerCase();
 
-            if (error) {
-                console.error('Failed to add item:', itemName, error);
-                failedItems.push(itemName);
-            } else {
-                const qtyStr = quantity > 1 ? `${quantity} ` : '';
-                addedItems.push(`${qtyStr}${itemName}`);
+                if (words.length > 1 && (wordToDigit[secondWord] !== undefined || /^\d+$/.test(words[1]))) {
+                    // "one twelve pack" → quantity=1, item="twelve pack..."
+                    quantity = wordToDigit[firstWord];
+                    itemName = words.slice(1).join(' ');
+                } else if (words.length > 1) {
+                    // "two apples" → quantity=2, item="apples"
+                    quantity = wordToDigit[firstWord];
+                    itemName = words.slice(1).join(' ');
+                }
+                // If only one word like "milk", keep quantity=1 and itemName as is
+            } else if (/^\d+$/.test(firstWord)) {
+                // First word is a digit - extract as quantity
+                quantity = parseInt(firstWord) || 1;
+                itemName = words.slice(1).join(' ') || itemName;
             }
         }
 
-        // Construct response
-        let speakOutput = '';
-        if (addedItems.length > 0) {
-            // Join with commas and "and" for last item
-            const itemsStr = addedItems.length === 1
-                ? addedItems[0]
-                : `${addedItems.slice(0, -1).join(', ')} and ${addedItems[addedItems.length - 1]}`;
+        // Insert item into Supabase
+        const { error } = await supabase
+            .from('shopping_list_items')
+            .insert({
+                list_id: targetList.id,
+                item_name: itemName,
+                category: 'Other',
+                quantity: quantity,
+                added_by: 'Alexa',
+                added_at: new Date().toISOString()
+            });
 
-            speakOutput = `Added ${itemsStr} to ${targetList.name}.`;
+        if (error) {
+            console.error('Failed to add item:', itemName, error);
+            return handlerInput.responseBuilder
+                .speak(`Sorry, I couldn't add ${itemName}. Please try again.`)
+                .reprompt("What item would you like to add?")
+                .getResponse();
         }
 
-        if (failedItems.length > 0) {
-            speakOutput += ` I had trouble adding ${failedItems.join(', ')}.`;
-        }
-
-        if (addedItems.length === 0 && failedItems.length > 0) {
-            speakOutput = "Sorry, I couldn't add those items. Please try again.";
-        }
+        // Update session context for future adds
+        sessionAttributes.currentListId = targetList.id;
+        sessionAttributes.currentListName = targetList.name;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         // Update last_used_at
         await supabase
@@ -435,9 +453,192 @@ const AddItemIntentHandler = {
             .update({ last_used_at: new Date().toISOString() })
             .eq('alexa_user_id', alexaUserId);
 
+        const qtyStr = quantity > 1 ? `${quantity} ` : '';
         return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt("What else would you like to add?")
+            .speak(`Added ${qtyStr}${itemName}. What's next?`)
+            .reprompt("What else would you like to add? Say 'done' when finished.")
+            .getResponse();
+    }
+};
+
+/**
+ * Remove Item Intent - "remove milk from my list"
+ */
+const RemoveItemIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'RemoveItemIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+        let itemName = slots.itemName?.value;
+
+        if (!itemName) {
+            return handlerInput.responseBuilder
+                .speak("What item would you like to remove?")
+                .reprompt("Tell me which item to remove from your list.")
+                .getResponse();
+        }
+
+        // Clean up item name
+        itemName = itemName.replace(/^the\s+/i, '').trim();
+
+        // Get target list from session or find it
+        let targetListId = sessionAttributes.currentListId;
+
+        if (!targetListId) {
+            const lists = await getListsForUser(alexaUserId);
+            if (!lists || lists.length === 0) {
+                return handlerInput.responseBuilder
+                    .speak("You don't have any lists linked.")
+                    .getResponse();
+            }
+            if (lists.length === 1) {
+                targetListId = lists[0].id;
+            } else {
+                return handlerInput.responseBuilder
+                    .speak("Which list? Say 'open' followed by the list name first.")
+                    .reprompt("Which list should I remove from?")
+                    .getResponse();
+            }
+        }
+
+        // Find and delete matching item(s)
+        const { data: items } = await supabase
+            .from('shopping_list_items')
+            .select('id, item_name')
+            .eq('list_id', targetListId)
+            .ilike('item_name', `%${itemName}%`);
+
+        if (!items || items.length === 0) {
+            return handlerInput.responseBuilder
+                .speak(`I couldn't find ${itemName} on your list.`)
+                .reprompt("What else would you like to do?")
+                .getResponse();
+        }
+
+        // Delete matching items
+        const { error } = await supabase
+            .from('shopping_list_items')
+            .delete()
+            .in('id', items.map(i => i.id));
+
+        if (error) {
+            return handlerInput.responseBuilder
+                .speak("Sorry, I couldn't remove that item.")
+                .reprompt("Try again.")
+                .getResponse();
+        }
+
+        const removedNames = items.map(i => i.item_name).join(', ');
+        return handlerInput.responseBuilder
+            .speak(`Removed ${removedNames}. What else?`)
+            .reprompt("What else would you like to do?")
+            .getResponse();
+    }
+};
+
+/**
+ * Modify Item Intent - "change apples to 3"
+ * Parses query like "apples to 3" or "3 apples"
+ */
+const ModifyItemIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ModifyItemIntent';
+    },
+    async handle(handlerInput) {
+        const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+        const slots = handlerInput.requestEnvelope.request.intent.slots;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+        let query = slots.query?.value;
+
+        if (!query) {
+            return handlerInput.responseBuilder
+                .speak("What would you like to change? Say the item name and new quantity, like 'apples to 3'.")
+                .reprompt("Tell me which item and the new quantity.")
+                .getResponse();
+        }
+
+        // Parse query: "apples to 3" or "3 apples" or "the apples to 5"
+        let itemName = null;
+        let quantity = null;
+
+        // Try pattern: "item to number"
+        const toPattern = query.match(/^(.+?)\s+to\s+(\d+)$/i);
+        if (toPattern) {
+            itemName = toPattern[1].replace(/^the\s+/i, '').trim();
+            quantity = parseInt(toPattern[2]);
+        } else {
+            // Try pattern: "number item"
+            const numFirst = query.match(/^(\d+)\s+(.+)$/);
+            if (numFirst) {
+                quantity = parseInt(numFirst[1]);
+                itemName = numFirst[2].replace(/^the\s+/i, '').trim();
+            }
+        }
+
+        if (!itemName || !quantity) {
+            return handlerInput.responseBuilder
+                .speak("I didn't understand. Say something like 'apples to 3' or '3 apples'.")
+                .reprompt("Tell me the item and new quantity.")
+                .getResponse();
+        }
+
+        // Get target list from session
+        let targetListId = sessionAttributes.currentListId;
+
+        if (!targetListId) {
+            const lists = await getListsForUser(alexaUserId);
+            if (!lists || lists.length === 0) {
+                return handlerInput.responseBuilder
+                    .speak("You don't have any lists linked.")
+                    .getResponse();
+            }
+            if (lists.length === 1) {
+                targetListId = lists[0].id;
+            } else {
+                return handlerInput.responseBuilder
+                    .speak("Which list? Say 'open' followed by the list name first.")
+                    .reprompt("Which list should I modify?")
+                    .getResponse();
+            }
+        }
+
+        // Find matching item
+        const { data: items } = await supabase
+            .from('shopping_list_items')
+            .select('id, item_name')
+            .eq('list_id', targetListId)
+            .ilike('item_name', `%${itemName}%`);
+
+        if (!items || items.length === 0) {
+            return handlerInput.responseBuilder
+                .speak(`I couldn't find ${itemName} on your list.`)
+                .reprompt("What else would you like to do?")
+                .getResponse();
+        }
+
+        // Update the first matching item's quantity
+        const { error } = await supabase
+            .from('shopping_list_items')
+            .update({ quantity: quantity })
+            .eq('id', items[0].id);
+
+        if (error) {
+            return handlerInput.responseBuilder
+                .speak("Sorry, I couldn't update that item.")
+                .reprompt("Try again.")
+                .getResponse();
+        }
+
+        return handlerInput.responseBuilder
+            .speak(`Updated ${items[0].item_name} to ${quantity}. What else?`)
+            .reprompt("What else would you like to do?")
             .getResponse();
     }
 };
@@ -466,8 +667,15 @@ const ReadListIntentHandler = {
 
         // Find the target list
         let targetList;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
         if (listName) {
-            targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+            // Clean up list name 
+            const cleanName = listName.replace(/\s+list$/i, '').replace(/^(the|my)\s+/i, '').trim().toLowerCase();
+            targetList = lists.find(l => l.name.toLowerCase().includes(cleanName));
+        } else if (sessionAttributes.currentListId) {
+            // Use session context if no list specified
+            targetList = lists.find(l => l.id === sessionAttributes.currentListId);
         } else if (lists.length === 1) {
             targetList = lists[0];
         } else {
@@ -485,7 +693,6 @@ const ReadListIntentHandler = {
         }
 
         // Set session context for follow-up adds
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         sessionAttributes.currentListId = targetList.id;
         sessionAttributes.currentListName = targetList.name;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
@@ -550,13 +757,17 @@ const OpenListIntentHandler = {
                 .getResponse();
         }
 
+        // Clean up the list name (strip "list", "the", "my" etc.)
+        let cleanName = listName.replace(/\s+list$/i, '').replace(/^(the|my|a)\s+/i, '').trim().toLowerCase();
+
         // Find the target list
-        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+        const targetList = lists.find(l => l.name.toLowerCase() === cleanName || l.name.toLowerCase().includes(cleanName));
 
         if (!targetList) {
+            const listNames = lists.map(l => l.name).join(', or ');
             return handlerInput.responseBuilder
-                .speak(`I couldn't find a list called ${listName}.`)
-                .reprompt("Which list would you like to open?")
+                .speak(`I couldn't find a list called ${listName}. You have ${listNames}.`)
+                .reprompt(`Which list would you like to open? You have ${listNames}.`)
                 .getResponse();
         }
 
@@ -567,8 +778,8 @@ const OpenListIntentHandler = {
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
         return handlerInput.responseBuilder
-            .speak(`I've opened the ${targetList.name} list. What would you like to add?`)
-            .reprompt("What would you like to add?")
+            .speak(`I've opened the ${targetList.name} list. To add items, say the quantity then the item name. For example, 'two apples' or 'add milk'.`)
+            .reprompt("Say a quantity and item, like 'three bananas'.")
             .getResponse();
     }
 };
@@ -653,11 +864,13 @@ const DeleteListIntentHandler = {
                 .getResponse();
         }
 
-        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+        // Clean the list name to avoid item names being treated as list names
+        const cleanName = listName.replace(/\s+list$/i, '').replace(/^(the|my)\s+/i, '').trim().toLowerCase();
+        const targetList = lists.find(l => l.name.toLowerCase() === cleanName || l.name.toLowerCase().includes(cleanName));
 
         if (!targetList) {
             return handlerInput.responseBuilder
-                .speak(`I couldn't find a list called ${listName}.`)
+                .speak(`I couldn't find a list called ${listName}. To remove an item, say 'remove' followed by the item name.`)
                 .reprompt("Which list would you like to delete?")
                 .getResponse();
         }
@@ -746,6 +959,7 @@ const RestoreListIntentHandler = {
 
 /**
  * Clear List Intent - "clear party list" (Remove all items)
+ * Asks for confirmation before clearing
  */
 const ClearListIntentHandler = {
     canHandle(handlerInput) {
@@ -755,11 +969,11 @@ const ClearListIntentHandler = {
     async handle(handlerInput) {
         const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
         const slots = handlerInput.requestEnvelope.request.intent.slots;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         let listName = slots.listName?.value;
 
         if (!listName) {
             // Use context
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             if (sessionAttributes.currentListName) {
                 listName = sessionAttributes.currentListName;
             } else {
@@ -778,12 +992,29 @@ const ClearListIntentHandler = {
                 .getResponse();
         }
 
-        const targetList = lists.find(l => l.name.toLowerCase().includes(listName.toLowerCase()));
+        // Clean the list name
+        const cleanName = listName.replace(/\s+list$/i, '').replace(/^(the|my)\s+/i, '').trim().toLowerCase();
+        const targetList = lists.find(l => l.name.toLowerCase().includes(cleanName));
 
         if (!targetList) {
             return handlerInput.responseBuilder
                 .speak(`I couldn't find a list called ${listName}.`)
                 .reprompt("Which list would you like to clear?")
+                .getResponse();
+        }
+
+        // Get item count to show what will be deleted
+        const { data: items } = await supabase
+            .from('shopping_list_items')
+            .select('id')
+            .eq('list_id', targetList.id);
+
+        const itemCount = items?.length || 0;
+
+        if (itemCount === 0) {
+            return handlerInput.responseBuilder
+                .speak(`The ${targetList.name} list is already empty.`)
+                .reprompt("What else would you like to do?")
                 .getResponse();
         }
 
@@ -801,7 +1032,7 @@ const ClearListIntentHandler = {
         }
 
         return handlerInput.responseBuilder
-            .speak(`I've cleared all items from the ${targetList.name} list.`)
+            .speak(`Done. I've cleared ${itemCount} item${itemCount !== 1 ? 's' : ''} from the ${targetList.name} list.`)
             .reprompt("What would you like to add instead?")
             .getResponse();
     }
@@ -850,7 +1081,7 @@ const DoneIntentHandler = {
 };
 
 /**
- * Help Intent
+ * Help Intent - Comprehensive examples
  */
 const HelpIntentHandler = {
     canHandle(handlerInput) {
@@ -858,9 +1089,97 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
+        const helpMessage = `Here's what you can do with Luna Cart. ` +
+            `To add items, say a quantity then the item, like 'two apples' or 'add milk'. ` +
+            `To manage lists, try 'create a list called grocery', 'open tester', or 'what lists do I have'. ` +
+            `To hear your list, say 'read me the list' or 'what's on my list'. ` +
+            `You can also say 'clear the list', 'delete tester', or 'what is the share code for tester'. ` +
+            `What would you like to do?`;
+
         return handlerInput.responseBuilder
-            .speak("You can say things like: add milk to my list, create a list called party, open my grocery list, or delete my party list. What would you like to do?")
-            .reprompt("Try saying 'add eggs to my list'.")
+            .speak(helpMessage)
+            .reprompt("Try saying 'open' followed by a list name, or 'two apples' to add an item.")
+            .getResponse();
+    }
+};
+
+/**
+ * Fallback Intent - Catches unrecognized phrases
+ * If user has an active list context, treat the raw utterance as an item to add
+ */
+const FallbackIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
+    },
+    async handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+        // If we have an active list context, treat the raw utterance as an item to add
+        if (sessionAttributes.currentListId) {
+            const alexaUserId = handlerInput.requestEnvelope.session.user.userId;
+
+            // Get the raw input transcript - this is what the user actually said
+            const request = handlerInput.requestEnvelope.request;
+            let rawUtterance = null;
+
+            // Try to get from request.intent.slots first (may have a catch-all)
+            // If not available, try the input transcript from the request
+            if (request.intent && request.intent.slots) {
+                // Check for any slot with a value
+                for (const slotName of Object.keys(request.intent.slots)) {
+                    if (request.intent.slots[slotName].value) {
+                        rawUtterance = request.intent.slots[slotName].value;
+                        break;
+                    }
+                }
+            }
+
+            // FallbackIntent typically doesn't have slots, so we may not get the utterance
+            // In that case, we need to prompt the user
+            if (!rawUtterance) {
+                return handlerInput.responseBuilder
+                    .speak(`I didn't catch that. Please say 'add' followed by the item, or a quantity then the item. For example, 'add apple juice' or 'two lemons'.`)
+                    .reprompt("Say 'add' then the item, or a quantity and item.")
+                    .getResponse();
+            }
+
+            // Add the raw utterance as an item - let the app's parser handle it
+            const { error } = await supabase
+                .from('shopping_list_items')
+                .insert({
+                    list_id: sessionAttributes.currentListId,
+                    item_name: rawUtterance,
+                    category: 'Other',
+                    quantity: 1,
+                    added_by: 'Alexa',
+                    added_at: new Date().toISOString()
+                });
+
+            if (error) {
+                console.error('Failed to add item:', rawUtterance, error);
+                return handlerInput.responseBuilder
+                    .speak(`Sorry, I couldn't add that item. Please try again.`)
+                    .reprompt("What item would you like to add?")
+                    .getResponse();
+            }
+
+            // Update last_used_at
+            await supabase
+                .from('alexa_sync_codes')
+                .update({ last_used_at: new Date().toISOString() })
+                .eq('alexa_user_id', alexaUserId);
+
+            return handlerInput.responseBuilder
+                .speak(`Added ${rawUtterance}. What's next?`)
+                .reprompt("What else would you like to add?")
+                .getResponse();
+        }
+
+        // No active list context - provide general help
+        return handlerInput.responseBuilder
+            .speak("I'm not sure what you want to do. You can say things like 'create a list called grocery', 'open my grocery list', or 'add milk to my list'.")
+            .reprompt("What would you like to do?")
             .getResponse();
     }
 };
@@ -913,12 +1232,15 @@ const ErrorHandler = {
 // Skill Builder
 // ==============================================
 
-exports.handler = Alexa.SkillBuilders.custom()
+// Build the skill instance
+const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         LinkAccountIntentHandler,
         CreateListIntentHandler,
         AddItemIntentHandler,
+        RemoveItemIntentHandler,
+        ModifyItemIntentHandler,
         ReadListIntentHandler,
         OpenListIntentHandler,
         GetShareCodeIntentHandler,
@@ -928,8 +1250,15 @@ exports.handler = Alexa.SkillBuilders.custom()
         ListListsIntentHandler,
         DoneIntentHandler,
         HelpIntentHandler,
+        FallbackIntentHandler,
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler
     )
     .addErrorHandlers(ErrorHandler)
-    .lambda();
+    .create();
+
+// Async handler wrapper for Node.js 24+ compatibility
+// (Lambda no longer supports callback-style handlers)
+exports.handler = async (event, context) => {
+    return skill.invoke(event, context);
+};
